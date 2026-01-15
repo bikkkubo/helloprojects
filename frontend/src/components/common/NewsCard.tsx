@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import BookmarkButton from "./BookmarkButton";
+import { useBookmarks } from "@/hooks/useBookmarks";
 
 interface NewsCardProps {
   id: string;
@@ -9,6 +13,7 @@ interface NewsCardProps {
   category: string;
   publishedAt: string;
   groupNames?: string[];
+  showBookmark?: boolean;
 }
 
 export default function NewsCard({
@@ -19,7 +24,19 @@ export default function NewsCard({
   category,
   publishedAt,
   groupNames,
+  showBookmark = true,
 }: NewsCardProps) {
+  const { isBookmarked, toggle } = useBookmarks();
+
+  const handleBookmarkToggle = () => {
+    toggle({
+      id,
+      category: "news",
+      title,
+      subtitle: groupNames?.join(", "),
+      imageUrl: thumbnailUrl,
+    });
+  };
   // カテゴリに応じた色を返す
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -98,6 +115,17 @@ export default function NewsCard({
               {getCategoryLabel(category)}
             </span>
           </div>
+
+          {/* ブックマークボタン */}
+          {showBookmark && (
+            <div className="absolute top-3 right-3">
+              <BookmarkButton
+                isBookmarked={isBookmarked(id, "news")}
+                onToggle={handleBookmarkToggle}
+                size="sm"
+              />
+            </div>
+          )}
         </div>
 
         {/* コンテンツエリア */}

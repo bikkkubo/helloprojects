@@ -17,3 +17,6 @@ export type {
   UseSearchReturn,
   UsePaginationReturn,
 } from './useApi';
+
+export { useBookmarks } from './useBookmarks';
+export type { BookmarkCategory, BookmarkItem } from './useBookmarks';

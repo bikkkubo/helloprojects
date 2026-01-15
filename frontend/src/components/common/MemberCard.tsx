@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import BookmarkButton from "./BookmarkButton";
+import { useBookmarks } from "@/hooks/useBookmarks";
 
 interface MemberCardProps {
   id: string;
@@ -9,6 +13,7 @@ interface MemberCardProps {
   groupName: string;
   nickname?: string;
   birthDate?: string;
+  showBookmark?: boolean;
 }
 
 export default function MemberCard({
@@ -19,7 +24,19 @@ export default function MemberCard({
   groupName,
   nickname,
   birthDate,
+  showBookmark = true,
 }: MemberCardProps) {
+  const { isBookmarked, toggle } = useBookmarks();
+
+  const handleBookmarkToggle = () => {
+    toggle({
+      id,
+      category: "member",
+      title: name,
+      subtitle: groupName,
+      imageUrl,
+    });
+  };
   // 年齢計算
   const calculateAge = (birthDate: string) => {
     const today = new Date();
@@ -66,10 +83,21 @@ export default function MemberCard({
 
           {/* ニックネームバッジ */}
           {nickname && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 left-3">
               <span className="bg-primary-pink text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
                 {nickname}
               </span>
+            </div>
+          )}
+
+          {/* ブックマークボタン */}
+          {showBookmark && (
+            <div className="absolute top-3 right-3">
+              <BookmarkButton
+                isBookmarked={isBookmarked(id, "member")}
+                onToggle={handleBookmarkToggle}
+                size="sm"
+              />
             </div>
           )}
         </div>

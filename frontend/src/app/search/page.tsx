@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -358,7 +358,7 @@ const getEventCategoryLabel = (category: string): string => {
   }
 };
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -1431,5 +1431,41 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function SearchPageLoading() {
+  return (
+    <div className="min-h-screen bg-neutral-bg">
+      <div className="bg-white border-b border-neutral-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <nav className="flex items-center text-sm text-gray-500">
+            <span>ホーム</span>
+            <span className="mx-2">/</span>
+            <span>検索</span>
+          </nav>
+        </div>
+      </div>
+      <div className="bg-gradient-to-r from-primary to-primary-dark py-12 md:py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="h-10 bg-white/20 rounded-lg animate-pulse w-32 mx-auto mb-4" />
+          <div className="h-6 bg-white/10 rounded-lg animate-pulse w-64 mx-auto" />
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchPageLoading />}>
+      <SearchPageContent />
+    </Suspense>
   );
 }

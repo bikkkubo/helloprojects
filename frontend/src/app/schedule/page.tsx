@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/common/Button";
@@ -356,7 +356,7 @@ export default function SchedulePage() {
   const renderCalendarCells = () => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-    const cells: JSX.Element[] = [];
+    const cells: React.ReactElement[] = [];
 
     // 空のセル（月初の前）
     for (let i = 0; i < firstDay; i++) {

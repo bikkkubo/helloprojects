@@ -1,0 +1,55 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+@theme {
+  --color-primary: #FF1493;
+  --color-primary-light: #FF69B4;
+  --color-primary-dark: #C71585;
+  --color-primary-pink: #FF1493;
+
+  --color-secondary-blue: #00BFFF;
+  --color-secondary-yellow: #FFD700;
+  --color-secondary-green: #32CD32;
+  --color-secondary-violet: #9370DB;
+  --color-secondary-purple: #9370DB;
+  --color-secondary-orange: #FF8C00;
+
+  --color-neutral-bg: #F5F5F5;
+  --color-neutral-text: #333333;
+  --color-neutral-border: #CCCCCC;
+
+  --font-family-sans: 'Noto Sans JP', sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  body {
+    @apply bg-white text-neutral-text;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-lg font-medium
+           hover:bg-primary-dark transition-colors duration-300
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border-2 border-primary px-6 py-3 rounded-lg font-medium
+           hover:bg-primary hover:text-white transition-colors duration-300
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-lg
+           transition-all duration-300 hover:-translate-y-1;
+  }
+
+  .section-title {
+    @apply text-2xl md:text-3xl font-bold text-neutral-text;
+  }
+}

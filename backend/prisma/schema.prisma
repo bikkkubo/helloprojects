@@ -1,0 +1,266 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// グループ情報
+model Group {
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(100)
+  nameKana         String?  @map("name_kana") @db.VarChar(200)
+  nameEn           String?  @map("name_en") @db.VarChar(200)
+  slug             String   @unique @db.VarChar(100)
+  description      String?  @db.Text
+  foundedDate      DateTime? @map("founded_date") @db.Date
+  disbandedDate    DateTime? @map("disbanded_date") @db.Date
+  status           String   @default("active") @db.VarChar(20)
+  officialSiteUrl  String?  @map("official_site_url") @db.VarChar(500)
+  officialBlogUrl  String?  @map("official_blog_url") @db.VarChar(500)
+  twitterUrl       String?  @map("twitter_url") @db.VarChar(500)
+  instagramUrl     String?  @map("instagram_url") @db.VarChar(500)
+  youtubeUrl       String?  @map("youtube_url") @db.VarChar(500)
+  imageUrl         String?  @map("image_url") @db.VarChar(500)
+  colorCode        String?  @map("color_code") @db.VarChar(7)
+  displayOrder     Int      @default(0) @map("display_order")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  memberGroupHistory MemberGroupHistory[]
+  newsGroups         NewsGroup[]
+  eventGroups        EventGroup[]
+  discographies      Discography[]
+
+  @@index([status])
+  @@index([displayOrder])
+  @@index([foundedDate])
+  @@map("groups")
+}
+
+// メンバー情報
+model Member {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(100)
+  nameKana        String?  @map("name_kana") @db.VarChar(200)
+  nameEn          String?  @map("name_en") @db.VarChar(200)
+  slug            String   @unique @db.VarChar(100)
+  nickname        String?  @db.VarChar(100)
+  birthDate       DateTime? @map("birth_date") @db.Date
+  bloodType       String?  @map("blood_type") @db.VarChar(5)
+  hometown        String?  @db.VarChar(100)
+  height          Decimal? @db.Decimal(5, 2)
+  hobbies         String?  @db.Text
+  specialSkills   String?  @map("special_skills") @db.Text
+  biography       String?  @db.Text
+  joinDate        DateTime? @map("join_date") @db.Date
+  graduationDate  DateTime? @map("graduation_date") @db.Date
+  status          String   @default("active") @db.VarChar(20)
+  profileImageUrl String?  @map("profile_image_url") @db.VarChar(500)
+  officialBlogUrl String?  @map("official_blog_url") @db.VarChar(500)
+  twitterUrl      String?  @map("twitter_url") @db.VarChar(500)
+  instagramUrl    String?  @map("instagram_url") @db.VarChar(500)
+  memberColor     String?  @map("member_color") @db.VarChar(7)
+  displayOrder    Int      @default(0) @map("display_order")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  memberGroupHistory MemberGroupHistory[]
+  newsMembers        NewsMember[]
+  eventMembers       EventMember[]
+
+  @@index([status])
+  @@index([nameKana])
+  @@index([joinDate])
+  @@index([birthDate])
+  @@map("members")
+}
+
+// メンバーのグループ所属履歴
+model MemberGroupHistory {
+  id        Int      @id @default(autoincrement())
+  memberId  Int      @map("member_id")
+  groupId   Int      @map("group_id")
+  joinDate  DateTime @map("join_date") @db.Date
+  leaveDate DateTime? @map("leave_date") @db.Date
+  position  String?  @db.VarChar(100)
+  isCurrent Boolean  @default(true) @map("is_current")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, groupId, joinDate])
+  @@index([memberId])
+  @@index([groupId])
+  @@index([isCurrent])
+  @@index([joinDate])
+  @@map("member_group_history")
+}
+
+// ニュース記事
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(500)
+  slug        String   @unique @db.VarChar(200)
+  content     String   @db.Text
+  excerpt     String?  @db.VarChar(500)
+  category    String   @db.VarChar(50)
+  thumbnailUrl String? @map("thumbnail_url") @db.VarChar(500)
+  sourceUrl   String?  @map("source_url") @db.VarChar(500)
+  publishedAt DateTime @map("published_at") @db.Timestamp(6)
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  viewCount   Int      @default(0) @map("view_count")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  newsGroups  NewsGroup[]
+  newsMembers NewsMember[]
+
+  @@index([category])
+  @@index([publishedAt(sort: Desc)])
+  @@index([isFeatured])
+  @@index([createdAt(sort: Desc)])
+  @@map("news")
+}
+
+// ニュースとグループの関連
+model NewsGroup {
+  id        Int      @id @default(autoincrement())
+  newsId    Int      @map("news_id")
+  groupId   Int      @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  news  News  @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, groupId])
+  @@index([newsId])
+  @@index([groupId])
+  @@map("news_groups")
+}
+
+// ニュースとメンバーの関連
+model NewsMember {
+  id        Int      @id @default(autoincrement())
+  newsId    Int      @map("news_id")
+  memberId  Int      @map("member_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([newsId, memberId])
+  @@index([newsId])
+  @@index([memberId])
+  @@map("news_members")
+}
+
+// イベント・スケジュール
+model Event {
+  id            Int      @id @default(autoincrement())
+  title         String   @db.VarChar(500)
+  slug          String   @unique @db.VarChar(200)
+  description   String?  @db.Text
+  eventType     String   @map("event_type") @db.VarChar(50)
+  startDatetime DateTime @map("start_datetime") @db.Timestamp(6)
+  endDatetime   DateTime? @map("end_datetime") @db.Timestamp(6)
+  venueName     String?  @map("venue_name") @db.VarChar(200)
+  venueAddress  String?  @map("venue_address") @db.VarChar(500)
+  venueLat      Decimal? @map("venue_lat") @db.Decimal(10, 8)
+  venueLng      Decimal? @map("venue_lng") @db.Decimal(11, 8)
+  ticketUrl     String?  @map("ticket_url") @db.VarChar(500)
+  ticketPrice   String?  @map("ticket_price") @db.VarChar(200)
+  sourceUrl     String?  @map("source_url") @db.VarChar(500)
+  isCancelled   Boolean  @default(false) @map("is_cancelled")
+  thumbnailUrl  String?  @map("thumbnail_url") @db.VarChar(500)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  eventGroups  EventGroup[]
+  eventMembers EventMember[]
+
+  @@index([eventType])
+  @@index([startDatetime])
+  @@index([endDatetime])
+  @@index([isCancelled])
+  @@map("events")
+}
+
+// イベントとグループの関連
+model EventGroup {
+  id        Int      @id @default(autoincrement())
+  eventId   Int      @map("event_id")
+  groupId   Int      @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, groupId])
+  @@index([eventId])
+  @@index([groupId])
+  @@map("event_groups")
+}
+
+// イベントとメンバーの関連
+model EventMember {
+  id        Int      @id @default(autoincrement())
+  eventId   Int      @map("event_id")
+  memberId  Int      @map("member_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  // Relations
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, memberId])
+  @@index([eventId])
+  @@index([memberId])
+  @@map("event_members")
+}
+
+// ディスコグラフィー
+model Discography {
+  id             Int      @id @default(autoincrement())
+  groupId        Int      @map("group_id")
+  title          String   @db.VarChar(500)
+  titleKana      String?  @map("title_kana") @db.VarChar(500)
+  slug           String   @unique @db.VarChar(200)
+  releaseType    String   @map("release_type") @db.VarChar(50)
+  releaseDate    DateTime @map("release_date") @db.Date
+  catalogNumber  String?  @map("catalog_number") @db.VarChar(100)
+  label          String?  @db.VarChar(100)
+  trackCount     Int?     @map("track_count")
+  description    String?  @db.Text
+  coverImageUrl  String?  @map("cover_image_url") @db.VarChar(500)
+  amazonUrl      String?  @map("amazon_url") @db.VarChar(500)
+  officialUrl    String?  @map("official_url") @db.VarChar(500)
+  oriconRank     Int?     @map("oricon_rank")
+  displayOrder   Int      @default(0) @map("display_order")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  // Relations
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([releaseType])
+  @@index([releaseDate(sort: Desc)])
+  @@index([displayOrder])
+  @@map("discographies")
+}

@@ -19,6 +19,28 @@
   --color-neutral-border: #CCCCCC;
 
   --font-family-sans: 'Noto Sans JP', sans-serif;
+
+  /* グループカラー CSS変数 */
+  --group-morning-musume: #FF1493;
+  --group-angerme: #9370DB;
+  --group-juice-juice: #FFD700;
+  --group-tsubaki-factory: #FF6B6B;
+  --group-beyooooonds: #00CED1;
+  --group-ocha-norma: #98FB98;
+  --group-rosy-chronicle: #FFB6C1;
+  --group-hello-project: #FF1493;
+  --group-country-girls: #32CD32;
+  --group-kobushi-factory: #FF8C00;
+
+  /* 締切バッジカラー */
+  --deadline-critical: #EF4444;
+  --deadline-warning: #F97316;
+  --deadline-caution: #FACC15;
+  --deadline-normal: #E5E7EB;
+  --deadline-expired: #9CA3AF;
+
+  /* アニメーション設定 */
+  --animate-deadline-pulse: deadline-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @layer base {
@@ -51,5 +73,82 @@
 
   .section-title {
     @apply text-2xl md:text-3xl font-bold text-neutral-text;
+  }
+
+  /* 締切パルスアニメーション */
+  .animate-deadline-pulse {
+    animation: deadline-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* グループタグ共通スタイル */
+  .group-tag {
+    @apply inline-flex items-center rounded-full font-medium transition-all duration-200;
+  }
+
+  .group-tag-clickable {
+    @apply cursor-pointer hover:opacity-80 hover:scale-105 active:scale-95;
+  }
+}
+
+/* 締切パルスアニメーション キーフレーム */
+@keyframes deadline-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+/* グループカラーユーティリティクラス */
+@layer utilities {
+  .group-color-morning-musume {
+    --group-color: var(--group-morning-musume);
+  }
+  .group-color-angerme {
+    --group-color: var(--group-angerme);
+  }
+  .group-color-juice-juice {
+    --group-color: var(--group-juice-juice);
+  }
+  .group-color-tsubaki-factory {
+    --group-color: var(--group-tsubaki-factory);
+  }
+  .group-color-beyooooonds {
+    --group-color: var(--group-beyooooonds);
+  }
+  .group-color-ocha-norma {
+    --group-color: var(--group-ocha-norma);
+  }
+  .group-color-rosy-chronicle {
+    --group-color: var(--group-rosy-chronicle);
+  }
+  .group-color-hello-project {
+    --group-color: var(--group-hello-project);
+  }
+  .group-color-country-girls {
+    --group-color: var(--group-country-girls);
+  }
+  .group-color-kobushi-factory {
+    --group-color: var(--group-kobushi-factory);
+  }
+
+  /* グループカラーを背景色として適用 */
+  .bg-group-color {
+    background-color: var(--group-color);
+  }
+
+  /* グループカラーをテキスト色として適用 */
+  .text-group-color {
+    color: var(--group-color);
+  }
+
+  /* グループカラーをボーダー色として適用 */
+  .border-group-color {
+    border-color: var(--group-color);
   }
 }

@@ -6,6 +6,9 @@ import NewsCard from "@/components/common/NewsCard";
 import MemberCard from "@/components/common/MemberCard";
 import GroupCard from "@/components/common/GroupCard";
 import Button from "@/components/common/Button";
+import ImportantAnnouncements from "@/components/home/ImportantAnnouncements";
+import TodaySchedule from "@/components/home/TodaySchedule";
+import GroupNewsSection from "@/components/home/GroupNewsSection";
 
 // ========================================
 // ダミーデータ（後でAPI連携用に置き換え可能）
@@ -344,52 +347,19 @@ export default function Home() {
       </section>
 
       {/* ========================================
-          最新ニュースセクション
+          重要なお知らせセクション
           ======================================== */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            className="text-center mb-12"
-            {...fadeInUp}
-          >
-            <span className="inline-block text-primary font-semibold text-sm tracking-wider uppercase mb-2">
-              Latest News
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-neutral-text mb-4">
-              最新ニュース
-            </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-primary to-secondary-violet mx-auto rounded-full" />
-          </motion.div>
+      <ImportantAnnouncements />
 
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="whileInView"
-            viewport={{ once: true }}
-          >
-            {latestNews.map((news) => (
-              <motion.div key={news.id} variants={staggerItem}>
-                <NewsCard {...news} />
-              </motion.div>
-            ))}
-          </motion.div>
+      {/* ========================================
+          今日のハロプロ スケジュール
+          ======================================== */}
+      <TodaySchedule />
 
-          <motion.div
-            className="text-center mt-10"
-            {...fadeInUp}
-          >
-            <Link href="/news">
-              <Button variant="outline" size="lg">
-                ニュース一覧を見る
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* ========================================
+          グループ別最新ニュースセクション
+          ======================================== */}
+      <GroupNewsSection />
 
       {/* ========================================
           注目メンバーセクション

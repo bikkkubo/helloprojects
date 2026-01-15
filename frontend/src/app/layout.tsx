@@ -3,6 +3,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PersonalizationBar from "@/components/common/PersonalizationBar";
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="ja" className={notoSansJP.variable}>
       <body className="font-sans min-h-screen flex flex-col">
         <Header />
+        <PersonalizationBar />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

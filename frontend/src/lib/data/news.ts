@@ -55,14 +55,14 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>各公演の詳細スケジュールは順次公式サイトにて発表予定です。皆様のご来場をお待ちしております。</p>
     `,
-    thumbnailUrl: "/images/news/concert-01.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "concert",
     publishedAt: "2025-01-14",
     groupNames: ["モーニング娘。'25"],
     groupId: "morning-musume",
     relatedMembers: [
-      { id: "1", name: "山崎愛生", imageUrl: "/images/members/member1.jpg" },
-      { id: "2", name: "佐藤優樹", imageUrl: "/images/members/member2.jpg" },
+      { id: "1", name: "山崎愛生", imageUrl: "/images/members/placeholder.svg#1.jpg" },
+      { id: "2", name: "佐藤優樹", imageUrl: "/images/members/placeholder.svg#2.jpg" },
     ],
     relatedGroups: [{ id: "morning-musume", name: "モーニング娘。'25" }],
   },
@@ -89,13 +89,13 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>予約受付は2月1日より各音楽サイト・CDショップにて開始予定です。</p>
     `,
-    thumbnailUrl: "/images/news/release-01.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "release",
     publishedAt: "2025-01-13",
     groupNames: ["アンジュルム"],
     groupId: "angerme",
     relatedMembers: [
-      { id: "3", name: "川名凜", imageUrl: "/images/members/member3.jpg" },
+      { id: "3", name: "川名凜", imageUrl: "/images/members/placeholder.svg#3.jpg" },
     ],
     relatedGroups: [{ id: "angerme", name: "アンジュルム" }],
   },
@@ -116,13 +116,13 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>ぜひお見逃しなく！</p>
     `,
-    thumbnailUrl: "/images/news/media-01.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "media",
     publishedAt: "2025-01-12",
     groupNames: ["Juice=Juice"],
     groupId: "juice-juice",
     relatedMembers: [
-      { id: "4", name: "入江里咲", imageUrl: "/images/members/member4.jpg" },
+      { id: "4", name: "入江里咲", imageUrl: "/images/members/placeholder.svg#4.jpg" },
     ],
     relatedGroups: [{ id: "juice-juice", name: "Juice=Juice" }],
   },
@@ -149,13 +149,13 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>チケットの詳細は後日発表いたします。</p>
     `,
-    thumbnailUrl: "/images/news/event-01.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "event",
     publishedAt: "2025-01-11",
     groupNames: ["つばきファクトリー"],
     groupId: "tsubaki-factory",
     relatedMembers: [
-      { id: "5", name: "清野桃々姫", imageUrl: "/images/members/member5.jpg" },
+      { id: "5", name: "清野桃々姫", imageUrl: "/images/members/placeholder.svg#5.jpg" },
     ],
     relatedGroups: [{ id: "tsubaki-factory", name: "つばきファクトリー" }],
   },
@@ -180,7 +180,7 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>詳細は順次公式SNSにて発表いたします。今後ともBEYOOOOONDSをよろしくお願いいたします！</p>
     `,
-    thumbnailUrl: "/images/news/other-01.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "other",
     publishedAt: "2025-01-10",
     groupNames: ["BEYOOOOONDS"],
@@ -208,7 +208,7 @@ export const NEWS_DETAIL_DATA: NewsDetail[] = [
 
       <p>チケット情報は後日発表予定です。</p>
     `,
-    thumbnailUrl: "/images/news/concert-02.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "concert",
     publishedAt: "2025-01-09",
     groupNames: ["OCHA NORMA"],
@@ -225,7 +225,7 @@ export const RELATED_NEWS: RelatedNews[] = [
     title: "ロージークロニクル デビューシングル発売記念イベント開催",
     excerpt:
       "ロージークロニクルのデビューシングル発売を記念して、全国各地でイベントが開催されます。",
-    thumbnailUrl: "/images/news/event-02.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "event",
     publishedAt: "2025-01-08",
     groupNames: ["ロージークロニクル"],
@@ -235,7 +235,7 @@ export const RELATED_NEWS: RelatedNews[] = [
     title: "ハロプロ合同 夏の大型フェス開催決定",
     excerpt:
       "ハロー!プロジェクト所属グループが一堂に会する夏の大型フェスの開催が決定しました。",
-    thumbnailUrl: "/images/news/concert-03.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "concert",
     publishedAt: "2025-01-07",
     groupNames: ["モーニング娘。'25", "アンジュルム", "Juice=Juice"],
@@ -245,7 +245,7 @@ export const RELATED_NEWS: RelatedNews[] = [
     title: "モーニング娘。'25 ドキュメンタリー映画公開決定",
     excerpt:
       "モーニング娘。'25の軌跡を追ったドキュメンタリー映画の公開が決定しました。",
-    thumbnailUrl: "/images/news/media-02.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "media",
     publishedAt: "2025-01-06",
     groupNames: ["モーニング娘。'25"],
@@ -255,7 +255,7 @@ export const RELATED_NEWS: RelatedNews[] = [
     title: "アンジュルム ベストアルバム発売のお知らせ",
     excerpt:
       "アンジュルムの結成10周年を記念したベストアルバムの発売が決定しました。",
-    thumbnailUrl: "/images/news/release-02.jpg",
+    thumbnailUrl: "/images/news/placeholder.svg",
     category: "release",
     publishedAt: "2025-01-05",
     groupNames: ["アンジュルム"],

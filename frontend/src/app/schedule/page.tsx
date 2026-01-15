@@ -864,34 +864,37 @@ export default function SchedulePage() {
   // 週間カレンダーのレンダリング
   const renderWeeklyCalendar = () => {
     return (
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        {/* 曜日ヘッダー */}
-        <div className="grid grid-cols-8 border-b border-gray-200">
-          <div className="p-2 bg-gray-50 text-center text-sm font-medium text-gray-500">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+        {/* 曜日ヘッダー - 固定 */}
+        <div className="grid grid-cols-8 border-b-2 border-gray-200 sticky top-0 z-20 bg-white">
+          <div className="p-3 bg-gradient-to-b from-gray-50 to-gray-100 text-center text-sm font-bold text-gray-500 border-r border-gray-200">
             時間
           </div>
           {weekDates.map((date, index) => {
             const isToday = formatDateString(date) === "2025-01-15"; // デモ用
             const isSunday = index === 0;
             const isSaturday = index === 6;
+            const dayEvents = getEventsForDate(formatDateString(date));
             return (
               <div
                 key={index}
-                className={`p-2 text-center border-l border-gray-200 ${
-                  isToday ? "bg-primary/10" : "bg-gray-50"
+                className={`p-3 text-center border-l border-gray-200 relative ${
+                  isToday
+                    ? "bg-gradient-to-b from-primary/10 to-primary/5"
+                    : "bg-gradient-to-b from-gray-50 to-white"
                 }`}
               >
                 <div
-                  className={`text-xs font-medium ${
-                    isSunday ? "text-red-500" : isSaturday ? "text-blue-500" : "text-gray-500"
+                  className={`text-xs font-bold uppercase tracking-wide ${
+                    isSunday ? "text-red-500" : isSaturday ? "text-blue-500" : "text-gray-400"
                   }`}
                 >
                   {WEEKDAYS[index]}
                 </div>
                 <div
-                  className={`text-lg font-bold ${
+                  className={`text-xl font-bold mt-1 ${
                     isToday
-                      ? "bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto"
+                      ? "bg-primary text-white rounded-full w-9 h-9 flex items-center justify-center mx-auto shadow-md"
                       : isSunday
                         ? "text-red-500"
                         : isSaturday
@@ -901,63 +904,89 @@ export default function SchedulePage() {
                 >
                   {date.getDate()}
                 </div>
+                {/* イベント件数バッジ */}
+                {dayEvents.length > 0 && (
+                  <div className="absolute top-1 right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {dayEvents.length}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* 時間軸とイベント */}
-        <div className="relative" style={{ height: "840px" }}>
-          {/* 時間グリッド */}
-          <div className="absolute inset-0 grid grid-cols-8">
-            <div className="border-r border-gray-200">
+        {/* 時間軸とイベント - スクロール可能 */}
+        <div className="relative overflow-auto" style={{ height: "600px" }}>
+          <div className="absolute inset-0 grid grid-cols-8 min-h-full">
+            {/* 時間列 */}
+            <div className="border-r border-gray-200 bg-gray-50/50 sticky left-0 z-10">
               {TIME_SLOTS.map((slot, index) => (
                 <div
                   key={index}
-                  className="h-10 border-b border-gray-100 text-right pr-2 text-xs text-gray-400 flex items-center justify-end"
+                  className="h-12 border-b border-gray-100 text-right pr-3 text-xs text-gray-500 flex items-start justify-end pt-1 font-medium"
                 >
                   {slot.label}
                 </div>
               ))}
             </div>
+            {/* 各曜日の列 */}
             {weekDates.map((date, dayIndex) => {
               const dateStr = formatDateString(date);
               const dayEvents = getEventsForDate(dateStr).filter(e => e.startTime);
+              const isToday = dateStr === "2025-01-15";
 
               return (
-                <div key={dayIndex} className="relative border-l border-gray-200">
+                <div
+                  key={dayIndex}
+                  className={`relative border-l border-gray-200 ${isToday ? "bg-primary/5" : ""}`}
+                >
                   {/* 時間グリッド線 */}
                   {TIME_SLOTS.map((_, index) => (
-                    <div key={index} className="h-10 border-b border-gray-100" />
+                    <div
+                      key={index}
+                      className={`h-12 border-b border-gray-100 ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                      }`}
+                    />
                   ))}
+
+                  {/* 現在時刻ライン（今日の場合） */}
+                  {isToday && (
+                    <div
+                      className="absolute left-0 right-0 border-t-2 border-red-500 z-10"
+                      style={{ top: `${((14 - 6) * 60 + 30) / 60 * 48}px` }}
+                    >
+                      <div className="absolute -left-1 -top-1.5 w-3 h-3 bg-red-500 rounded-full" />
+                    </div>
+                  )}
 
                   {/* イベント */}
                   {dayEvents.map((event) => {
                     if (!event.startTime) return null;
-                    const top = getTimePosition(event.startTime) / 60 * 40; // 1時間 = 40px
-                    const height = getEventHeight(event.startTime, event.endTime) / 60 * 40;
+                    const top = getTimePosition(event.startTime) / 60 * 48;
+                    const height = getEventHeight(event.startTime, event.endTime) / 60 * 48;
                     const groupColor = getGroupColor(event.groupId);
 
                     return (
                       <motion.div
                         key={event.id}
-                        className="absolute left-0.5 right-0.5 rounded-md px-1 py-0.5 cursor-pointer overflow-hidden text-xs"
+                        className="absolute left-1 right-1 rounded-lg px-2 py-1 cursor-pointer overflow-hidden text-xs shadow-sm hover:shadow-md transition-shadow"
                         style={{
                           top: `${top}px`,
-                          height: `${Math.max(height, 24)}px`,
-                          backgroundColor: `${groupColor}20`,
-                          borderLeft: `3px solid ${groupColor}`,
+                          height: `${Math.max(height, 28)}px`,
+                          background: `linear-gradient(135deg, ${groupColor}15 0%, ${groupColor}25 100%)`,
+                          borderLeft: `4px solid ${groupColor}`,
                         }}
                         onClick={() => handleEventClick(event)}
                         whileHover={{ scale: 1.02, zIndex: 10 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <div className="font-medium text-neutral-text truncate">
+                        <div className="font-bold text-neutral-text truncate leading-tight">
                           {event.title}
                         </div>
-                        {height >= 40 && (
-                          <div className="text-gray-500 truncate">
-                            {event.startTime}
+                        {height >= 48 && (
+                          <div className="text-gray-500 truncate text-[10px] mt-0.5">
+                            {event.startTime} - {event.venue || ""}
                           </div>
                         )}
                       </motion.div>
@@ -978,13 +1007,21 @@ export default function SchedulePage() {
     const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
     const cells: React.ReactElement[] = [];
 
-    // 空のセル（月初の前）
+    // 前月の日付を取得
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const daysInPrevMonth = getDaysInMonth(prevYear, prevMonth);
+
+    // 空のセル（月初の前）- 前月の日付を表示
     for (let i = 0; i < firstDay; i++) {
+      const prevDay = daysInPrevMonth - firstDay + i + 1;
       cells.push(
         <div
-          key={`empty-${i}`}
-          className="h-24 md:h-28 bg-gray-50 border border-gray-100"
-        />
+          key={`prev-${i}`}
+          className="h-28 md:h-32 bg-gray-50/50 border border-gray-100 p-2"
+        >
+          <span className="text-sm text-gray-300 font-medium">{prevDay}</span>
+        </div>
       );
     }
 
@@ -1001,65 +1038,102 @@ export default function SchedulePage() {
       cells.push(
         <motion.div
           key={day}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.01, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+          whileTap={{ scale: 0.99 }}
           onClick={() => handleDateClick(dateStr)}
-          className={`h-24 md:h-28 border border-gray-100 p-1.5 cursor-pointer transition-colors relative ${
+          className={`h-28 md:h-32 border p-2 cursor-pointer transition-all relative group ${
             isToday
-              ? "bg-primary/5 border-primary"
+              ? "bg-gradient-to-br from-primary/10 to-primary/5 border-primary shadow-sm"
               : hasEvents
-                ? "bg-white hover:bg-gray-50"
-                : "bg-white hover:bg-gray-50"
+                ? "bg-white hover:bg-gray-50/50 border-gray-200"
+                : "bg-white hover:bg-gray-50/30 border-gray-100"
           }`}
         >
-          <div className="flex items-start justify-between">
-            <span
-              className={`text-sm font-medium ${
-                isSunday
-                  ? "text-red-500"
-                  : isSaturday
-                    ? "text-blue-500"
-                    : "text-neutral-text"
-              } ${
-                isToday
-                  ? "bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                  : ""
-              }`}
-            >
-              {day}
-            </span>
+          {/* 日付ヘッダー */}
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1">
+              <span
+                className={`text-sm font-bold transition-all ${
+                  isToday
+                    ? "bg-primary text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md"
+                    : isSunday
+                      ? "text-red-500"
+                      : isSaturday
+                        ? "text-blue-500"
+                        : "text-neutral-text"
+                }`}
+              >
+                {day}
+              </span>
+              {isToday && (
+                <span className="text-[10px] text-primary font-bold ml-1">TODAY</span>
+              )}
+            </div>
 
             {/* イベント数バッジ */}
             {hasEvents && (
-              <span className="bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="bg-gradient-to-r from-primary to-primary-dark text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center shadow-sm"
+              >
                 {dayEvents.length}
-              </span>
+              </motion.span>
             )}
           </div>
 
-          {/* イベントプレビュー（グループカラーでマーキング） */}
-          <div className="mt-1 space-y-0.5 overflow-hidden">
-            {dayEvents.slice(0, 3).map((event) => (
-              <div
-                key={event.id}
-                className="text-xs truncate px-1 py-0.5 rounded"
-                style={{
-                  backgroundColor: `${getGroupColor(event.groupId)}20`,
-                  borderLeft: `2px solid ${getGroupColor(event.groupId)}`,
-                }}
-              >
-                <span className="text-neutral-text font-medium">
-                  {event.title}
-                </span>
-              </div>
-            ))}
-            {dayEvents.length > 3 && (
-              <div className="text-xs text-gray-400 px-1">
-                +{dayEvents.length - 3}件
+          {/* イベントプレビュー */}
+          <div className="space-y-1 overflow-hidden">
+            {dayEvents.slice(0, 2).map((event) => {
+              const groupColor = getGroupColor(event.groupId);
+              return (
+                <motion.div
+                  key={event.id}
+                  className="text-xs truncate px-1.5 py-1 rounded-md transition-all group-hover:shadow-sm"
+                  style={{
+                    background: `linear-gradient(90deg, ${groupColor}20 0%, ${groupColor}10 100%)`,
+                    borderLeft: `3px solid ${groupColor}`,
+                  }}
+                  whileHover={{ x: 2 }}
+                >
+                  <span className="text-neutral-text font-medium leading-tight block truncate">
+                    {event.startTime && (
+                      <span className="text-gray-400 mr-1">{event.startTime.slice(0, 5)}</span>
+                    )}
+                    {event.title}
+                  </span>
+                </motion.div>
+              );
+            })}
+            {dayEvents.length > 2 && (
+              <div className="text-[10px] text-primary font-bold px-1.5 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                他{dayEvents.length - 2}件
               </div>
             )}
           </div>
+
+          {/* ホバー時のアクションヒント */}
+          <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-[10px] text-gray-400">クリックで詳細</span>
+          </div>
         </motion.div>
+      );
+    }
+
+    // 次月の日付を追加（6行になるように）
+    const totalCells = cells.length;
+    const remainingCells = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= remainingCells; i++) {
+      cells.push(
+        <div
+          key={`next-${i}`}
+          className="h-28 md:h-32 bg-gray-50/50 border border-gray-100 p-2"
+        >
+          <span className="text-sm text-gray-300 font-medium">{i}</span>
+        </div>
       );
     }
 
@@ -1335,28 +1409,63 @@ export default function SchedulePage() {
               transition={{ duration: 0.3 }}
             >
               {/* 月間カレンダービュー */}
-              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
                 {/* 曜日ヘッダー */}
-                <div className="grid grid-cols-7">
+                <div className="grid grid-cols-7 bg-gradient-to-r from-gray-50 to-gray-100">
                   {WEEKDAYS.map((day, index) => (
                     <div
                       key={day}
-                      className={`py-3 text-center text-sm font-bold border-b border-gray-200 ${
+                      className={`py-4 text-center text-sm font-bold border-b-2 border-gray-200 ${
                         index === 0
-                          ? "text-red-500 bg-red-50"
+                          ? "text-red-500 bg-red-50/50"
                           : index === 6
-                            ? "text-blue-500 bg-blue-50"
-                            : "text-neutral-text bg-gray-50"
+                            ? "text-blue-500 bg-blue-50/50"
+                            : "text-gray-600"
                       }`}
                     >
-                      {day}
+                      <span className="uppercase tracking-wider">{day}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* カレンダーグリッド */}
-                <div className="grid grid-cols-7">{renderCalendarCells()}</div>
+                <div className="grid grid-cols-7 gap-px bg-gray-200">
+                  {renderCalendarCells()}
+                </div>
               </div>
+
+              {/* カテゴリ別サマリー */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
+              >
+                {CATEGORIES.filter(c => c.id !== "all").map((category) => {
+                  const count = currentMonthEvents.filter(e => e.category === category.id).length;
+                  return (
+                    <motion.div
+                      key={category.id}
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-white rounded-xl p-4 shadow-md border border-gray-100 cursor-pointer"
+                      onClick={() => handleCategoryChange(category.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md"
+                          style={{ backgroundColor: category.color }}
+                        >
+                          <span className="text-lg font-bold">{count}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-neutral-text">{category.label}</p>
+                          <p className="text-xs text-gray-400">今月のイベント</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
             </motion.div>
           ) : viewType === "week" ? (
             <motion.div

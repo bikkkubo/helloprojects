@@ -1,0 +1,10 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF1493"/>
+      <stop offset="100%" stop-color="#C71585"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="url(#iconGrad)"/>
+  <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="170" font-family="Arial, sans-serif" font-weight="bold">H!</text>
+</svg>

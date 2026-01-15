@@ -14,6 +14,7 @@ interface MemberCardProps {
   nickname?: string;
   birthDate?: string;
   showBookmark?: boolean;
+  memberColor?: string; // メンバーカラー
 }
 
 export default function MemberCard({
@@ -25,6 +26,7 @@ export default function MemberCard({
   nickname,
   birthDate,
   showBookmark = true,
+  memberColor,
 }: MemberCardProps) {
   const { isBookmarked, toggle } = useBookmarks();
 
@@ -84,7 +86,16 @@ export default function MemberCard({
           {/* ニックネームバッジ */}
           {nickname && (
             <div className="absolute top-3 left-3">
-              <span className="bg-primary-pink text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              <span
+                className="text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg"
+                style={{
+                  backgroundColor: memberColor || "#FF69B4",
+                  // ホワイトの場合は文字を黒に
+                  color: memberColor === "#FFFFFF" ? "#333" : "white",
+                  // ホワイトの場合はボーダーを追加
+                  border: memberColor === "#FFFFFF" ? "1px solid #ddd" : "none",
+                }}
+              >
                 {nickname}
               </span>
             </div>
@@ -105,13 +116,36 @@ export default function MemberCard({
         {/* 情報エリア */}
         <div className="p-4">
           {/* グループ名 */}
-          <p className="text-xs text-primary-pink font-semibold mb-2 uppercase tracking-wide">
+          <p
+            className="text-xs font-semibold mb-2 uppercase tracking-wide"
+            style={{ color: memberColor || "#FF69B4" }}
+          >
             {groupName}
           </p>
 
           {/* メンバー名 */}
-          <h3 className="text-lg font-bold text-neutral-text mb-1 group-hover:text-primary-pink transition-colors">
-            {name}
+          <h3
+            className="text-lg font-bold text-neutral-text mb-1 transition-colors flex items-center gap-2"
+            style={{
+              // ホバー時のカラーはCSSで制御するためここでは設定しない
+            }}
+          >
+            {/* メンバーカラーのアクセントドット */}
+            {memberColor && (
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ backgroundColor: memberColor }}
+              />
+            )}
+            <span
+              className="group-hover:opacity-100"
+              style={{
+                // @ts-expect-error CSS custom property
+                "--member-color": memberColor || "#FF69B4",
+              }}
+            >
+              {name}
+            </span>
           </h3>
 
           {/* ふりがな */}
@@ -148,7 +182,12 @@ export default function MemberCard({
         </div>
 
         {/* アニメーションアクセント */}
-        <div className="h-1 bg-gradient-to-r from-primary-pink via-secondary-purple to-primary-pink transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+        <div
+          className="h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
+          style={{
+            backgroundColor: memberColor || "#FF69B4",
+          }}
+        />
       </div>
     </Link>
   );

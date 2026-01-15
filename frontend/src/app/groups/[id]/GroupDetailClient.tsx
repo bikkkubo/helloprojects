@@ -7,6 +7,13 @@ import { motion } from "framer-motion";
 import MemberCard from "@/components/common/MemberCard";
 import NewsCard from "@/components/common/NewsCard";
 import Button from "@/components/common/Button";
+import {
+  EffectProvider,
+  JuiceJuiceEffect,
+  MorningMusumeEffect,
+  OchaNormaEffect,
+} from "@/components/effects";
+import { YouTubeBackground } from "@/components/effects/YouTubeBackground";
 
 // ========================================
 // 型定義
@@ -22,6 +29,7 @@ interface Member {
   joinDate: string;
   isGraduated?: boolean;
   graduationDate?: string;
+  memberColor?: string; // メンバーカラー
 }
 
 interface Discography {
@@ -54,6 +62,8 @@ interface GroupDetail {
   graduatedMembers: Member[];
   discography: Discography[];
   snsLinks: SNSLink[];
+  heroVideoId?: string;
+  heroVideoStartTime?: number;
 }
 
 interface RelatedNews {
@@ -77,6 +87,9 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
     themeColor: "#FF1493",
     status: "active",
     formedDate: "1997-09-14",
+    heroVideoId: "NXd92U6eNyE",
+    heroVideoStartTime: 4,
+    imageUrl: "/images/groups/morning-musume-group.jpg",
     description:
       "モーニング娘。は1997年に結成された、ハロー!プロジェクトの代表的なアイドルグループです。数々のヒット曲を世に送り出し、日本のアイドル史に大きな足跡を残しています。",
     concept:
@@ -84,57 +97,91 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
     members: [
       {
         id: "mm-1",
-        name: "譜久村聖",
-        nameKana: "ふくむら みずき",
-        groupName: "モーニング娘。'25",
-        nickname: "ふくちゃん",
-        birthDate: "1996-10-30",
-        joinDate: "2011-01-02",
-      },
-      {
-        id: "mm-2",
-        name: "生田衣梨奈",
-        nameKana: "いくた えりな",
-        groupName: "モーニング娘。'25",
-        nickname: "えりぽん",
-        birthDate: "1997-07-07",
-        joinDate: "2011-01-02",
-      },
-      {
-        id: "mm-3",
-        name: "石田亜佑美",
-        nameKana: "いしだ あゆみ",
-        groupName: "モーニング娘。'25",
-        nickname: "だーいし",
-        birthDate: "1997-01-07",
-        joinDate: "2011-09-29",
-      },
-      {
-        id: "mm-4",
-        name: "佐藤優樹",
-        nameKana: "さとう まさき",
-        groupName: "モーニング娘。'25",
-        nickname: "まーちゃん",
-        birthDate: "1999-05-07",
-        joinDate: "2011-09-29",
-      },
-      {
-        id: "mm-5",
-        name: "小田さくら",
-        nameKana: "おだ さくら",
-        groupName: "モーニング娘。'25",
-        nickname: "さくら",
-        birthDate: "1999-03-12",
-        joinDate: "2012-09-14",
-      },
-      {
-        id: "mm-6",
         name: "野中美希",
         nameKana: "のなか みき",
         groupName: "モーニング娘。'25",
         nickname: "ちぇる",
         birthDate: "1999-10-07",
         joinDate: "2014-09-30",
+        memberColor: "#800080", // パープル
+        imageUrl: "/images/members/morning-musume/nonaka-miki.jpg",
+      },
+      {
+        id: "mm-2",
+        name: "小田さくら",
+        nameKana: "おだ さくら",
+        groupName: "モーニング娘。'25",
+        nickname: "さくら",
+        birthDate: "1999-03-12",
+        joinDate: "2012-09-14",
+        memberColor: "#E6E6FA", // ラベンダー
+        imageUrl: "/images/members/morning-musume/oda-sakura.jpg",
+      },
+      {
+        id: "mm-3",
+        name: "牧野真莉愛",
+        nameKana: "まきの まりあ",
+        groupName: "モーニング娘。'25",
+        nickname: "まりあ",
+        birthDate: "2001-02-02",
+        joinDate: "2014-09-30",
+        memberColor: "#FFC0CB", // ピンク
+        imageUrl: "/images/members/morning-musume/makino-maria.jpg",
+      },
+      {
+        id: "mm-4",
+        name: "岡村ほまれ",
+        nameKana: "おかむら ほまれ",
+        groupName: "モーニング娘。'25",
+        nickname: "ほまたん",
+        birthDate: "2002-10-30",
+        joinDate: "2018-06-20",
+        memberColor: "#FFD700", // デイジー
+        imageUrl: "/images/members/morning-musume/okamura-homare.jpg",
+      },
+      {
+        id: "mm-5",
+        name: "山﨑愛生",
+        nameKana: "やまざき めい",
+        groupName: "モーニング娘。'25",
+        nickname: "めいちゃん",
+        birthDate: "2005-06-28",
+        joinDate: "2019-06-22",
+        memberColor: "#00FF00", // ブライトグリーン
+        imageUrl: "/images/members/morning-musume/yamazaki-mei.jpg",
+      },
+      {
+        id: "mm-6",
+        name: "櫻井梨央",
+        nameKana: "さくらい りお",
+        groupName: "モーニング娘。'25",
+        nickname: "りおりお",
+        birthDate: "2006-08-22",
+        joinDate: "2022-06-22",
+        memberColor: "#C4A484", // ミルクティー
+        imageUrl: "/images/members/morning-musume/sakurai-rio.jpg",
+      },
+      {
+        id: "mm-7",
+        name: "井上春華",
+        nameKana: "いのうえ はるか",
+        groupName: "モーニング娘。'25",
+        nickname: "はるはる",
+        birthDate: "2007-10-22",
+        joinDate: "2023-07-17",
+        memberColor: "#98FF98", // ミントグリーン
+        imageUrl: "/images/members/morning-musume/inoue-haruka.jpg",
+      },
+      {
+        id: "mm-8",
+        name: "弓桁朱琴",
+        nameKana: "ゆみげた あこ",
+        groupName: "モーニング娘。'25",
+        nickname: "あこ",
+        birthDate: "2008-09-27",
+        joinDate: "2023-07-17",
+        memberColor: "#FF0000", // ピュアレッド
+        imageUrl: "/images/members/morning-musume/yumigeta-ako.jpg",
       },
     ],
     graduatedMembers: [
@@ -148,6 +195,7 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2003-01-19",
         isGraduated: true,
         graduationDate: "2014-11-26",
+        memberColor: "#FFC0CB", // ピンク
       },
       {
         id: "mm-g2",
@@ -159,6 +207,7 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2011-01-02",
         isGraduated: true,
         graduationDate: "2016-05-31",
+        memberColor: "#00FF00", // グリーン
       },
       {
         id: "mm-g3",
@@ -170,44 +219,39 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2011-09-29",
         isGraduated: true,
         graduationDate: "2017-12-11",
+        memberColor: "#FFA500", // オレンジ
       },
     ],
     discography: [
+      // シングル
       {
-        id: "d1",
-        title: "LOVEペディア",
+        id: "mm-s1",
+        title: "てか HAPPYのHAPPY！/私のラミンタッチオーネ",
         type: "single",
-        releaseDate: "2024-11-15",
+        releaseDate: "2025-12-03",
+        coverUrl: "/images/discography/morning-musume/teka-happy.jpg",
       },
       {
-        id: "d2",
-        title: "人生Blues",
+        id: "mm-s2",
+        title: "気になるその気の歌/明るく良い子",
         type: "single",
-        releaseDate: "2024-07-20",
+        releaseDate: "2025-07-02",
+        coverUrl: "/images/discography/morning-musume/kininaru-sonoki.jpg",
       },
       {
-        id: "d3",
-        title: "すっごいFEVER!",
+        id: "mm-s3",
+        title: "なんだかセンチメンタルな時の歌/最KIYOU",
+        type: "single",
+        releaseDate: "2024-08-14",
+        coverUrl: "/images/discography/morning-musume/nandaka-sentimental.jpg",
+      },
+      // アルバム
+      {
+        id: "mm-a1",
+        title: "Professionals-17th",
         type: "album",
-        releaseDate: "2024-03-10",
-      },
-      {
-        id: "d4",
-        title: "青春Night",
-        type: "single",
-        releaseDate: "2023-10-25",
-      },
-      {
-        id: "d5",
-        title: "Chu Chu Chu 僕らの未来",
-        type: "single",
-        releaseDate: "2023-06-14",
-      },
-      {
-        id: "d6",
-        title: "16th 〜That's J-POP〜",
-        type: "album",
-        releaseDate: "2023-02-22",
+        releaseDate: "2024-11-27",
+        coverUrl: "/images/discography/morning-musume/professionals-17th.jpg",
       },
     ],
     snsLinks: [
@@ -252,39 +296,102 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
     members: [
       {
         id: "ag-1",
-        name: "竹内朱莉",
-        nameKana: "たけうち あかり",
+        name: "伊勢鈴蘭",
+        nameKana: "いせ れいら",
         groupName: "アンジュルム",
-        nickname: "たけちゃん",
-        birthDate: "1997-11-23",
-        joinDate: "2011-08-14",
+        nickname: "れいら",
+        birthDate: "2004-01-19",
+        joinDate: "2019-06-18",
+        memberColor: "#FFA500", // オレンジ
+        imageUrl: "/images/members/angerme/ise-reira.jpg",
       },
       {
         id: "ag-2",
-        name: "川名凜",
-        nameKana: "かわな りん",
-        groupName: "アンジュルム",
-        nickname: "りんちゃん",
-        birthDate: "2005-02-06",
-        joinDate: "2019-06-18",
-      },
-      {
-        id: "ag-3",
         name: "為永幸音",
         nameKana: "ためなが しおん",
         groupName: "アンジュルム",
         nickname: "しおんぬ",
-        birthDate: "2005-07-10",
+        birthDate: "2004-02-09",
         joinDate: "2019-06-18",
+        memberColor: "#FFC0CB", // ピンク
+        imageUrl: "/images/members/angerme/tamenaga-shion.jpg",
+      },
+      {
+        id: "ag-3",
+        name: "橋迫鈴",
+        nameKana: "はしさこ りん",
+        groupName: "アンジュルム",
+        nickname: "りんりん",
+        birthDate: "2005-10-06",
+        joinDate: "2019-06-18",
+        memberColor: "#FF0000", // ピュアレッド
+        imageUrl: "/images/members/angerme/hashisako-rin.jpg",
       },
       {
         id: "ag-4",
+        name: "川名凜",
+        nameKana: "かわな りん",
+        groupName: "アンジュルム",
+        nickname: "りんちゃん",
+        birthDate: "2003-12-06",
+        joinDate: "2019-06-18",
+        memberColor: "#008000", // グリーン
+        imageUrl: "/images/members/angerme/kawana-rin.jpg",
+      },
+      {
+        id: "ag-5",
         name: "松本わかな",
         nameKana: "まつもと わかな",
         groupName: "アンジュルム",
         nickname: "わかな",
-        birthDate: "2005-10-05",
-        joinDate: "2019-06-18",
+        birthDate: "2007-09-01",
+        joinDate: "2020-08-01",
+        memberColor: "#FFFFFF", // ホワイト
+        imageUrl: "/images/members/angerme/matsumoto-wakana.jpg",
+      },
+      {
+        id: "ag-6",
+        name: "平山遊季",
+        nameKana: "ひらやま ゆき",
+        groupName: "アンジュルム",
+        nickname: "ゆっきー",
+        birthDate: "2006-07-25",
+        joinDate: "2021-04-01",
+        memberColor: "#90EE90", // ライトグリーン
+        imageUrl: "/images/members/angerme/hirayama-yuki.jpg",
+      },
+      {
+        id: "ag-7",
+        name: "下井谷幸穂",
+        nameKana: "しもいたに ゆきほ",
+        groupName: "アンジュルム",
+        nickname: "ゆきほ",
+        birthDate: "2006-08-04",
+        joinDate: "2024-01-01",
+        memberColor: "#FF69B4", // ホットピンク
+        imageUrl: "/images/members/angerme/shimoitani-yukiho.jpg",
+      },
+      {
+        id: "ag-8",
+        name: "後藤花",
+        nameKana: "ごとう はな",
+        groupName: "アンジュルム",
+        nickname: "はなちゃん",
+        birthDate: "2008-06-05",
+        joinDate: "2024-01-01",
+        memberColor: "#20B2AA", // シーブルー
+        imageUrl: "/images/members/angerme/goto-hana.jpg",
+      },
+      {
+        id: "ag-9",
+        name: "長野桃羽",
+        nameKana: "ながの ももは",
+        groupName: "アンジュルム",
+        nickname: "ももは",
+        birthDate: "2010-05-13",
+        joinDate: "2025-01-01",
+        memberColor: "#FFFF00", // イエロー
+        imageUrl: "/images/members/angerme/nagano-momoha.jpg",
       },
     ],
     graduatedMembers: [
@@ -298,9 +405,22 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2009-04-04",
         isGraduated: true,
         graduationDate: "2019-06-18",
+        memberColor: "#FF0000", // 赤
       },
       {
         id: "ag-g2",
+        name: "竹内朱莉",
+        nameKana: "たけうち あかり",
+        groupName: "アンジュルム",
+        nickname: "たけちゃん",
+        birthDate: "1997-11-23",
+        joinDate: "2011-08-14",
+        isGraduated: true,
+        graduationDate: "2023-06-21",
+        memberColor: "#FF0000", // 赤（和田から継承）
+      },
+      {
+        id: "ag-g3",
         name: "中西香菜",
         nameKana: "なかにし かな",
         groupName: "アンジュルム",
@@ -309,26 +429,88 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2011-08-14",
         isGraduated: true,
         graduationDate: "2018-11-29",
+        memberColor: "#DDA0DD", // 薄紫
       },
     ],
     discography: [
+      // シングル（新しい順）
       {
-        id: "d1",
-        title: "愛すべきべきHuman Life",
+        id: "ag-s1",
+        title: "アンドロイドは夢を見るか？/光のうた",
         type: "single",
-        releaseDate: "2024-10-20",
+        releaseDate: "2025-05-21",
+        coverUrl: "/images/discography/angerme/android-wa-yume-wo-miruka.jpg",
       },
       {
-        id: "d2",
-        title: "悔しいわ",
+        id: "ag-s2",
+        title: "初恋、花冷え/悠々閑々 gonna be alright!!",
         type: "single",
-        releaseDate: "2024-06-15",
+        releaseDate: "2024-11-13",
+        coverUrl: "/images/discography/angerme/hatsukoi-hanaabie.jpg",
       },
       {
-        id: "d3",
+        id: "ag-s3",
+        title: "美々たる一撃/うわさのナルシー/THANK YOU, HELLO GOOD BYE",
+        type: "single",
+        releaseDate: "2024-06-12",
+        coverUrl: "/images/discography/angerme/bibitaru-ichigeki.jpg",
+      },
+      {
+        id: "ag-s4",
+        title: "RED LINE/ライフ イズ ビューティフル！",
+        type: "single",
+        releaseDate: "2023-12-13",
+        coverUrl: "/images/discography/angerme/red-line.jpg",
+      },
+      {
+        id: "ag-s5",
+        title: "アイノケダモノ/同窓生",
+        type: "single",
+        releaseDate: "2023-06-14",
+        coverUrl: "/images/discography/angerme/ai-no-kedamono.jpg",
+      },
+      {
+        id: "ag-s6",
+        title: "悔しいわ/Piece of Peace～しあわせのパズル～",
+        type: "single",
+        releaseDate: "2022-10-19",
+        coverUrl: "/images/discography/angerme/kuyashii-wa.jpg",
+      },
+      {
+        id: "ag-s7",
+        title: "愛・魔性/ハデにやっちゃいな！/愛すべきべき Human Life",
+        type: "single",
+        releaseDate: "2022-05-11",
+        coverUrl: "/images/discography/angerme/ai-masho.jpg",
+      },
+      {
+        id: "ag-s8",
+        title: "はっきりしようぜ/泳げないMermaid/愛されルート A or B？",
+        type: "single",
+        releaseDate: "2021-06-23",
+        coverUrl: "/images/discography/angerme/hakkiri-shiyouze.jpg",
+      },
+      {
+        id: "ag-s9",
+        title: "限りあるMoment/ミラー・ミラー",
+        type: "single",
+        releaseDate: "2020-08-26",
+        coverUrl: "/images/discography/angerme/kagiri-aru-moment.jpg",
+      },
+      // アルバム
+      {
+        id: "ag-a1",
+        title: "Keep Your Smile！",
+        type: "album",
+        releaseDate: "2025-11-12",
+        coverUrl: "/images/discography/angerme/keep-your-smile.jpg",
+      },
+      {
+        id: "ag-a2",
         title: "BIG LOVE",
         type: "album",
-        releaseDate: "2024-01-24",
+        releaseDate: "2023-03-22",
+        coverUrl: "/images/discography/angerme/big-love.jpg",
       },
     ],
     snsLinks: [
@@ -347,6 +529,11 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         url: "https://www.instagram.com/angerme_official/",
         label: "@angerme_official",
       },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@anaborohello",
+        label: "YouTube公式",
+      },
     ],
   },
   "juice-juice": {
@@ -363,30 +550,124 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
     members: [
       {
         id: "jj-1",
-        name: "植村あかり",
-        nameKana: "うえむら あかり",
+        name: "段原瑠々",
+        nameKana: "だんばら るる",
         groupName: "Juice=Juice",
-        nickname: "あーりー",
-        birthDate: "1998-12-30",
-        joinDate: "2013-02-03",
+        nickname: "るるちゃん",
+        birthDate: "2001-05-07",
+        joinDate: "2017-06-26",
+        memberColor: "#FFA500", // オレンジ
+        imageUrl: "/images/members/juice-juice/danbara-ruru.jpg",
       },
       {
         id: "jj-2",
+        name: "井上玲音",
+        nameKana: "いのうえ れい",
+        groupName: "Juice=Juice",
+        nickname: "れいれい",
+        birthDate: "2001-07-17",
+        joinDate: "2020-03-30",
+        memberColor: "#FFFFFF", // ホワイト
+        imageUrl: "/images/members/juice-juice/inoue-rei.jpg",
+      },
+      {
+        id: "jj-3",
+        name: "工藤由愛",
+        nameKana: "くどう ゆめ",
+        groupName: "Juice=Juice",
+        nickname: "ゆめちゃん",
+        birthDate: "2003-10-27",
+        joinDate: "2020-01-02",
+        memberColor: "#FFC0CB", // ピンク
+        imageUrl: "/images/members/juice-juice/kudo-yume.jpg",
+      },
+      {
+        id: "jj-4",
+        name: "松永里愛",
+        nameKana: "まつなが りあい",
+        groupName: "Juice=Juice",
+        nickname: "りあい",
+        birthDate: "2004-05-07",
+        joinDate: "2020-01-02",
+        memberColor: "#4169E1", // ロイヤルブルー
+        imageUrl: "/images/members/juice-juice/matsunaga-riai.jpg",
+      },
+      {
+        id: "jj-5",
+        name: "有澤一華",
+        nameKana: "ありさわ いちか",
+        groupName: "Juice=Juice",
+        nickname: "いっちゃん",
+        birthDate: "2004-11-16",
+        joinDate: "2021-08-28",
+        memberColor: "#ADD8E6", // ライトブルー
+        imageUrl: "/images/members/juice-juice/arisawa-ichika.jpg",
+      },
+      {
+        id: "jj-6",
         name: "入江里咲",
         nameKana: "いりえ りさ",
         groupName: "Juice=Juice",
         nickname: "りさまる",
         birthDate: "2004-09-18",
-        joinDate: "2020-03-14",
+        joinDate: "2021-08-28",
+        memberColor: "#DDA0DD", // ライトパープル
+        imageUrl: "/images/members/juice-juice/irie-risa.jpg",
       },
       {
-        id: "jj-3",
+        id: "jj-7",
         name: "江端妃咲",
-        nameKana: "えばた ひさき",
+        nameKana: "えばた きさき",
         groupName: "Juice=Juice",
-        nickname: "ひさっち",
+        nickname: "きさっち",
         birthDate: "2006-04-14",
         joinDate: "2022-04-02",
+        memberColor: "#FFD700", // デイジー
+        imageUrl: "/images/members/juice-juice/ebata-kisaki.jpg",
+      },
+      {
+        id: "jj-8",
+        name: "石山咲良",
+        nameKana: "いしやま さくら",
+        groupName: "Juice=Juice",
+        nickname: "さくちゃん",
+        birthDate: "2005-03-09",
+        joinDate: "2024-01-02",
+        memberColor: "#800080", // パープル
+        imageUrl: "/images/members/juice-juice/ishiyama-sakura.jpg",
+      },
+      {
+        id: "jj-9",
+        name: "遠藤彩加里",
+        nameKana: "えんどう あかり",
+        groupName: "Juice=Juice",
+        nickname: "あかりちゃん",
+        birthDate: "2007-09-28",
+        joinDate: "2024-01-02",
+        memberColor: "#98FF98", // ミントグリーン
+        imageUrl: "/images/members/juice-juice/endo-akari.jpg",
+      },
+      {
+        id: "jj-10",
+        name: "川嶋美楓",
+        nameKana: "かわしま みふ",
+        groupName: "Juice=Juice",
+        nickname: "みふ",
+        birthDate: "2008-05-31",
+        joinDate: "2024-01-02",
+        memberColor: "#FF0000", // ピュアレッド
+        imageUrl: "/images/members/juice-juice/kawashima-mifu.jpg",
+      },
+      {
+        id: "jj-11",
+        name: "林仁愛",
+        nameKana: "はやし にいな",
+        groupName: "Juice=Juice",
+        nickname: "にいな",
+        birthDate: "2007-12-22",
+        joinDate: "2025-06-23",
+        memberColor: "#00FF00", // ブライトグリーン
+        imageUrl: "/images/members/juice-juice/hayashi-niina.jpg",
       },
     ],
     graduatedMembers: [
@@ -400,20 +681,51 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         joinDate: "2013-02-03",
         isGraduated: true,
         graduationDate: "2020-06-03",
+        memberColor: "#FFA500", // オレンジ
+      },
+      {
+        id: "jj-g2",
+        name: "植村あかり",
+        nameKana: "うえむら あかり",
+        groupName: "Juice=Juice",
+        nickname: "あーりー",
+        birthDate: "1998-12-30",
+        joinDate: "2013-02-03",
+        isGraduated: true,
+        graduationDate: "2024-12-16",
+        memberColor: "#FF0000", // レッド
       },
     ],
     discography: [
+      // シングル
       {
-        id: "d1",
-        title: "プラトニック・プラネット",
+        id: "jj-s1",
+        title: "四の五の言わず颯と別れてあげた/盛れ！ミ・アモーレ",
         type: "single",
-        releaseDate: "2024-09-25",
+        releaseDate: "2025-10-08",
+        coverUrl: "/images/discography/juice-juice/shinogo-more-mi-amore.jpg",
       },
       {
-        id: "d2",
-        title: "ポップミュージック",
+        id: "jj-s2",
+        title: "初恋の亡霊/今夜はHearty Party",
+        type: "single",
+        releaseDate: "2025-02-26",
+        coverUrl: "/images/discography/juice-juice/hatsukoi-no-bourei.jpg",
+      },
+      {
+        id: "jj-s3",
+        title: "トウキョウ・ブラー/ナイモノラブ/おあいこ",
+        type: "single",
+        releaseDate: "2024-05-15",
+        coverUrl: "/images/discography/juice-juice/tokyo-blur.jpg",
+      },
+      // アルバム
+      {
+        id: "jj-a1",
+        title: "Juicetory",
         type: "album",
-        releaseDate: "2024-04-10",
+        releaseDate: "2023-10-11",
+        coverUrl: "/images/discography/juice-juice/juicetory.jpg",
       },
     ],
     snsLinks: [
@@ -426,6 +738,388 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
         platform: "twitter",
         url: "https://twitter.com/juicejuice_uf",
         label: "@juicejuice_uf",
+      },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@JuiceJuice_official",
+        label: "YouTube公式",
+      },
+    ],
+  },
+  "ocha-norma": {
+    id: "ocha-norma",
+    name: "OCHA NORMA",
+    nameEn: "OCHA NORMA",
+    themeColor: "#1a1a2e",
+    status: "active",
+    formedDate: "2021-12-12",
+    description:
+      "OCHA NORMAは2021年に結成されたハロー!プロジェクトの新世代グループです。力強いパフォーマンスと独自の世界観で注目を集めています。",
+    concept:
+      "「新しい時代のアイドル像」を体現するグループとして、従来のアイドル像にとらわれない自由で力強い表現を追求しています。",
+    members: [
+      {
+        id: "on-1",
+        name: "斉藤円香",
+        nameKana: "さいとう まどか",
+        groupName: "OCHA NORMA",
+        nickname: "まどぴ",
+        birthDate: "2002-10-28",
+        joinDate: "2021-03-07",
+        memberColor: "#006994", // シーブルー
+        imageUrl: "/images/members/ocha-norma/saito-madoka.jpg",
+      },
+      {
+        id: "on-2",
+        name: "広本瑠璃",
+        nameKana: "ひろもと るり",
+        groupName: "OCHA NORMA",
+        nickname: "るりるり",
+        birthDate: "2003-06-18",
+        joinDate: "2021-07-05",
+        memberColor: "#FFFF00", // イエロー
+        imageUrl: "/images/members/ocha-norma/hiromoto-ruri.jpg",
+      },
+      {
+        id: "on-3",
+        name: "米村姫良々",
+        nameKana: "よねむら きらら",
+        groupName: "OCHA NORMA",
+        nickname: "きらら",
+        birthDate: "2004-04-30",
+        joinDate: "2021-03-07",
+        memberColor: "#B22222", // イタリアンレッド
+        imageUrl: "/images/members/ocha-norma/yonemura-kirara.jpg",
+      },
+      {
+        id: "on-4",
+        name: "窪田七海",
+        nameKana: "くぼた ななみ",
+        groupName: "OCHA NORMA",
+        nickname: "ななみん",
+        birthDate: "2004-07-23",
+        joinDate: "2021-03-07",
+        memberColor: "#FFC0CB", // ピンク
+        imageUrl: "/images/members/ocha-norma/kubota-nanami.jpg",
+      },
+      {
+        id: "on-5",
+        name: "中山夏月姫",
+        nameKana: "なかやま なつめ",
+        groupName: "OCHA NORMA",
+        nickname: "なちゅ",
+        birthDate: "2005-07-20",
+        joinDate: "2021-07-05",
+        memberColor: "#FFFFFF", // ホワイト
+        imageUrl: "/images/members/ocha-norma/nakayama-natsume.jpg",
+      },
+      {
+        id: "on-6",
+        name: "西﨑美空",
+        nameKana: "にしざき みく",
+        groupName: "OCHA NORMA",
+        nickname: "みくみく",
+        birthDate: "2006-04-17",
+        joinDate: "2021-07-05",
+        memberColor: "#800080", // パープル
+        imageUrl: "/images/members/ocha-norma/nishizaki-miku.jpg",
+      },
+      {
+        id: "on-7",
+        name: "北原もも",
+        nameKana: "きたはら もも",
+        groupName: "OCHA NORMA",
+        nickname: "ももも",
+        birthDate: "2006-08-30",
+        joinDate: "2021-07-05",
+        memberColor: "#90EE90", // ライトグリーン
+        imageUrl: "/images/members/ocha-norma/kitahara-momo.jpg",
+      },
+      {
+        id: "on-8",
+        name: "筒井澪心",
+        nameKana: "つつい ろこ",
+        groupName: "OCHA NORMA",
+        nickname: "ろこちゃん",
+        birthDate: "2007-08-10",
+        joinDate: "2021-12-12",
+        memberColor: "#4169E1", // ロイヤルブルー
+        imageUrl: "/images/members/ocha-norma/tsutsui-roko.jpg",
+      },
+    ],
+    graduatedMembers: [
+      {
+        id: "on-g1",
+        name: "石栗奏美",
+        nameKana: "いしぐり かなみ",
+        groupName: "OCHA NORMA",
+        nickname: "かなみん",
+        birthDate: "2003-04-03",
+        joinDate: "2021-03-07",
+        isGraduated: true,
+        graduationDate: "2024-06-05",
+        memberColor: "#FFA500", // オレンジ
+      },
+      {
+        id: "on-g2",
+        name: "田代すみれ",
+        nameKana: "たしろ すみれ",
+        groupName: "OCHA NORMA",
+        nickname: "すーちゃん",
+        birthDate: "2005-03-10",
+        joinDate: "2021-12-12",
+        isGraduated: true,
+        graduationDate: "2024-07-14",
+        memberColor: "#FF69B4", // ホットピンク
+      },
+    ],
+    discography: [
+      // シングル
+      {
+        id: "on-s1",
+        title: "女の愛想は武器じゃない/学校では教えてくれないこと",
+        type: "single",
+        releaseDate: "2025-08-27",
+        coverUrl: "/images/discography/ocha-norma/onna-no-aiso.jpg",
+      },
+      {
+        id: "on-s2",
+        title: "ちはやぶる/友達天体図",
+        type: "single",
+        releaseDate: "2024-09-11",
+        coverUrl: "/images/discography/ocha-norma/chihayaburu.jpg",
+      },
+      {
+        id: "on-s3",
+        title: "ちょっと情緒不安定？…夏",
+        type: "single",
+        releaseDate: "2023-07-26",
+        coverUrl: "/images/discography/ocha-norma/chotto-jyocho.jpg",
+      },
+      {
+        id: "on-s4",
+        title: "運命 CHACHACHACHA〜N/ウチらの地元は地球じゃん！",
+        type: "single",
+        releaseDate: "2022-11-30",
+        coverUrl: "/images/discography/ocha-norma/unmei-chachacha.jpg",
+      },
+      {
+        id: "on-s5",
+        title: "恋のクラウチングスタート/お祭りデビューだぜ！",
+        type: "single",
+        releaseDate: "2022-07-13",
+        coverUrl: "/images/discography/ocha-norma/koi-no-crouching.jpg",
+      },
+      // アルバム
+      {
+        id: "on-a1",
+        title: "CHAnnel #1",
+        type: "album",
+        releaseDate: "2024-01-10",
+        coverUrl: "/images/discography/ocha-norma/channel-1.jpg",
+      },
+    ],
+    snsLinks: [
+      {
+        platform: "website",
+        url: "https://www.helloproject.com/ochanorma/",
+        label: "公式サイト",
+      },
+      {
+        platform: "twitter",
+        url: "https://twitter.com/OCHANORMA_uf",
+        label: "@OCHANORMA_uf",
+      },
+      {
+        platform: "instagram",
+        url: "https://www.instagram.com/ochanorma_official/",
+        label: "@ochanorma_official",
+      },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@OCHANORMA_official",
+        label: "YouTube公式",
+      },
+    ],
+  },
+  "tsubaki-factory": {
+    id: "tsubaki-factory",
+    name: "つばきファクトリー",
+    nameEn: "Tsubaki Factory",
+    themeColor: "#FF6B6B",
+    status: "active",
+    formedDate: "2015-04-29",
+    description:
+      "つばきファクトリーは2015年に結成されたハロー!プロジェクトのグループです。可憐さと力強さを兼ね備えたパフォーマンスが魅力です。",
+    concept:
+      "「可憐で力強い」をコンセプトに、繊細な表現と力強いダンスパフォーマンスを両立させています。",
+    members: [],
+    graduatedMembers: [],
+    discography: [
+      // シングル
+      {
+        id: "tf-s1",
+        title: "My Days for You/悲しみがとまらない",
+        type: "single",
+        releaseDate: "2025-06-04",
+        coverUrl: "/images/discography/tsubaki-factory/my-days-for-you.jpg",
+      },
+      {
+        id: "tf-s2",
+        title: "ベイビースパイダー/青春エクサバイト/鼓動OK？",
+        type: "single",
+        releaseDate: "2024-08-28",
+        coverUrl: "/images/discography/tsubaki-factory/baby-spider.jpg",
+      },
+      {
+        id: "tf-s3",
+        title: "勇気 It's my Life！/妄想だけならフリーダム/でも…いいよ",
+        type: "single",
+        releaseDate: "2023-09-27",
+        coverUrl: "/images/discography/tsubaki-factory/yuuki-its-my-life.jpg",
+      },
+      {
+        id: "tf-s4",
+        title: "間違いじゃない 泣いたりしない/スキップ・スキップ・スキップ",
+        type: "single",
+        releaseDate: "2023-02-22",
+        coverUrl: "/images/discography/tsubaki-factory/machigai-janai.jpg",
+      },
+      // アルバム
+      {
+        id: "tf-a1",
+        title: "3rd -Moment-",
+        type: "album",
+        releaseDate: "2024-02-21",
+        coverUrl: "/images/discography/tsubaki-factory/3rd-moment.jpg",
+      },
+    ],
+    snsLinks: [
+      {
+        platform: "website",
+        url: "https://www.helloproject.com/tsubakifactory/",
+        label: "公式サイト",
+      },
+      {
+        platform: "twitter",
+        url: "https://twitter.com/tsubaki_factory",
+        label: "@tsubaki_factory",
+      },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@tsubakifactory",
+        label: "YouTube公式",
+      },
+    ],
+  },
+  beyooooonds: {
+    id: "beyooooonds",
+    name: "BEYOOOOONDS",
+    nameEn: "BEYOOOOONDS",
+    themeColor: "#FF69B4",
+    status: "active",
+    formedDate: "2018-10-19",
+    description:
+      "BEYOOOOONDSは2018年に結成された、演劇的要素を取り入れたユニークなハロー!プロジェクトのグループです。",
+    concept:
+      "「お芝居とアイドル」を融合させた独自のスタイルで、MVや楽曲に物語性を持たせています。",
+    members: [],
+    graduatedMembers: [],
+    discography: [
+      // シングル
+      {
+        id: "by-s1",
+        title: "Do-Did-Done/あゝ君に転生",
+        type: "single",
+        releaseDate: "2025-01-29",
+        coverUrl: "/images/discography/beyooooonds/do-did-done.jpg",
+      },
+      {
+        id: "by-s2",
+        title: "灰toダイヤモンド/Go City Go/フックの法則",
+        type: "single",
+        releaseDate: "2024-05-29",
+        coverUrl: "/images/discography/beyooooonds/hai-to-diamond.jpg",
+      },
+      {
+        id: "by-s3",
+        title: "求めよ…運命の旅人算/夢さえ描けない夜空には",
+        type: "single",
+        releaseDate: "2023-04-12",
+        coverUrl: "/images/discography/beyooooonds/motomeyo.jpg",
+      },
+      // アルバム
+      {
+        id: "by-a1",
+        title: "BEYOOOOONDS 3rd",
+        type: "album",
+        releaseDate: "2025-12-10",
+        coverUrl: "/images/discography/beyooooonds/beyooooonds-3rd.jpg",
+      },
+    ],
+    snsLinks: [
+      {
+        platform: "website",
+        url: "https://www.helloproject.com/beyooooonds/",
+        label: "公式サイト",
+      },
+      {
+        platform: "twitter",
+        url: "https://twitter.com/BEYOOOOONDS_",
+        label: "@BEYOOOOONDS_",
+      },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@BEYOOOOONDS",
+        label: "YouTube公式",
+      },
+    ],
+  },
+  "rosy-chronicle": {
+    id: "rosy-chronicle",
+    name: "ロージークロニクル",
+    nameEn: "Rosy Chronicle",
+    themeColor: "#FFB6C1",
+    status: "active",
+    formedDate: "2024-04-01",
+    description:
+      "ロージークロニクルは2024年に結成されたハロー!プロジェクトの最新グループです。フレッシュな魅力で注目を集めています。",
+    concept:
+      "「薔薇色の歴史を紡ぐ」をテーマに、希望に満ちた未来を切り開いていくグループです。",
+    members: [],
+    graduatedMembers: [],
+    discography: [
+      // シングル
+      {
+        id: "rc-s1",
+        title: "夏のイナズマ/ガオガオガオ",
+        type: "single",
+        releaseDate: "2025-07-23",
+        coverUrl: "/images/discography/rosy-chronicle/natsu-no-inazuma.jpg",
+      },
+      {
+        id: "rc-s2",
+        title: "へいらっしゃい！〜ニッポンで会いましょう〜/ウブとズル",
+        type: "single",
+        releaseDate: "2025-03-19",
+        coverUrl: "/images/discography/rosy-chronicle/heirasshai.jpg",
+      },
+    ],
+    snsLinks: [
+      {
+        platform: "website",
+        url: "https://www.helloproject.com/rosychronicle/",
+        label: "公式サイト",
+      },
+      {
+        platform: "twitter",
+        url: "https://twitter.com/rosychronicle",
+        label: "@rosychronicle",
+      },
+      {
+        platform: "youtube",
+        url: "https://www.youtube.com/@rosychronicle",
+        label: "YouTube公式",
       },
     ],
   },
@@ -640,6 +1334,62 @@ const getSNSColor = (platform: SNSLink["platform"]): string => {
 };
 
 // ========================================
+// エフェクトコンポーネントマッピング
+// ========================================
+const GROUP_EFFECTS: Record<string, React.ComponentType<{ className?: string }>> = {
+  "juice-juice": JuiceJuiceEffect,
+  "morning-musume": MorningMusumeEffect,
+  "ocha-norma": OchaNormaEffect,
+};
+
+// ========================================
+// YouTube背景動画設定
+// ========================================
+interface VideoConfig {
+  videoId: string;
+  startTime: number;
+  endTime?: number;
+}
+
+const GROUP_VIDEOS: Record<string, VideoConfig> = {
+  "morning-musume": {
+    videoId: "NXd92U6eNyE", // てか HAPPYのHAPPY！
+    startTime: 4,
+    endTime: 64,
+  },
+  "juice-juice": {
+    videoId: "3RtbnP1onaM", // 盛れ！ミ・アモーレ
+    startTime: 66,
+    endTime: 130,
+  },
+  "ocha-norma": {
+    videoId: "M8VHw8OxfjQ", // 女の愛想は武器じゃない
+    startTime: 0,
+    endTime: 60,
+  },
+  "angerme": {
+    videoId: "mv2vk2ws6Dc", // アンジュルム
+    startTime: 40,
+    endTime: 100,
+  },
+  "tsubaki-factory": {
+    videoId: "Us8Bz9jYUPc", // つばきファクトリー
+    startTime: 10,
+    endTime: 70,
+  },
+  "beyooooonds": {
+    videoId: "NX0GAXLvKFQ", // BEYOOOOONDS
+    startTime: 7,
+    endTime: 67,
+  },
+  "rosy-chronicle": {
+    videoId: "BNh51r-dVa4", // ロージークロニクル
+    startTime: 3,
+    endTime: 63,
+  },
+};
+
+// ========================================
 // メインコンポーネント
 // ========================================
 interface GroupDetailClientProps {
@@ -652,6 +1402,12 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
     return GROUPS_DATA[groupId] || DEFAULT_GROUP;
   }, [groupId]);
 
+  // グループ専用エフェクトを取得
+  const EffectComponent = GROUP_EFFECTS[groupId];
+
+  // グループ専用動画設定を取得
+  const videoConfig = GROUP_VIDEOS[groupId];
+
   // シングルとアルバムを分類
   const singles = useMemo(() => {
     return group.discography.filter((d) => d.type === "single");
@@ -662,62 +1418,104 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
   }, [group.discography]);
 
   return (
-    <div className="min-h-screen bg-neutral-bg">
-      {/* ========================================
-          パンくずリストとヘッダー
-          ======================================== */}
-      <div
-        className="text-white py-8"
-        style={{
-          background: `linear-gradient(135deg, ${group.themeColor} 0%, ${group.themeColor}dd 50%, ${group.themeColor}aa 100%)`,
-        }}
-      >
-        <div className="container mx-auto px-4">
-          {/* パンくずリスト */}
-          <motion.nav
-            className="mb-6"
-            aria-label="パンくずリスト"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ol className="flex items-center gap-2 text-sm text-white/80">
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  ホーム
-                </Link>
-              </li>
-              <li>
-                <span className="mx-2">/</span>
-              </li>
-              <li>
-                <Link
-                  href="/groups"
-                  className="hover:text-white transition-colors"
-                >
-                  グループ
-                </Link>
-              </li>
-              <li>
-                <span className="mx-2">/</span>
-              </li>
-              <li className="text-white font-medium">{group.name}</li>
-            </ol>
-          </motion.nav>
-        </div>
-      </div>
+    <EffectProvider>
+      <div className="min-h-screen bg-neutral-bg">
+        {/* ========================================
+            ヒーローセクション with エフェクト
+            ======================================== */}
+        <div
+          className="relative text-white min-h-[500px] md:min-h-[600px] lg:min-h-[70vh] overflow-hidden"
+          style={{
+            background: videoConfig
+              ? "#000" // 動画がある場合は黒背景
+              : `linear-gradient(135deg, ${group.themeColor} 0%, ${group.themeColor}dd 50%, ${group.themeColor}aa 100%)`,
+          }}
+        >
+          {/* YouTube背景動画 */}
+          {videoConfig && (
+            <YouTubeBackground
+              videoId={videoConfig.videoId}
+              startTime={videoConfig.startTime}
+              endTime={videoConfig.endTime}
+              className="z-0"
+            />
+          )}
 
-      {/* ========================================
-          グループヘッダー
-          ======================================== */}
-      <section className="relative -mt-1">
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="bg-white rounded-2xl shadow-xl overflow-hidden -mt-4 relative z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
+          {/* グループ専用エフェクト（動画がない場合のみ） */}
+          {!videoConfig && EffectComponent && (
+            <EffectComponent className="z-0" />
+          )}
+
+          {/* コンテンツオーバーレイ */}
+          <div className="relative z-10 h-full flex flex-col">
+            {/* パンくずリスト */}
+            <div className="container mx-auto px-4 pt-6">
+              <motion.nav
+                aria-label="パンくずリスト"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ol className="flex items-center gap-2 text-sm text-white/80">
+                  <li>
+                    <Link href="/" className="hover:text-white transition-colors">
+                      ホーム
+                    </Link>
+                  </li>
+                  <li>
+                    <span className="mx-2">/</span>
+                  </li>
+                  <li>
+                    <Link
+                      href="/groups"
+                      className="hover:text-white transition-colors"
+                    >
+                      グループ
+                    </Link>
+                  </li>
+                  <li>
+                    <span className="mx-2">/</span>
+                  </li>
+                  <li className="text-white font-medium">{group.name}</li>
+                </ol>
+              </motion.nav>
+            </div>
+
+            {/* ヒーロータイトル */}
+            <div className="container mx-auto px-4 flex-1 flex items-center justify-center py-8">
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                {group.nameEn && (
+                  <span className="inline-block text-white/70 text-sm tracking-widest uppercase mb-2">
+                    {group.nameEn}
+                  </span>
+                )}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
+                  {group.name}
+                </h1>
+                <p className="mt-4 text-white/80 text-lg max-w-2xl mx-auto">
+                  {group.concept ? group.concept.slice(0, 100) + "..." : group.description.slice(0, 100) + "..."}
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================
+            グループ詳細カード
+            ======================================== */}
+        <section className="relative">
+          <div className="container mx-auto px-4">
+            <motion.div
+              className="bg-white rounded-2xl shadow-xl overflow-hidden -mt-16 relative z-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
             <div className="flex flex-col md:flex-row">
               {/* ロゴ/グループ画像 */}
               <div className="md:w-1/3 lg:w-1/4">
@@ -918,6 +1716,7 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
                       groupName={member.groupName}
                       nickname={member.nickname}
                       birthDate={member.birthDate}
+                      memberColor={member.memberColor}
                     />
                   </motion.div>
                 ))}
@@ -1313,6 +2112,7 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
           </motion.div>
         </div>
       </section>
-    </div>
+      </div>
+    </EffectProvider>
   );
 }

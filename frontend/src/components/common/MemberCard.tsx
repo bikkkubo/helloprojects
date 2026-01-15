@@ -15,6 +15,7 @@ interface MemberCardProps {
   birthDate?: string;
   showBookmark?: boolean;
   memberColor?: string; // メンバーカラー
+  groupColor?: string; // グループカラー（公式）
 }
 
 export default function MemberCard({
@@ -27,6 +28,7 @@ export default function MemberCard({
   birthDate,
   showBookmark = true,
   memberColor,
+  groupColor,
 }: MemberCardProps) {
   const { isBookmarked, toggle } = useBookmarks();
 
@@ -115,10 +117,10 @@ export default function MemberCard({
 
         {/* 情報エリア */}
         <div className="p-4">
-          {/* グループ名 */}
+          {/* グループ名 - グループカラー（公式）を優先使用 */}
           <p
             className="text-xs font-semibold mb-2 uppercase tracking-wide"
-            style={{ color: memberColor || "#FF69B4" }}
+            style={{ color: groupColor || memberColor || "#FF69B4" }}
           >
             {groupName}
           </p>

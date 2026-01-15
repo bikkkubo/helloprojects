@@ -18,16 +18,16 @@ const CATEGORIES = [
 
 type CategoryId = (typeof CATEGORIES)[number]["id"];
 
-// グループ定義（カラー付き）
+// グループ定義（カラー付き）- 公式グループカラー準拠
 const GROUPS = [
   { id: "all", name: "全グループ", color: "#FF1493" },
-  { id: "morning-musume", name: "モーニング娘。'25", color: "#E4007F" },
-  { id: "angerme", name: "アンジュルム", color: "#FF5722" },
-  { id: "juice-juice", name: "Juice=Juice", color: "#8BC34A" },
-  { id: "tsubaki-factory", name: "つばきファクトリー", color: "#FF69B4" },
-  { id: "beyooooonds", name: "BEYOOOOONDS", color: "#9C27B0" },
-  { id: "ocha-norma", name: "OCHA NORMA", color: "#00BCD4" },
-  { id: "rosy-chronicle", name: "ロージークロニクル", color: "#E91E63" },
+  { id: "morning-musume", name: "モーニング娘。'25", color: "#E4007F" }, // ピンク系
+  { id: "angerme", name: "アンジュルム", color: "#0082C8" }, // 公式：青
+  { id: "juice-juice", name: "Juice=Juice", color: "#8E44AD" }, // 公式：紫
+  { id: "tsubaki-factory", name: "つばきファクトリー", color: "#FF69B4" }, // ピンク系
+  { id: "beyooooonds", name: "BEYOOOOONDS", color: "#27AE60" }, // 公式：緑
+  { id: "ocha-norma", name: "OCHA NORMA", color: "#00A884" }, // お茶グリーン
+  { id: "rosy-chronicle", name: "ロージークロニクル", color: "#E91E63" }, // ローズピンク
 ] as const;
 
 type GroupId = (typeof GROUPS)[number]["id"];

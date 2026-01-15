@@ -9,6 +9,7 @@ import Button from "@/components/common/Button";
 import ImportantAnnouncements from "@/components/home/ImportantAnnouncements";
 import TodaySchedule from "@/components/home/TodaySchedule";
 import GroupNewsSection from "@/components/home/GroupNewsSection";
+import RotatingHeroVideos from "@/components/home/RotatingHeroVideos";
 
 // ========================================
 // ダミーデータ（後でAPI連携用に置き換え可能）
@@ -58,43 +59,84 @@ const latestNews = [
   },
 ];
 
-// 注目メンバーデータ
+// 注目メンバーデータ（各グループから1名ずつピックアップ）
 const featuredMembers = [
   {
-    id: "1",
-    name: "山崎愛生",
+    id: "mm-5",
+    name: "山﨑愛生",
     nameKana: "やまざき めい",
-    imageUrl: "/images/members/placeholder.svg",
+    imageUrl: "/images/members/morning-musume/yamazaki-mei.jpg",
     groupName: "モーニング娘。'25",
-    nickname: "めいめい",
-    birthDate: "2003-09-28",
+    nickname: "めいちゃん",
+    birthDate: "2005-06-28",
+    memberColor: "#00FF00",
+    groupColor: "#E4007F",
   },
   {
-    id: "2",
+    id: "ag-4",
     name: "川名凜",
     nameKana: "かわな りん",
-    imageUrl: "/images/members/placeholder.svg",
+    imageUrl: "/images/members/angerme/kawana-rin.jpg",
     groupName: "アンジュルム",
-    nickname: "りんりん",
-    birthDate: "2004-05-12",
+    nickname: "りんちゃん",
+    birthDate: "2003-12-06",
+    memberColor: "#008000",
+    groupColor: "#0082C8",
   },
   {
-    id: "3",
+    id: "jj-6",
     name: "入江里咲",
     nameKana: "いりえ りさ",
-    imageUrl: "/images/members/placeholder.svg",
+    imageUrl: "/images/members/juice-juice/irie-risa.jpg",
     groupName: "Juice=Juice",
     nickname: "りさまる",
-    birthDate: "2004-08-15",
+    birthDate: "2004-09-18",
+    memberColor: "#DDA0DD",
+    groupColor: "#8E44AD",
   },
   {
-    id: "4",
+    id: "tf-1",
+    name: "谷本安美",
+    nameKana: "たにもと あみ",
+    imageUrl: "/images/members/tsubaki-factory/tanimoto-ami.jpg",
+    groupName: "つばきファクトリー",
+    nickname: "あみちゃん",
+    birthDate: "2001-11-05",
+    memberColor: "#FF69B4",
+    groupColor: "#FF69B4",
+  },
+  {
+    id: "by-6",
     name: "清野桃々姫",
     nameKana: "きよの ももひめ",
-    imageUrl: "/images/members/placeholder.svg",
-    groupName: "つばきファクトリー",
+    imageUrl: "/images/members/beyooooonds/kiyono-momohime.jpg",
+    groupName: "BEYOOOOONDS",
     nickname: "ももひめ",
     birthDate: "2003-01-05",
+    memberColor: "#FFD700",
+    groupColor: "#27AE60",
+  },
+  {
+    id: "on-3",
+    name: "米村姫良々",
+    nameKana: "よねむら きらら",
+    imageUrl: "/images/members/ocha-norma/yonemura-kirara.jpg",
+    groupName: "OCHA NORMA",
+    nickname: "きらら",
+    birthDate: "2004-04-30",
+    memberColor: "#B22222",
+    groupColor: "#00A884",
+  },
+  {
+    id: "rc-1",
+    name: "橋田歩果",
+    nameKana: "はしだ ほのか",
+    imageUrl: "/images/members/rosy-chronicle/hashida-honoka.jpg",
+    groupName: "ロージークロニクル",
+    nickname: "ほのか",
+    birthDate: "2006-03-15",
+    memberColor: "#E91E63",
+    groupColor: "#E91E63",
   },
 ];
 
@@ -235,116 +277,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-neutral-bg">
       {/* ========================================
-          ヒーローセクション
+          ヒーローセクション（動画ローテーション）
           ======================================== */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        {/* 背景グラデーション */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-light to-secondary-violet opacity-90" />
-
-        {/* 装飾パターン */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-white rounded-full blur-3xl" />
-          <div className="absolute top-40 right-20 w-48 h-48 bg-secondary-yellow rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-1/3 w-40 h-40 bg-secondary-blue rounded-full blur-3xl" />
-        </div>
-
-        {/* アニメーション装飾 */}
-        <motion.div
-          className="absolute top-1/4 right-1/4 w-4 h-4 bg-white rounded-full"
-          animate={{
-            y: [0, -20, 0],
-            opacity: [0.5, 1, 0.5],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-1/3 left-1/4 w-3 h-3 bg-secondary-yellow rounded-full"
-          animate={{
-            y: [0, 15, 0],
-            opacity: [0.3, 0.8, 0.3],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5,
-          }}
-        />
-
-        {/* コンテンツ */}
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm font-medium mb-6">
-              Hello! Project Official Portal
-            </span>
-          </motion.div>
-
-          <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            夢と笑顔を届ける
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-secondary-yellow to-white">
-              アイドルの世界へ
-            </span>
-          </motion.h1>
-
-          <motion.p
-            className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            ハロー！プロジェクトの最新情報、メンバー紹介、
-            <br className="hidden md:block" />
-            イベントスケジュールをお届けします
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-          >
-            <Link href="/news">
-              <Button size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100">
-                最新ニュースを見る
-              </Button>
-            </Link>
-            <Link href="/groups">
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full sm:w-auto border-white text-white hover:bg-white/20"
-              >
-                グループ一覧
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-
-        {/* スクロールインジケーター */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1.5 h-3 bg-white/70 rounded-full mt-2" />
-          </div>
-        </motion.div>
-      </section>
+      <RotatingHeroVideos />
 
       {/* ========================================
           重要なお知らせセクション
@@ -380,7 +315,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5"
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"

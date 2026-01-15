@@ -1,48 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-// YouTube IFrame API の型定義
-interface YTPlayer {
-  playVideo: () => void;
-  pauseVideo: () => void;
-  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
-  getCurrentTime: () => number;
-  destroy: () => void;
-  addEventListener: (event: string, listener: (e: YTStateChangeEvent) => void) => void;
-}
-
-interface YTStateChangeEvent {
-  data: number;
-  target: YTPlayer;
-}
-
-interface YTPlayerOptions {
-  videoId: string;
-  playerVars: Record<string, string | number>;
-  events: {
-    onReady?: (event: { target: YTPlayer }) => void;
-    onStateChange?: (event: YTStateChangeEvent) => void;
-  };
-}
-
-interface YTAPI {
-  Player: new (elementId: string, options: YTPlayerOptions) => YTPlayer;
-  PlayerState: {
-    ENDED: number;
-    PLAYING: number;
-    PAUSED: number;
-    BUFFERING: number;
-    CUED: number;
-  };
-}
-
-declare global {
-  interface Window {
-    YT: YTAPI;
-    onYouTubeIframeAPIReady: () => void;
-  }
-}
+import type { YTPlayer } from "@/types/youtube";
 
 interface YouTubeBackgroundProps {
   videoId: string;

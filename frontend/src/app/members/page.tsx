@@ -6,20 +6,20 @@ import Link from "next/link";
 import MemberCard from "@/components/common/MemberCard";
 import Button from "@/components/common/Button";
 
-// グループ一覧
+// グループ一覧（公式グループカラー準拠）
 const GROUPS = [
-  "すべて",
-  "モーニング娘。'25",
-  "アンジュルム",
-  "Juice=Juice",
-  "つばきファクトリー",
-  "BEYOOOOONDS",
-  "OCHA NORMA",
-  "ロージークロニクル",
-  "ハロプロ研修生",
+  { name: "すべて", color: "#FF1493" },
+  { name: "モーニング娘。'25", color: "#E4007F" }, // ピンク系
+  { name: "アンジュルム", color: "#0082C8" }, // 公式：青
+  { name: "Juice=Juice", color: "#8E44AD" }, // 公式：紫
+  { name: "つばきファクトリー", color: "#FF69B4" }, // ピンク系
+  { name: "BEYOOOOONDS", color: "#27AE60" }, // 公式：緑
+  { name: "OCHA NORMA", color: "#00A884" }, // お茶グリーン
+  { name: "ロージークロニクル", color: "#E91E63" }, // ローズピンク
+  { name: "ハロプロ研修生", color: "#9E9E9E" },
 ] as const;
 
-type GroupName = (typeof GROUPS)[number];
+type GroupName = (typeof GROUPS)[number]["name"];
 
 // ソートオプション
 const SORT_OPTIONS = [
@@ -798,6 +798,12 @@ const itemVariants = {
   },
 };
 
+// グループカラーを取得するヘルパー関数
+const getGroupColor = (groupName: string): string => {
+  const group = GROUPS.find((g) => g.name === groupName);
+  return group?.color || "#FF69B4";
+};
+
 export default function MembersPage() {
   const [selectedGroup, setSelectedGroup] = useState<GroupName>("すべて");
   const [sortBy, setSortBy] = useState<SortOption>("name");
@@ -917,17 +923,22 @@ export default function MembersPage() {
             <div className="flex flex-wrap gap-2">
               {GROUPS.map((group) => (
                 <Button
-                  key={group}
-                  variant={selectedGroup === group ? "primary" : "outline"}
+                  key={group.name}
+                  variant={selectedGroup === group.name ? "primary" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedGroup(group)}
+                  onClick={() => setSelectedGroup(group.name)}
                   className={
-                    selectedGroup === group
+                    selectedGroup === group.name
                       ? ""
                       : "border-gray-300 text-gray-600 hover:border-primary hover:text-primary hover:bg-transparent"
                   }
+                  style={
+                    selectedGroup === group.name
+                      ? { backgroundColor: group.color, borderColor: group.color }
+                      : undefined
+                  }
                 >
-                  {group}
+                  {group.name}
                 </Button>
               ))}
             </div>
@@ -985,6 +996,7 @@ export default function MembersPage() {
                     birthDate={member.birthDate}
                     imageUrl={member.imageUrl}
                     memberColor={member.memberColor}
+                    groupColor={getGroupColor(member.groupName)}
                   />
                 </motion.div>
               ))}

@@ -4,6 +4,8 @@ import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/common/Button";
+import AddToCalendarButton, { AddToCalendarIconButton } from "@/components/common/AddToCalendarButton";
+import { CalendarEvent } from "@/utils/calendarExport";
 
 // カテゴリ定義
 const CATEGORIES = [
@@ -391,6 +393,38 @@ const modalContentVariants = {
   },
 };
 
+// ScheduleEventをCalendarEvent形式に変換
+const convertToCalendarEvent = (event: ScheduleEvent): CalendarEvent => {
+  // 開始日時を作成
+  const startDate = new Date(event.date);
+  if (event.startTime) {
+    const [hours, minutes] = event.startTime.split(":").map(Number);
+    startDate.setHours(hours, minutes, 0, 0);
+  }
+
+  // 終了日時を作成
+  let endDate: Date | undefined;
+  if (event.endDate) {
+    endDate = new Date(event.endDate);
+    if (event.endTime) {
+      const [hours, minutes] = event.endTime.split(":").map(Number);
+      endDate.setHours(hours, minutes, 0, 0);
+    }
+  } else if (event.endTime) {
+    endDate = new Date(event.date);
+    const [hours, minutes] = event.endTime.split(":").map(Number);
+    endDate.setHours(hours, minutes, 0, 0);
+  }
+
+  return {
+    title: event.title,
+    startDate,
+    endDate,
+    location: event.venue,
+    description: event.description,
+  };
+};
+
 // イベント詳細モーダルコンポーネント
 interface EventModalProps {
   event: ScheduleEvent | null;
@@ -412,17 +446,7 @@ const EventModal: React.FC<EventModalProps> = ({
   if (!event) return null;
 
   const groupColor = getGroupColor(event.groupId);
-
-  const handleAddToCalendar = () => {
-    const startDate = event.date.replace(/-/g, "");
-    const endDate = event.endDate ? event.endDate.replace(/-/g, "") : startDate;
-    const title = encodeURIComponent(event.title);
-    const details = encodeURIComponent(event.description || "");
-    const location = encodeURIComponent(event.venue || "");
-
-    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
-    window.open(googleCalendarUrl, "_blank");
-  };
+  const calendarEvent = convertToCalendarEvent(event);
 
   return (
     <AnimatePresence>
@@ -531,7 +555,7 @@ const EventModal: React.FC<EventModalProps> = ({
               )}
 
               {/* ボタン */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 {event.ticketUrl && (
                   <Button
                     variant="primary"
@@ -545,17 +569,12 @@ const EventModal: React.FC<EventModalProps> = ({
                     申し込む
                   </Button>
                 )}
-                <Button
+                <AddToCalendarButton
+                  event={calendarEvent}
                   variant="outline"
                   size="md"
                   className="flex-1"
-                  onClick={handleAddToCalendar}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  カレンダーに追加
-                </Button>
+                />
               </div>
             </div>
           </motion.div>
@@ -1368,15 +1387,22 @@ export default function SchedulePage() {
                   animate="visible"
                   className="space-y-4"
                 >
-                  {currentMonthEvents.map((event) => (
+                  {currentMonthEvents.map((event) => {
+                    const calendarEvent = convertToCalendarEvent(event);
+                    return (
                     <motion.div
                       key={event.id}
                       variants={itemVariants}
-                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer relative group"
                       onClick={() => handleEventClick(event)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                     >
+                      {/* カレンダー追加ボタン（ホバー時に表示） */}
+                      <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <AddToCalendarIconButton event={calendarEvent} />
+                      </div>
+
                       <div className="flex flex-col md:flex-row">
                         {/* 日付セクション */}
                         <div
@@ -1493,7 +1519,8 @@ export default function SchedulePage() {
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </motion.div>
               ) : (
                 <motion.div

@@ -20,3 +20,6 @@ export type {
 
 export { useBookmarks } from './useBookmarks';
 export type { BookmarkCategory, BookmarkItem } from './useBookmarks';
+
+export { useSettings } from './useSettings';
+export type { UserSettings } from './useSettings';

@@ -1,22 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-
-// ========================================
-// 型定義
-// ========================================
-interface MediaSchedule {
-  id: string;
-  title: string;
-  programName: string;
-  startTime: string; // "HH:mm" 形式
-  endTime: string; // "HH:mm" 形式
-  mediaType: "radio" | "tv" | "web";
-  groupName: string;
-  description?: string;
-  channel?: string;
-}
+import { motion } from "framer-motion";
+import {
+  getTodaySchedules,
+  getLastUpdated,
+  formatScheduleTime,
+  type ScheduleItem,
+} from "@/lib/schedule";
 
 interface GroupColor {
   [key: string]: {
@@ -27,169 +18,55 @@ interface GroupColor {
 }
 
 // ========================================
-// グループカラー設定
+// グループカラー設定（公式カラー）
 // ========================================
 const GROUP_COLORS: GroupColor = {
   "モーニング娘。'25": {
-    primary: "#FF1493",
-    light: "#FFB6C1",
+    primary: "#E4007F",
+    light: "#FFE4F0",
     text: "#FFFFFF",
   },
   アンジュルム: {
-    primary: "#9370DB",
-    light: "#DDA0DD",
+    primary: "#0082C8",
+    light: "#E0F4FF",
     text: "#FFFFFF",
   },
   "Juice=Juice": {
-    primary: "#FFD700",
-    light: "#FFF8DC",
-    text: "#333333",
+    primary: "#8E44AD",
+    light: "#F5E6FF",
+    text: "#FFFFFF",
   },
   つばきファクトリー: {
-    primary: "#87CEEB",
-    light: "#E0F4FF",
-    text: "#333333",
+    primary: "#FF69B4",
+    light: "#FFE4F0",
+    text: "#FFFFFF",
   },
   BEYOOOOONDS: {
-    primary: "#FF6B6B",
-    light: "#FFE0E0",
+    primary: "#27AE60",
+    light: "#E8F8F0",
     text: "#FFFFFF",
   },
   OCHA_NORMA: {
-    primary: "#98D8C8",
-    light: "#E8F8F5",
-    text: "#333333",
+    primary: "#00A884",
+    light: "#E0FFF8",
+    text: "#FFFFFF",
   },
   ロージークロニクル: {
-    primary: "#C9A0DC",
-    light: "#F5E6FF",
-    text: "#333333",
+    primary: "#E91E63",
+    light: "#FCE4EC",
+    text: "#FFFFFF",
   },
   ハロプロ研修生: {
-    primary: "#87CEEB",
-    light: "#E6F3FF",
-    text: "#333333",
+    primary: "#9C27B0",
+    light: "#F3E5F5",
+    text: "#FFFFFF",
   },
 };
 
 // ========================================
-// ダミーデータ（10件のメディア出演スケジュール）
-// ========================================
-const DUMMY_SCHEDULES: MediaSchedule[] = [
-  {
-    id: "1",
-    title: "譜久村聖のモーニングダイアリー",
-    programName: "ラジオ日本",
-    startTime: "07:00",
-    endTime: "07:30",
-    mediaType: "radio",
-    groupName: "モーニング娘。'25",
-    description: "モーニング娘。の最新情報をお届け",
-    channel: "ラジオ日本",
-  },
-  {
-    id: "2",
-    title: "めざましテレビ 出演",
-    programName: "めざましテレビ",
-    startTime: "08:00",
-    endTime: "08:15",
-    mediaType: "tv",
-    groupName: "Juice=Juice",
-    description: "新曲披露＆トーク",
-    channel: "フジテレビ",
-  },
-  {
-    id: "3",
-    title: "アンジュルム ステーション1422",
-    programName: "ラジオ日本",
-    startTime: "10:00",
-    endTime: "10:30",
-    mediaType: "radio",
-    groupName: "アンジュルム",
-    description: "メンバーがお届けするラジオ番組",
-    channel: "ラジオ日本",
-  },
-  {
-    id: "4",
-    title: "YouTube生配信 特別番組",
-    programName: "ハロ!ステ",
-    startTime: "12:00",
-    endTime: "13:00",
-    mediaType: "web",
-    groupName: "ハロプロ研修生",
-    description: "研修生による特別生配信",
-  },
-  {
-    id: "5",
-    title: "ヒルナンデス！ゲスト出演",
-    programName: "ヒルナンデス！",
-    startTime: "12:30",
-    endTime: "13:00",
-    mediaType: "tv",
-    groupName: "つばきファクトリー",
-    description: "バラエティコーナー出演",
-    channel: "日本テレビ",
-  },
-  {
-    id: "6",
-    title: "TBSラジオ JUNK特別版",
-    programName: "TBSラジオ",
-    startTime: "15:00",
-    endTime: "16:00",
-    mediaType: "radio",
-    groupName: "BEYOOOOONDS",
-    description: "メンバートーク企画",
-    channel: "TBSラジオ",
-  },
-  {
-    id: "7",
-    title: "ニコ生 インスタライブ同時配信",
-    programName: "ニコニコ生放送",
-    startTime: "18:00",
-    endTime: "19:00",
-    mediaType: "web",
-    groupName: "OCHA_NORMA",
-    description: "メンバーとファンの交流生配信",
-  },
-  {
-    id: "8",
-    title: "Mステ 3時間スペシャル",
-    programName: "ミュージックステーション",
-    startTime: "19:00",
-    endTime: "22:00",
-    mediaType: "tv",
-    groupName: "モーニング娘。'25",
-    description: "新曲「笑顔の君に逢いたい」初披露",
-    channel: "テレビ朝日",
-  },
-  {
-    id: "9",
-    title: "オールナイトニッポン0",
-    programName: "ニッポン放送",
-    startTime: "24:00",
-    endTime: "25:00",
-    mediaType: "radio",
-    groupName: "ロージークロニクル",
-    description: "深夜のトーク番組",
-    channel: "ニッポン放送",
-  },
-  {
-    id: "10",
-    title: "CDTV ライブ！ライブ！",
-    programName: "CDTV ライブ！ライブ！",
-    startTime: "25:00",
-    endTime: "26:00",
-    mediaType: "tv",
-    groupName: "Juice=Juice",
-    description: "深夜の音楽番組でパフォーマンス",
-    channel: "TBS",
-  },
-];
-
-// ========================================
 // メディアタイプアイコン取得
 // ========================================
-const getMediaIcon = (type: MediaSchedule["mediaType"]) => {
+const getMediaIcon = (type: ScheduleItem["mediaType"]) => {
   switch (type) {
     case "radio":
       return { icon: "📻", label: "ラジオ" };
@@ -286,12 +163,13 @@ const FilterButton = ({ label, isActive, onClick, color }: FilterButtonProps) =>
 // スケジュールカードコンポーネント
 // ========================================
 interface ScheduleCardProps {
-  schedule: MediaSchedule;
+  schedule: ScheduleItem;
   style: React.CSSProperties;
   isAiring: boolean;
+  onClick: () => void;
 }
 
-const ScheduleCard = ({ schedule, style, isAiring }: ScheduleCardProps) => {
+const ScheduleCard = ({ schedule, style, isAiring, onClick }: ScheduleCardProps) => {
   const groupColor = GROUP_COLORS[schedule.groupName] || {
     primary: "#888888",
     light: "#EEEEEE",
@@ -315,7 +193,9 @@ const ScheduleCard = ({ schedule, style, isAiring }: ScheduleCardProps) => {
         zIndex: 50,
         boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
       }}
+      whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
+      onClick={onClick}
     >
       <div className="p-3 h-full flex flex-col">
         {/* ヘッダー：アイコン・時間・放送中バッジ */}
@@ -354,7 +234,7 @@ const ScheduleCard = ({ schedule, style, isAiring }: ScheduleCardProps) => {
               color: groupColor.text,
             }}
           >
-            {schedule.groupName}
+            {schedule.groupName === "OCHA_NORMA" ? "OCHA NORMA" : schedule.groupName}
           </span>
           {schedule.channel && (
             <span className="text-gray-500">{schedule.channel}</span>
@@ -373,34 +253,254 @@ const ScheduleCard = ({ schedule, style, isAiring }: ScheduleCardProps) => {
 };
 
 // ========================================
+// スケジュール詳細モーダル
+// ========================================
+interface ScheduleModalProps {
+  schedule: ScheduleItem | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const ScheduleModal = ({ schedule, isOpen, onClose }: ScheduleModalProps) => {
+  if (!isOpen || !schedule) return null;
+
+  const groupColor = GROUP_COLORS[schedule.groupName] || {
+    primary: "#888888",
+    light: "#EEEEEE",
+    text: "#FFFFFF",
+  };
+  const media = getMediaIcon(schedule.mediaType);
+
+  // 日付をフォーマット
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
+  };
+
+  // 時間を表示（24時以降対応）
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    if (hours >= 24) {
+      return `${hours - 24}:${minutes.toString().padStart(2, "0")}(翌日)`;
+    }
+    return time;
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {/* オーバーレイ */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* モーダル本体 */}
+      <motion.div
+        className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+      >
+        {/* ヘッダー */}
+        <div
+          className="p-6 text-white"
+          style={{ backgroundColor: groupColor.primary }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{media.icon}</span>
+              <span className="text-sm opacity-90">{media.label}</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <h3 className="text-2xl font-bold">{schedule.title}</h3>
+          <p className="text-sm opacity-90 mt-1">{schedule.programName}</p>
+        </div>
+
+        {/* コンテンツ */}
+        <div className="p-6 space-y-4">
+          {/* 日時 */}
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">日時</p>
+              <p className="font-medium">{formatDate(schedule.date)}</p>
+              <p className="text-lg font-bold" style={{ color: groupColor.primary }}>
+                {formatTime(schedule.startTime)} 〜 {formatTime(schedule.endTime)}
+              </p>
+            </div>
+          </div>
+
+          {/* チャンネル */}
+          {schedule.channel && (
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">放送局/配信</p>
+                <p className="font-medium">{schedule.channel}</p>
+              </div>
+            </div>
+          )}
+
+          {/* 出演者 */}
+          {schedule.memberNames && schedule.memberNames.length > 0 && (
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">出演メンバー</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {schedule.memberNames.map((name, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-1 text-sm rounded-full"
+                      style={{ backgroundColor: groupColor.light, color: groupColor.primary }}
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 説明 */}
+          {schedule.description && (
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">詳細</p>
+                <p className="font-medium">{schedule.description}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* フッター：詳細ページへのリンク */}
+        <div className="px-6 pb-6 flex gap-3">
+          <a
+            href={`/groups/${schedule.groupId}#schedule`}
+            className="flex-1 py-3 rounded-lg text-center font-medium transition-colors"
+            style={{
+              backgroundColor: groupColor.light,
+              color: groupColor.primary,
+            }}
+          >
+            {schedule.groupName === "OCHA_NORMA" ? "OCHA NORMA" : schedule.groupName}のページへ
+          </a>
+          {schedule.url && (
+            <a
+              href={schedule.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-3 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              公式
+            </a>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// ========================================
 // メインコンポーネント
 // ========================================
 export default function TodaySchedule() {
   const HOUR_WIDTH = 120; // 1時間あたりのピクセル幅
+  const ROW_HEIGHT = 95; // 各行の高さ
+  const NUM_ROWS = 4; // 行数を増やして縦に収まるようにする
   const TIMELINE_HOURS = Array.from({ length: 21 }, (_, i) => i + 6); // 6:00〜26:00
 
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [currentTimePos, setCurrentTimePos] = useState(0);
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // スクロール連動アニメーション用
-  const { scrollXProgress } = useScroll({
-    container: timelineRef,
-  });
-
-  const headerOpacity = useTransform(scrollXProgress, [0, 0.1], [1, 0.8]);
+  // 今日のスケジュールを取得
+  const todaySchedules = useMemo(() => getTodaySchedules(), []);
 
   // グループ一覧を取得
   const groups = useMemo(() => {
-    const uniqueGroups = [...new Set(DUMMY_SCHEDULES.map((s) => s.groupName))];
+    const uniqueGroups = [...new Set(todaySchedules.map((s) => s.groupName))];
     return uniqueGroups;
-  }, []);
+  }, [todaySchedules]);
 
   // フィルターされたスケジュール
   const filteredSchedules = useMemo(() => {
-    if (!selectedGroup) return DUMMY_SCHEDULES;
-    return DUMMY_SCHEDULES.filter((s) => s.groupName === selectedGroup);
-  }, [selectedGroup]);
+    if (!selectedGroup) return todaySchedules;
+    return todaySchedules.filter((s) => s.groupName === selectedGroup);
+  }, [selectedGroup, todaySchedules]);
+
+  // スケジュールに行を割り当て（重なりを避ける）
+  const schedulesWithRows = useMemo(() => {
+    const sorted = [...filteredSchedules].sort((a, b) => {
+      const aPos = timeToPosition(a.startTime, HOUR_WIDTH);
+      const bPos = timeToPosition(b.startTime, HOUR_WIDTH);
+      return aPos - bPos;
+    });
+
+    const rowEndTimes: number[] = Array(NUM_ROWS).fill(0);
+
+    return sorted.map((schedule) => {
+      const startPos = timeToPosition(schedule.startTime, HOUR_WIDTH);
+      const endPos = startPos + calculateWidth(schedule.startTime, schedule.endTime, HOUR_WIDTH);
+
+      // 空いている行を探す
+      let assignedRow = 0;
+      for (let i = 0; i < NUM_ROWS; i++) {
+        if (rowEndTimes[i] <= startPos) {
+          assignedRow = i;
+          break;
+        }
+        // 全て埋まっていたら最も早く終わる行に割り当て
+        if (i === NUM_ROWS - 1) {
+          assignedRow = rowEndTimes.indexOf(Math.min(...rowEndTimes));
+        }
+      }
+
+      rowEndTimes[assignedRow] = endPos + 10; // 少し余白を追加
+
+      return { ...schedule, row: assignedRow };
+    });
+  }, [filteredSchedules, HOUR_WIDTH, NUM_ROWS]);
 
   // 現在時刻更新
   useEffect(() => {
@@ -429,13 +529,15 @@ export default function TodaySchedule() {
     weekday: "long",
   });
 
+  // タイムラインの高さを計算
+  const timelineHeight = NUM_ROWS * ROW_HEIGHT + 60; // 余白を追加
+
   return (
-    <section className="py-12 bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <section className="py-12 bg-gradient-to-br from-primary/10 via-white to-primary/5">
       <div className="max-w-7xl mx-auto px-4">
         {/* ヘッダー */}
         <motion.div
           className="text-center mb-8"
-          style={{ opacity: headerOpacity }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -447,6 +549,9 @@ export default function TodaySchedule() {
             今日のハロプロ
           </h2>
           <p className="text-gray-500">{dateString}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            最終更新: {new Date(getLastUpdated()).toLocaleString("ja-JP")}
+          </p>
           <div className="w-20 h-1 bg-gradient-to-r from-primary to-secondary-violet mx-auto rounded-full mt-4" />
         </motion.div>
 
@@ -466,7 +571,7 @@ export default function TodaySchedule() {
           {groups.map((group) => (
             <FilterButton
               key={group}
-              label={group}
+              label={group === "OCHA_NORMA" ? "OCHA NORMA" : group}
               isActive={selectedGroup === group}
               onClick={() => setSelectedGroup(group)}
               color={GROUP_COLORS[group]?.primary}
@@ -516,7 +621,7 @@ export default function TodaySchedule() {
               className="relative"
               style={{
                 width: `${TIMELINE_HOURS.length * HOUR_WIDTH}px`,
-                minHeight: "200px",
+                height: `${timelineHeight}px`,
               }}
             >
               {/* 時間軸ヘッダー */}
@@ -558,13 +663,13 @@ export default function TodaySchedule() {
                   {/* 三角マーカー */}
                   <div className="absolute -top-2 -left-2 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[10px] border-l-transparent border-r-transparent border-b-red-500" />
                   {/* 縦線 */}
-                  <div className="w-0.5 bg-red-500 h-[200px]" />
+                  <div className="w-0.5 bg-red-500" style={{ height: `${timelineHeight - 49}px` }} />
                 </div>
               </motion.div>
 
               {/* スケジュールカード */}
-              <div className="relative pt-4 pb-8 px-2" style={{ minHeight: "150px" }}>
-                {filteredSchedules.map((schedule, index) => {
+              <div className="relative pt-4 px-2" style={{ height: `${timelineHeight - 49}px` }}>
+                {schedulesWithRows.map((schedule) => {
                   const left = timeToPosition(schedule.startTime, HOUR_WIDTH);
                   const width = calculateWidth(
                     schedule.startTime,
@@ -576,9 +681,6 @@ export default function TodaySchedule() {
                     schedule.endTime
                   );
 
-                  // 重なりを避けるため、行を分ける（シンプルな実装）
-                  const row = index % 2;
-
                   return (
                     <ScheduleCard
                       key={schedule.id}
@@ -586,10 +688,11 @@ export default function TodaySchedule() {
                       style={{
                         left: `${left}px`,
                         width: `${width - 8}px`,
-                        top: `${row * 85 + 10}px`,
-                        height: "75px",
+                        top: `${schedule.row * ROW_HEIGHT + 10}px`,
+                        height: `${ROW_HEIGHT - 15}px`,
                       }}
                       isAiring={isAiring}
+                      onClick={() => setSelectedSchedule(schedule)}
                     />
                   );
                 })}
@@ -637,6 +740,13 @@ export default function TodaySchedule() {
           </motion.div>
         )}
       </div>
+
+      {/* スケジュール詳細モーダル */}
+      <ScheduleModal
+        schedule={selectedSchedule}
+        isOpen={selectedSchedule !== null}
+        onClose={() => setSelectedSchedule(null)}
+      />
     </section>
   );
 }

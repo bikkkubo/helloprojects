@@ -244,7 +244,7 @@ export default function BookmarksPage() {
                   <Link href={getItemLink(item)}>
                     <div className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full flex flex-col">
                       {/* サムネイル */}
-                      <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
+                      <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
                         {item.imageUrl ? (
                           <Image
                             src={item.imageUrl}

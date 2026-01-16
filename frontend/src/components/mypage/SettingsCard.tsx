@@ -29,7 +29,7 @@ export default function SettingsCard({
       <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
               {icon}
             </div>
           )}

@@ -52,7 +52,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" as const }
   },
 };
 
@@ -126,7 +126,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <Link
               href="/"
               onClick={onClose}
-              className="text-xl font-bold text-purple-600"
+              className="text-xl font-bold text-primary"
             >
               HelloProject
             </Link>
@@ -163,8 +163,8 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                         onClick={() => toggleSubmenu(item.label)}
                         className={`flex items-center justify-between w-full py-4 text-lg font-medium transition-colors ${
                           pathname.startsWith("/groups")
-                            ? "text-purple-600"
-                            : "text-gray-800 hover:text-purple-600"
+                            ? "text-primary"
+                            : "text-gray-800 hover:text-primary"
                         }`}
                       >
                         <span>{item.label}</span>
@@ -230,7 +230,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                                 <Link
                                   href="/groups"
                                   onClick={onClose}
-                                  className="flex items-center gap-2 py-2.5 text-purple-600 font-medium"
+                                  className="flex items-center gap-2 py-2.5 text-primary font-medium"
                                 >
                                   <span>すべてのグループを見る</span>
                                   <svg
@@ -260,8 +260,8 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       onClick={onClose}
                       className={`flex items-center justify-between py-4 text-lg font-medium transition-colors ${
                         pathname === item.href
-                          ? "text-purple-600"
-                          : "text-gray-800 hover:text-purple-600"
+                          ? "text-primary"
+                          : "text-gray-800 hover:text-primary"
                       }`}
                     >
                       <span>{item.label}</span>

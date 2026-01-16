@@ -1,0 +1,98 @@
+{
+  "lastUpdated": "2026-01-16T12:00:00.000Z",
+  "fetchInterval": 5,
+  "schedules": [
+    {
+      "id": "20260116-1",
+      "title": "ユタンポ",
+      "programName": "ユタンポ",
+      "date": "2026-01-16",
+      "startTime": "24:15",
+      "endTime": "24:45",
+      "mediaType": "tv",
+      "groupId": "beyooooonds",
+      "groupName": "BEYOOOOONDS",
+      "memberIds": ["by-3", "by-4", "by-5"],
+      "memberNames": ["江口紗耶", "高瀬くるみ", "小林萌花"],
+      "description": "江口・高瀬・小林が出演",
+      "channel": "RSK山陽放送",
+      "url": ""
+    },
+    {
+      "id": "20260119-1",
+      "title": "Uta-Tube エンタメ祭り",
+      "programName": "Uta-Tube",
+      "date": "2026-01-19",
+      "startTime": "24:35",
+      "endTime": "25:20",
+      "mediaType": "tv",
+      "groupId": "juice-juice",
+      "groupName": "Juice=Juice",
+      "memberIds": [],
+      "memberNames": [],
+      "description": "Juice=Juiceが出演",
+      "channel": "NHK名古屋",
+      "url": ""
+    },
+    {
+      "id": "20260120-1",
+      "title": "うたコン",
+      "programName": "うたコン",
+      "date": "2026-01-20",
+      "startTime": "19:57",
+      "endTime": "20:42",
+      "mediaType": "tv",
+      "groupId": "morning-musume",
+      "groupName": "モーニング娘。'25",
+      "memberIds": [],
+      "memberNames": [],
+      "description": "モーニング娘。'25が出演",
+      "channel": "NHK総合",
+      "url": ""
+    },
+    {
+      "id": "20260122-1",
+      "title": "今夜だけ超！浮かレディオ 3夜目！公開収録",
+      "programName": "浮かレディオ",
+      "date": "2026-01-22",
+      "startTime": "19:00",
+      "endTime": "21:00",
+      "mediaType": "radio",
+      "groupId": "tsubaki-factory",
+      "groupName": "つばきファクトリー",
+      "memberIds": [],
+      "memberNames": [],
+      "description": "公開収録イベント",
+      "channel": "",
+      "url": ""
+    },
+    {
+      "id": "20260123-1",
+      "title": "段原瑠々ライブ2026 ～ルルウタ2～",
+      "programName": "ソロライブ",
+      "date": "2026-01-23",
+      "startTime": "18:30",
+      "endTime": "21:00",
+      "mediaType": "web",
+      "groupId": "juice-juice",
+      "groupName": "Juice=Juice",
+      "memberIds": ["jj-1"],
+      "memberNames": ["段原瑠々"],
+      "description": "段原瑠々ソロライブ",
+      "channel": "",
+      "url": ""
+    }
+  ],
+  "releases": [
+    {
+      "id": "release-20260205-1",
+      "title": "新曲タイトル（仮）",
+      "type": "single",
+      "releaseDate": "2026-02-05",
+      "groupId": "morning-musume",
+      "groupName": "モーニング娘。'25",
+      "coverUrl": "",
+      "description": "79thシングル"
+    }
+  ]
+}

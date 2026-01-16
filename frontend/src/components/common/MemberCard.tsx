@@ -57,7 +57,7 @@ export default function MemberCard({
     <Link href={`/members/${id}`}>
       <div className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
         {/* メンバー画像 */}
-        <div className="relative w-full aspect-[3/4] overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50">
+        <div className="relative w-full aspect-[3/4] overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
           {imageUrl ? (
             <Image
               src={imageUrl}

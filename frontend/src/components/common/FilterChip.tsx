@@ -15,10 +15,10 @@ export function FilterChip({ filter, onRemove }: FilterChipProps) {
     switch (filter.type) {
       case "group":
         return {
-          bg: "bg-pink-100",
-          text: "text-pink-700",
-          hover: "hover:bg-pink-200",
-          icon: "text-pink-500",
+          bg: "bg-primary-light/20",
+          text: "text-primary-dark",
+          hover: "hover:bg-primary-light/30",
+          icon: "text-primary-light",
         };
       case "category":
         return {
@@ -36,10 +36,10 @@ export function FilterChip({ filter, onRemove }: FilterChipProps) {
         };
       case "dateRange":
         return {
-          bg: "bg-purple-100",
-          text: "text-purple-700",
-          hover: "hover:bg-purple-200",
-          icon: "text-purple-500",
+          bg: "bg-primary/20",
+          text: "text-primary-dark",
+          hover: "hover:bg-primary/30",
+          icon: "text-primary",
         };
       default:
         return {

@@ -148,7 +148,7 @@ export default function GroupSelectGrid({
         <p className="text-sm text-gray-500">
           {selectedGroups.length > 0 ? (
             <>
-              <span className="font-medium text-purple-600">
+              <span className="font-medium text-primary">
                 {selectedGroups.length}
               </span>
               グループを選択中

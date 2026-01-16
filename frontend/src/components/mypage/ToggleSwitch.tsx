@@ -68,9 +68,9 @@ export default function ToggleSwitch({
         className={`
           relative inline-flex items-center rounded-full
           transition-colors duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
+          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
           ${config.track}
-          ${enabled ? "bg-purple-600" : "bg-gray-200"}
+          ${enabled ? "bg-primary" : "bg-gray-200"}
           ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
         `}
       >

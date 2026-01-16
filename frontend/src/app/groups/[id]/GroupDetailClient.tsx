@@ -13,7 +13,15 @@ import {
   MorningMusumeEffect,
   OchaNormaEffect,
 } from "@/components/effects";
-import { YouTubeBackground } from "@/components/effects/YouTubeBackground";
+import {
+  getSchedulesByGroupId,
+  getReleasesByGroupId,
+  formatScheduleDate,
+  formatScheduleTime,
+  getMediaTypeIcon,
+  type ScheduleItem,
+  type ReleaseItem,
+} from "@/lib/schedule";
 
 // ========================================
 // 型定義
@@ -62,8 +70,6 @@ interface GroupDetail {
   graduatedMembers: Member[];
   discography: Discography[];
   snsLinks: SNSLink[];
-  heroVideoId?: string;
-  heroVideoStartTime?: number;
 }
 
 interface RelatedNews {
@@ -87,8 +93,6 @@ const GROUPS_DATA: Record<string, GroupDetail> = {
     themeColor: "#FF1493",
     status: "active",
     formedDate: "1997-09-14",
-    heroVideoId: "NXd92U6eNyE",
-    heroVideoStartTime: 4,
     imageUrl: "/images/groups/morning-musume-group.jpg",
     description:
       "モーニング娘。は1997年に結成された、ハロー!プロジェクトの代表的なアイドルグループです。数々のヒット曲を世に送り出し、日本のアイドル史に大きな足跡を残しています。",
@@ -1366,7 +1370,7 @@ const getSNSColor = (platform: SNSLink["platform"]): string => {
     case "twitter":
       return "hover:bg-black hover:text-white";
     case "instagram":
-      return "hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white";
+      return "hover:bg-gradient-to-r hover:from-primary hover:to-primary-light hover:text-white";
     case "youtube":
       return "hover:bg-red-600 hover:text-white";
     case "tiktok":
@@ -1388,49 +1392,42 @@ const GROUP_EFFECTS: Record<string, React.ComponentType<{ className?: string }>>
 };
 
 // ========================================
-// YouTube背景動画設定
+// 背景動画設定（ローカルファイル）
 // ========================================
 interface VideoConfig {
-  videoId: string;
-  startTime: number;
-  endTime?: number;
+  videoSrc: string;
+  duration: number; // 再生時間（秒）
 }
 
+// 各グループのローカル動画設定（60秒再生）
 const GROUP_VIDEOS: Record<string, VideoConfig> = {
   "morning-musume": {
-    videoId: "NXd92U6eNyE", // てか HAPPYのHAPPY！
-    startTime: 4,
-    endTime: 64,
+    videoSrc: "/videos/hero/morning-musume.mp4",
+    duration: 60,
   },
   "juice-juice": {
-    videoId: "3RtbnP1onaM", // 盛れ！ミ・アモーレ
-    startTime: 66,
-    endTime: 130,
+    videoSrc: "/videos/hero/juice-juice.mp4",
+    duration: 60,
   },
   "ocha-norma": {
-    videoId: "M8VHw8OxfjQ", // 女の愛想は武器じゃない
-    startTime: 0,
-    endTime: 60,
+    videoSrc: "/videos/hero/ocha-norma.mp4",
+    duration: 60,
   },
   "angerme": {
-    videoId: "mv2vk2ws6Dc", // アンジュルム
-    startTime: 40,
-    endTime: 100,
+    videoSrc: "/videos/hero/angerme.mp4",
+    duration: 60,
   },
   "tsubaki-factory": {
-    videoId: "Us8Bz9jYUPc", // つばきファクトリー
-    startTime: 10,
-    endTime: 70,
+    videoSrc: "/videos/hero/tsubaki-factory.mp4",
+    duration: 60,
   },
   "beyooooonds": {
-    videoId: "NX0GAXLvKFQ", // BEYOOOOONDS
-    startTime: 7,
-    endTime: 67,
+    videoSrc: "/videos/hero/beyooooonds.mp4",
+    duration: 60,
   },
   "rosy-chronicle": {
-    videoId: "BNh51r-dVa4", // ロージークロニクル
-    startTime: 3,
-    endTime: 63,
+    videoSrc: "/videos/hero/rosy-chronicle.mp4",
+    duration: 60,
   },
 };
 
@@ -1462,6 +1459,16 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
     return group.discography.filter((d) => d.type === "album");
   }, [group.discography]);
 
+  // グループのスケジュールを取得
+  const schedules = useMemo(() => {
+    return getSchedulesByGroupId(groupId, 5);
+  }, [groupId]);
+
+  // グループのリリース情報を取得
+  const releases = useMemo(() => {
+    return getReleasesByGroupId(groupId, 3);
+  }, [groupId]);
+
   return (
     <EffectProvider>
       <div className="min-h-screen bg-neutral-bg">
@@ -1476,14 +1483,20 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
               : `linear-gradient(135deg, ${group.themeColor} 0%, ${group.themeColor}dd 50%, ${group.themeColor}aa 100%)`,
           }}
         >
-          {/* YouTube背景動画 */}
+          {/* 背景動画（ローカルファイル） */}
           {videoConfig && (
-            <YouTubeBackground
-              videoId={videoConfig.videoId}
-              startTime={videoConfig.startTime}
-              endTime={videoConfig.endTime}
-              className="z-0"
-            />
+            <div className="absolute inset-0 z-0">
+              <video
+                src={videoConfig.videoSrc}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full w-auto h-auto object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+              />
+              {/* 動画オーバーレイ */}
+              <div className="absolute inset-0 bg-black/40" />
+            </div>
           )}
 
           {/* グループ専用エフェクト（動画がない場合のみ） */}
@@ -1718,7 +1731,7 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
           所属メンバーセクション
           ======================================== */}
       {group.members.length > 0 && (
-        <section className="py-12 md:py-16 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+        <section className="py-12 md:py-16 bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -1887,6 +1900,151 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
                   ))}
                 </motion.div>
               </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* ========================================
+          スケジュールセクション
+          ======================================== */}
+      {(schedules.length > 0 || releases.length > 0) && (
+        <section id="schedule" className="py-12 md:py-16 bg-white scroll-mt-20">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-neutral-text flex items-center gap-3">
+                  <span
+                    className="w-1 h-8 rounded-full"
+                    style={{ background: `linear-gradient(to bottom, ${group.themeColor}, ${group.themeColor}88)` }}
+                  ></span>
+                  スケジュール
+                </h2>
+              </div>
+
+              {/* メディア出演 */}
+              {schedules.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-bold text-neutral-text mb-4 flex items-center gap-2">
+                    <span className="text-xl">📺</span>
+                    メディア出演
+                  </h3>
+                  <div className="space-y-3">
+                    {schedules.map((schedule) => {
+                      const media = getMediaTypeIcon(schedule.mediaType);
+                      return (
+                        <motion.div
+                          key={schedule.id}
+                          className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow"
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div
+                              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-2xl"
+                              style={{ backgroundColor: `${group.themeColor}20` }}
+                            >
+                              {media.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span
+                                  className="px-2 py-0.5 text-xs font-medium rounded-full text-white"
+                                  style={{ backgroundColor: group.themeColor }}
+                                >
+                                  {media.label}
+                                </span>
+                                <span className="text-sm text-gray-500">
+                                  {formatScheduleDate(schedule.date)}
+                                </span>
+                              </div>
+                              <h4 className="font-bold text-neutral-text mb-1">{schedule.title}</h4>
+                              <div className="flex items-center gap-3 text-sm text-gray-600">
+                                <span className="font-medium" style={{ color: group.themeColor }}>
+                                  {formatScheduleTime(schedule.startTime)} 〜 {formatScheduleTime(schedule.endTime)}
+                                </span>
+                                {schedule.channel && (
+                                  <span className="text-gray-500">{schedule.channel}</span>
+                                )}
+                              </div>
+                              {schedule.memberNames && schedule.memberNames.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {schedule.memberNames.map((name, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 text-xs rounded-full"
+                                      style={{ backgroundColor: `${group.themeColor}15`, color: group.themeColor }}
+                                    >
+                                      {name}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {schedule.description && (
+                                <p className="text-sm text-gray-500 mt-2">{schedule.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* リリース情報 */}
+              {releases.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-neutral-text mb-4 flex items-center gap-2">
+                    <span className="text-xl">💿</span>
+                    リリース予定
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {releases.map((release) => (
+                      <motion.div
+                        key={release.id}
+                        className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 hover:shadow-lg transition-shadow"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span
+                            className="px-2 py-0.5 text-xs font-medium rounded-full text-white"
+                            style={{ backgroundColor: group.themeColor }}
+                          >
+                            {release.type === "single" ? "シングル" : release.type === "album" ? "アルバム" : "デジタル"}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {new Date(release.releaseDate).toLocaleDateString("ja-JP", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-neutral-text">{release.title}</h4>
+                        {release.description && (
+                          <p className="text-sm text-gray-500 mt-1">{release.description}</p>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* スケジュールがない場合 */}
+              {schedules.length === 0 && releases.length === 0 && (
+                <p className="text-center text-gray-500 py-8">
+                  現在予定されているスケジュールはありません
+                </p>
+              )}
             </motion.div>
           </div>
         </section>
@@ -2067,7 +2225,7 @@ export default function GroupDetailClient({ groupId }: GroupDetailClientProps) {
       {/* ========================================
           関連ニュースセクション
           ======================================== */}
-      <section className="py-12 md:py-16 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <section className="py-12 md:py-16 bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

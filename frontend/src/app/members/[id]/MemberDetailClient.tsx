@@ -5,382 +5,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import NewsCard from "@/components/common/NewsCard";
 import Button from "@/components/common/Button";
+import {
+  MEMBERS_DATA,
+  DEFAULT_MEMBER,
+  MEMBER_RELATED_NEWS,
+  type SNSLink,
+  type Discography,
+} from "@/lib/data/members";
 
-// ========================================
-// 型定義
-// ========================================
-interface GroupHistory {
-  groupName: string;
-  role: string;
-  startDate: string;
-  endDate?: string;
-  isCurrent: boolean;
-}
-
-interface Discography {
-  id: string;
-  title: string;
-  type: "single" | "album" | "digital";
-  releaseDate: string;
-  coverUrl?: string;
-}
-
-interface SNSLink {
-  platform: "twitter" | "instagram" | "youtube" | "tiktok" | "blog";
-  url: string;
-  username: string;
-}
-
-interface MemberDetail {
-  id: string;
-  name: string;
-  nameKana: string;
-  nickname: string;
-  groupName: string;
-  imageUrl?: string;
-  birthDate: string;
-  bloodType: string;
-  birthPlace: string;
-  hobbies: string[];
-  specialSkills: string[];
-  height?: number;
-  groupHistory: GroupHistory[];
-  discography: Discography[];
-  snsLinks: SNSLink[];
-  introduction?: string;
-}
-
-interface RelatedNews {
-  id: string;
-  title: string;
-  excerpt?: string;
-  thumbnailUrl?: string;
-  category: string;
-  publishedAt: string;
-  groupNames?: string[];
-}
-
-// ========================================
-// ダミーデータ
-// ========================================
-const DUMMY_MEMBERS: Record<string, MemberDetail> = {
-  "mm-1": {
-    id: "mm-1",
-    name: "譜久村聖",
-    nameKana: "ふくむら みずき",
-    nickname: "ふくちゃん",
-    groupName: "モーニング娘。'25",
-    birthDate: "1996-10-30",
-    bloodType: "O",
-    birthPlace: "東京都",
-    height: 160,
-    hobbies: ["読書", "映画鑑賞", "カフェ巡り"],
-    specialSkills: ["バレエ", "ピアノ"],
-    introduction:
-      "モーニング娘。9期メンバーとして加入し、現在はリーダーを務めています。グループの精神的支柱として、後輩たちの成長を見守りながら、自身も常に進化し続けています。",
-    groupHistory: [
-      {
-        groupName: "ハロプロエッグ",
-        role: "研修生",
-        startDate: "2008-03-01",
-        endDate: "2011-01-02",
-        isCurrent: false,
-      },
-      {
-        groupName: "モーニング娘。",
-        role: "メンバー",
-        startDate: "2011-01-02",
-        endDate: "2019-01-01",
-        isCurrent: false,
-      },
-      {
-        groupName: "モーニング娘。'25",
-        role: "リーダー",
-        startDate: "2019-01-01",
-        isCurrent: true,
-      },
-    ],
-    discography: [
-      {
-        id: "d1",
-        title: "LOVEペディア",
-        type: "single",
-        releaseDate: "2024-11-15",
-      },
-      {
-        id: "d2",
-        title: "人生Blues",
-        type: "single",
-        releaseDate: "2024-07-20",
-      },
-      {
-        id: "d3",
-        title: "すっごいFEVER!",
-        type: "album",
-        releaseDate: "2024-03-10",
-      },
-    ],
-    snsLinks: [
-      {
-        platform: "instagram",
-        url: "https://instagram.com/mizuki_fukumura",
-        username: "@mizuki_fukumura",
-      },
-      {
-        platform: "twitter",
-        url: "https://twitter.com/fukumura_staff",
-        username: "@fukumura_staff",
-      },
-      {
-        platform: "blog",
-        url: "https://ameblo.jp/fukumura-mizuki",
-        username: "公式ブログ",
-      },
-    ],
-  },
-  "mm-2": {
-    id: "mm-2",
-    name: "生田衣梨奈",
-    nameKana: "いくた えりな",
-    nickname: "えりぽん",
-    groupName: "モーニング娘。'25",
-    birthDate: "1997-07-07",
-    bloodType: "A",
-    birthPlace: "福岡県",
-    height: 157,
-    hobbies: ["ゲーム", "アニメ", "漫画"],
-    specialSkills: ["ダンス", "ゴルフ"],
-    introduction:
-      "9期メンバーとして加入。明るく元気なキャラクターでグループのムードメーカー的存在です。最近はゴルフにハマっています！",
-    groupHistory: [
-      {
-        groupName: "モーニング娘。",
-        role: "メンバー",
-        startDate: "2011-01-02",
-        endDate: "2019-01-01",
-        isCurrent: false,
-      },
-      {
-        groupName: "モーニング娘。'25",
-        role: "サブリーダー",
-        startDate: "2019-01-01",
-        isCurrent: true,
-      },
-    ],
-    discography: [
-      {
-        id: "d1",
-        title: "LOVEペディア",
-        type: "single",
-        releaseDate: "2024-11-15",
-      },
-      {
-        id: "d2",
-        title: "人生Blues",
-        type: "single",
-        releaseDate: "2024-07-20",
-      },
-    ],
-    snsLinks: [
-      {
-        platform: "instagram",
-        url: "https://instagram.com/erina_ikuta",
-        username: "@erina_ikuta",
-      },
-      {
-        platform: "twitter",
-        url: "https://twitter.com/ikuta_staff",
-        username: "@ikuta_staff",
-      },
-    ],
-  },
-  "angerme-1": {
-    id: "angerme-1",
-    name: "竹内朱莉",
-    nameKana: "たけうち あかり",
-    nickname: "たけちゃん",
-    groupName: "アンジュルム",
-    birthDate: "1997-11-23",
-    bloodType: "O",
-    birthPlace: "埼玉県",
-    height: 164,
-    hobbies: ["書道", "ダンス動画を見ること"],
-    specialSkills: ["書道（六段）", "ラップ"],
-    introduction:
-      "アンジュルムのリーダーとして活躍中。書道六段の腕前を持ち、「書道ガールズ」としても話題に。力強いパフォーマンスが魅力です。",
-    groupHistory: [
-      {
-        groupName: "ハロプロエッグ",
-        role: "研修生",
-        startDate: "2009-04-01",
-        endDate: "2011-08-14",
-        isCurrent: false,
-      },
-      {
-        groupName: "スマイレージ",
-        role: "メンバー",
-        startDate: "2011-08-14",
-        endDate: "2014-12-17",
-        isCurrent: false,
-      },
-      {
-        groupName: "アンジュルム",
-        role: "リーダー",
-        startDate: "2014-12-17",
-        isCurrent: true,
-      },
-    ],
-    discography: [
-      {
-        id: "d1",
-        title: "愛すべきべきHuman Life",
-        type: "single",
-        releaseDate: "2024-10-20",
-      },
-      {
-        id: "d2",
-        title: "悔しいわ",
-        type: "single",
-        releaseDate: "2024-06-15",
-      },
-    ],
-    snsLinks: [
-      {
-        platform: "instagram",
-        url: "https://instagram.com/akari_takeuchi",
-        username: "@akari_takeuchi",
-      },
-      {
-        platform: "blog",
-        url: "https://ameblo.jp/takeuchi-akari",
-        username: "公式ブログ",
-      },
-    ],
-  },
-  "jj-1": {
-    id: "jj-1",
-    name: "植村あかり",
-    nameKana: "うえむら あかり",
-    nickname: "あーりー",
-    groupName: "Juice=Juice",
-    birthDate: "1998-12-30",
-    bloodType: "A",
-    birthPlace: "大阪府",
-    height: 163,
-    hobbies: ["ファッション", "ネイル", "カフェ巡り"],
-    specialSkills: ["歌唱", "モノマネ"],
-    introduction:
-      "Juice=Juiceのリーダー。大阪出身の明るいキャラクターと圧倒的な歌唱力でグループを牽引しています。",
-    groupHistory: [
-      {
-        groupName: "ハロプロ研修生",
-        role: "研修生",
-        startDate: "2012-02-01",
-        endDate: "2013-02-03",
-        isCurrent: false,
-      },
-      {
-        groupName: "Juice=Juice",
-        role: "リーダー",
-        startDate: "2013-02-03",
-        isCurrent: true,
-      },
-    ],
-    discography: [
-      {
-        id: "d1",
-        title: "プラトニック・プラネット",
-        type: "single",
-        releaseDate: "2024-09-25",
-      },
-      {
-        id: "d2",
-        title: "ポップミュージック",
-        type: "album",
-        releaseDate: "2024-04-10",
-      },
-    ],
-    snsLinks: [
-      {
-        platform: "instagram",
-        url: "https://instagram.com/akari_uemura",
-        username: "@akari_uemura",
-      },
-      {
-        platform: "youtube",
-        url: "https://youtube.com/@akarichannel",
-        username: "あーりーチャンネル",
-      },
-    ],
-  },
-};
-
-// デフォルトのメンバーデータ（見つからない場合用）
-const DEFAULT_MEMBER: MemberDetail = {
-  id: "default",
-  name: "メンバー名",
-  nameKana: "めんばーめい",
-  nickname: "ニックネーム",
-  groupName: "グループ名",
-  birthDate: "2000-01-01",
-  bloodType: "A",
-  birthPlace: "東京都",
-  hobbies: ["趣味1", "趣味2"],
-  specialSkills: ["特技1", "特技2"],
-  introduction: "メンバー紹介文がここに入ります。",
-  groupHistory: [
-    {
-      groupName: "グループ名",
-      role: "メンバー",
-      startDate: "2020-01-01",
-      isCurrent: true,
-    },
-  ],
-  discography: [
-    {
-      id: "d1",
-      title: "サンプル曲",
-      type: "single",
-      releaseDate: "2024-01-01",
-    },
-  ],
-  snsLinks: [
-    {
-      platform: "instagram",
-      url: "https://instagram.com/sample",
-      username: "@sample",
-    },
-  ],
-};
-
-// 関連ニュースのダミーデータ
-const RELATED_NEWS: RelatedNews[] = [
-  {
-    id: "n1",
-    title: "モーニング娘。'25 春ツアー開催決定！全国20公演",
-    excerpt:
-      "待望の春ツアーが決定しました。今回は全国20公演、過去最大規模での開催となります。",
-    category: "event",
-    publishedAt: "2025-01-10T10:00:00Z",
-    groupNames: ["モーニング娘。'25"],
-  },
-  {
-    id: "n2",
-    title: "新曲「LOVEペディア」MV公開！再生回数100万回突破",
-    excerpt: "最新シングルのMVが公開され、大きな反響を呼んでいます。",
-    category: "release",
-    publishedAt: "2025-01-08T14:30:00Z",
-    groupNames: ["モーニング娘。'25"],
-  },
-  {
-    id: "n3",
-    title: "バラエティ番組出演情報まとめ",
-    excerpt: "今月のテレビ出演情報をまとめました。",
-    category: "media",
-    publishedAt: "2025-01-05T09:00:00Z",
-    groupNames: ["モーニング娘。'25"],
-  },
-];
+// 関連ニュースデータ
+const RELATED_NEWS = MEMBER_RELATED_NEWS;
 
 // ========================================
 // アニメーション設定
@@ -512,7 +146,7 @@ const getSNSColor = (platform: SNSLink["platform"]): string => {
     case "twitter":
       return "hover:bg-black hover:text-white";
     case "instagram":
-      return "hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white";
+      return "hover:bg-gradient-to-r hover:from-primary hover:to-primary-light hover:text-white";
     case "youtube":
       return "hover:bg-red-600 hover:text-white";
     case "tiktok":
@@ -562,7 +196,7 @@ interface MemberDetailClientProps {
 export default function MemberDetailClient({ memberId }: MemberDetailClientProps) {
 
   // メンバーデータを取得（見つからない場合はデフォルト値を使用）
-  const member = DUMMY_MEMBERS[memberId] || DEFAULT_MEMBER;
+  const member = MEMBERS_DATA[memberId] || DEFAULT_MEMBER;
 
   return (
     <div className="min-h-screen bg-neutral-bg">
@@ -619,7 +253,7 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
             <div className="flex flex-col md:flex-row">
               {/* メイン写真 */}
               <div className="md:w-1/3 lg:w-1/4">
-                <div className="relative aspect-[3/4] bg-gradient-to-br from-pink-50 to-purple-50">
+                <div className="relative aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5">
                   {member.imageUrl ? (
                     <Image
                       src={member.imageUrl}
@@ -640,9 +274,12 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
                       </svg>
                     </div>
                   )}
-                  {/* ニックネームバッジ */}
+                  {/* ニックネームバッジ（メンバーカラー使用） */}
                   <div className="absolute top-4 right-4">
-                    <span className="bg-primary text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                    <span
+                      className="text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg"
+                      style={{ backgroundColor: member.memberColor }}
+                    >
                       {member.nickname}
                     </span>
                   </div>
@@ -674,24 +311,28 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
 
                   {/* SNSリンク */}
                   <div className="flex flex-wrap gap-3">
-                    {member.snsLinks.map((sns) => (
-                      <motion.a
-                        key={sns.platform}
-                        href={sns.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 transition-all duration-300 ${getSNSColor(
-                          sns.platform
-                        )}`}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {getSNSIcon(sns.platform)}
-                        <span className="text-sm font-medium">
-                          {getSNSName(sns.platform)}
-                        </span>
-                      </motion.a>
-                    ))}
+                    {member.snsLinks.length > 0 ? (
+                      member.snsLinks.map((sns) => (
+                        <motion.a
+                          key={`${sns.platform}-${sns.url}`}
+                          href={sns.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-gray-600 transition-all duration-300 ${getSNSColor(
+                            sns.platform
+                          )}`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {getSNSIcon(sns.platform)}
+                          <span className="text-sm font-medium">
+                            {getSNSName(sns.platform)}
+                          </span>
+                        </motion.a>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-sm">SNS情報は準備中です</p>
+                    )}
                   </div>
                 </motion.div>
               </div>
@@ -713,14 +354,17 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-2xl font-bold text-neutral-text mb-6 flex items-center gap-3">
-              <span className="w-1 h-8 bg-gradient-to-b from-primary to-secondary-violet rounded-full"></span>
+              <span
+                className="w-1 h-8 rounded-full"
+                style={{ backgroundColor: member.memberColor }}
+              ></span>
               基本情報
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* 生年月日 */}
               <motion.div
-                className="bg-gradient-to-br from-pink-50 to-white p-5 rounded-xl"
+                className="bg-gradient-to-br from-primary/10 to-white p-5 rounded-xl"
                 variants={staggerItem}
               >
                 <div className="flex items-center gap-3 mb-2">
@@ -814,7 +458,7 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
               {/* 身長 */}
               {member.height && (
                 <motion.div
-                  className="bg-gradient-to-br from-purple-50 to-white p-5 rounded-xl"
+                  className="bg-gradient-to-br from-primary/5 to-white p-5 rounded-xl"
                   variants={staggerItem}
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -881,41 +525,294 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
               </motion.div>
 
               {/* 特技 */}
-              <motion.div
-                className="bg-gray-50 p-5 rounded-xl"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <h3 className="text-lg font-bold text-neutral-text mb-3 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-secondary-yellow"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                    />
-                  </svg>
-                  特技
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {member.specialSkills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-white rounded-full text-sm text-gray-700 shadow-sm"
+              {member.specialSkills.length > 0 && (
+                <motion.div
+                  className="bg-gray-50 p-5 rounded-xl"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <h3 className="text-lg font-bold text-neutral-text mb-3 flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-secondary-yellow"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                      />
+                    </svg>
+                    特技
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {member.specialSkills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-4 py-2 bg-white rounded-full text-sm text-gray-700 shadow-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </div>
+
+            {/* 追加情報（好きな音楽、スポーツ、座右の銘など） */}
+            {(member.favoriteMusic || member.favoriteSport || member.motto || member.helloProjectJoinDate) && (
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 好きな音楽のジャンル */}
+                {member.favoriteMusic && (
+                  <motion.div
+                    className="bg-gradient-to-br from-orange-50 to-white p-5 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-orange-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-500">好きな音楽のジャンル</span>
+                    </div>
+                    <p className="text-lg font-bold text-neutral-text">
+                      {member.favoriteMusic}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* 好きなスポーツ */}
+                {member.favoriteSport && (
+                  <motion.div
+                    className="bg-gradient-to-br from-cyan-50 to-white p-5 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-cyan-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-500">好きなスポーツ</span>
+                    </div>
+                    <p className="text-lg font-bold text-neutral-text">
+                      {member.favoriteSport}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* 座右の銘 */}
+                {member.motto && (
+                  <motion.div
+                    className="bg-gradient-to-br from-amber-50 to-white p-5 rounded-xl md:col-span-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-amber-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-500">座右の銘</span>
+                    </div>
+                    <p className="text-xl font-bold text-neutral-text italic">
+                      「{member.motto}」
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* ハロー！プロジェクト加入 */}
+                {member.helloProjectJoinDate && (
+                  <motion.div
+                    className="bg-gradient-to-br from-rose-50 to-white p-5 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-rose-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-500">ハロー！プロジェクト加入</span>
+                    </div>
+                    <p className="text-lg font-bold text-neutral-text">
+                      {formatDate(member.helloProjectJoinDate)}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* ユニット（BEYOOOOONDS用） */}
+                {member.unit && (
+                  <motion.div
+                    className="bg-gradient-to-br from-indigo-50 to-white p-5 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-indigo-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-gray-500">所属ユニット</span>
+                    </div>
+                    <p className="text-lg font-bold text-neutral-text">
+                      {member.unit}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
+            )}
+
+            {/* 資格・大使役職 */}
+            {((member.qualifications && member.qualifications.length > 0) || (member.ambassadorRoles && member.ambassadorRoles.length > 0)) && (
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 資格 */}
+                {member.qualifications && member.qualifications.length > 0 && (
+                  <motion.div
+                    className="bg-gray-50 p-5 rounded-xl"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <h3 className="text-lg font-bold text-neutral-text mb-3 flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-emerald-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                        />
+                      </svg>
+                      資格
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {member.qualifications.map((qualification, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-white rounded-full text-sm text-gray-700 shadow-sm"
+                        >
+                          {qualification}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 大使役職 */}
+                {member.ambassadorRoles && member.ambassadorRoles.length > 0 && (
+                  <motion.div
+                    className="bg-gradient-to-br from-yellow-50 to-white p-5 rounded-xl"
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    <h3 className="text-lg font-bold text-neutral-text mb-3 flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-yellow-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                        />
+                      </svg>
+                      大使・アンバサダー
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {member.ambassadorRoles.map((role, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-yellow-100 rounded-full text-sm text-yellow-800 shadow-sm font-medium"
+                        >
+                          {role}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -923,7 +820,7 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
       {/* ========================================
           所属グループ履歴（タイムライン）
           ======================================== */}
-      <section className="py-12 md:py-16 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <section className="py-12 md:py-16 bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -932,7 +829,10 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-2xl font-bold text-neutral-text mb-8 flex items-center gap-3">
-              <span className="w-1 h-8 bg-gradient-to-b from-secondary-violet to-primary rounded-full"></span>
+              <span
+                className="w-1 h-8 rounded-full"
+                style={{ backgroundColor: member.memberColor }}
+              ></span>
               所属グループ履歴
             </h2>
 
@@ -1016,7 +916,10 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
           >
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold text-neutral-text flex items-center gap-3">
-                <span className="w-1 h-8 bg-gradient-to-b from-secondary-yellow to-secondary-orange rounded-full"></span>
+                <span
+                  className="w-1 h-8 rounded-full"
+                  style={{ backgroundColor: member.memberColor }}
+                ></span>
                 ディスコグラフィー
               </h2>
               <Link href={`/discography?member=${memberId}`}>
@@ -1026,68 +929,87 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
               </Link>
             </div>
 
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              variants={staggerContainer}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
-            >
-              {member.discography.map((disc) => (
-                <motion.div
-                  key={disc.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden group cursor-pointer"
-                  variants={staggerItem}
-                  whileHover={{ y: -5 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
-                    {disc.coverUrl ? (
-                      <Image
-                        src={disc.coverUrl}
-                        alt={disc.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg
-                          className="w-20 h-20 text-gray-300"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+            {member.discography.length > 0 ? (
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={staggerContainer}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
+              >
+                {member.discography.map((disc) => (
+                  <motion.div
+                    key={disc.id}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden group cursor-pointer"
+                    variants={staggerItem}
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
+                      {disc.coverUrl ? (
+                        <Image
+                          src={disc.coverUrl}
+                          alt={disc.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg
+                            className="w-20 h-20 text-gray-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3">
+                        <span
+                          className={`${getDiscographyTypeColor(
+                            disc.type
+                          )} text-xs font-bold px-3 py-1 rounded-full`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                          />
-                        </svg>
+                          {getDiscographyTypeLabel(disc.type)}
+                        </span>
                       </div>
-                    )}
-                    <div className="absolute top-3 left-3">
-                      <span
-                        className={`${getDiscographyTypeColor(
-                          disc.type
-                        )} text-xs font-bold px-3 py-1 rounded-full`}
-                      >
-                        {getDiscographyTypeLabel(disc.type)}
-                      </span>
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-neutral-text mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                      {disc.title}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {formatDate(disc.releaseDate)}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-neutral-text mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                        {disc.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {formatDate(disc.releaseDate)}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <svg
+                  className="w-16 h-16 text-gray-300 mx-auto mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                  />
+                </svg>
+                <p className="text-gray-400">ディスコグラフィー情報は準備中です</p>
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -1105,7 +1027,10 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
           >
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl font-bold text-neutral-text flex items-center gap-3">
-                <span className="w-1 h-8 bg-gradient-to-b from-secondary-blue to-secondary-green rounded-full"></span>
+                <span
+                  className="w-1 h-8 rounded-full"
+                  style={{ backgroundColor: member.memberColor }}
+                ></span>
                 関連ニュース
               </h2>
               <Link href={`/news?member=${memberId}`}>

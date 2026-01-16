@@ -94,7 +94,7 @@ export default function DataExportImport({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleExport}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors"
         >
           <svg
             className="w-5 h-5"
@@ -117,7 +117,7 @@ export default function DataExportImport({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setIsImportModalOpen(true)}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-primary text-primary rounded-xl hover:bg-primary/10 transition-colors"
         >
           <svg
             className="w-5 h-5"
@@ -219,7 +219,7 @@ export default function DataExportImport({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleDownload}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
                   >
                     <svg
                       className="w-5 h-5"
@@ -286,7 +286,7 @@ export default function DataExportImport({
                     value={importData}
                     onChange={(e) => setImportData(e.target.value)}
                     placeholder="エクスポートしたJSONデータを貼り付けてください"
-                    className="w-full h-40 p-3 border border-gray-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full h-40 p-3 border border-gray-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary focus:border-primary"
                   />
                 </div>
 
@@ -302,7 +302,7 @@ export default function DataExportImport({
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-sm text-purple-600 hover:text-purple-700 underline"
+                    className="text-sm text-primary hover:text-primary-dark underline"
                   >
                     ファイルから選択
                   </button>
@@ -362,7 +362,7 @@ export default function DataExportImport({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleImport}
-                  className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                  className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
                 >
                   インポートする
                 </motion.button>

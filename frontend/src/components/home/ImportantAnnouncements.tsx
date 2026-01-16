@@ -60,10 +60,10 @@ const getAnnouncementConfig = (type: AnnouncementType) => {
       return {
         badge: "重要",
         emoji: "🎉",
-        bgColor: "bg-gradient-to-r from-pink-50 to-purple-50",
+        bgColor: "bg-gradient-to-r from-primary/10 to-primary/5",
         borderColor: "border-l-primary",
         badgeColor: "bg-primary text-white",
-        hoverBg: "hover:from-pink-100 hover:to-purple-100",
+        hoverBg: "hover:from-primary/20 hover:to-primary/10",
       };
     case "notice":
       return {
@@ -78,10 +78,10 @@ const getAnnouncementConfig = (type: AnnouncementType) => {
       return {
         badge: "緊急",
         emoji: "🔴",
-        bgColor: "bg-gradient-to-r from-red-50 to-pink-50",
+        bgColor: "bg-gradient-to-r from-red-50 to-primary-light/10",
         borderColor: "border-l-red-500",
         badgeColor: "bg-red-500 text-white",
-        hoverBg: "hover:from-red-100 hover:to-pink-100",
+        hoverBg: "hover:from-red-100 hover:to-primary-light/20",
       };
   }
 };

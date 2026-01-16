@@ -90,7 +90,7 @@ export default function ThemeColorPicker({
               w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all
               ${
                 mode === option.id
-                  ? "border-purple-500 bg-purple-50"
+                  ? "border-primary bg-primary/10"
                   : option.disabled
                   ? "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
                   : "border-gray-200 hover:border-gray-300 bg-white"
@@ -103,7 +103,7 @@ export default function ThemeColorPicker({
               w-5 h-5 rounded-full border-2 flex items-center justify-center
               ${
                 mode === option.id
-                  ? "border-purple-500"
+                  ? "border-primary"
                   : "border-gray-300"
               }
             `}
@@ -112,7 +112,7 @@ export default function ThemeColorPicker({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="w-2.5 h-2.5 rounded-full bg-purple-500"
+                  className="w-2.5 h-2.5 rounded-full bg-primary"
                 />
               )}
             </div>
@@ -157,7 +157,7 @@ export default function ThemeColorPicker({
                     w-10 h-10 rounded-lg transition-all duration-200
                     ${
                       customColor === color
-                        ? "ring-2 ring-offset-2 ring-purple-500 scale-110"
+                        ? "ring-2 ring-offset-2 ring-primary scale-110"
                         : "hover:scale-105"
                     }
                   `}
@@ -181,7 +181,7 @@ export default function ThemeColorPicker({
               type="text"
               value={customColor}
               onChange={(e) => onCustomColorChange(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
               placeholder="#000000"
             />
           </div>

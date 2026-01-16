@@ -32,7 +32,7 @@ export default function MyPage() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent" />
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -40,7 +40,7 @@ export default function MyPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ヒーローセクション */}
-      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 text-white">
+      <div className="bg-gradient-to-br from-primary via-primary-dark to-secondary-violet text-white">
         <div className="container mx-auto px-4 py-12 md:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

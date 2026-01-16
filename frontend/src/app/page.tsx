@@ -248,11 +248,11 @@ const staggerItem = {
 const getEventTypeStyle = (type: string) => {
   switch (type) {
     case "concert":
-      return { icon: "M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3", bgColor: "bg-pink-100", textColor: "text-pink-600" };
+      return { icon: "M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3", bgColor: "bg-primary-light/20", textColor: "text-primary-light" };
     case "event":
       return { icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z", bgColor: "bg-blue-100", textColor: "text-blue-600" };
     case "fanmeeting":
-      return { icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z", bgColor: "bg-purple-100", textColor: "text-purple-600" };
+      return { icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z", bgColor: "bg-primary/20", textColor: "text-primary" };
     default:
       return { icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", bgColor: "bg-gray-100", textColor: "text-gray-600" };
   }
@@ -299,7 +299,7 @@ export default function Home() {
       {/* ========================================
           注目メンバーセクション
           ======================================== */}
-      <section className="py-20 px-4 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <section className="py-20 px-4 bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="text-center mb-12"

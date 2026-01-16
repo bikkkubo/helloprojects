@@ -9,22 +9,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ウォーム・パステル カラーパレット
         primary: {
-          DEFAULT: "#FF1493",  // ビビッドピンク
-          light: "#FF69B4",
-          dark: "#C71585",
+          DEFAULT: "#D4899A",  // ソフトローズ
+          light: "#E8B4BC",    // ライトローズ
+          dark: "#B86B7A",     // ダスティローズ
         },
         secondary: {
-          blue: "#00BFFF",     // スカイブルー
-          yellow: "#FFD700",   // サニーイエロー
-          green: "#32CD32",    // ライムグリーン
-          violet: "#9370DB",   // バイオレット
-          orange: "#FF8C00",   // オレンジ
+          blue: "#8AAEC4",     // ダスティブルー
+          yellow: "#E8D4A8",   // クリームイエロー
+          green: "#9BC4A8",    // セージグリーン
+          violet: "#A8A0C4",   // ラベンダー
+          orange: "#D4A87A",   // キャメル
         },
         neutral: {
-          bg: "#F5F5F5",
-          text: "#333333",
-          border: "#CCCCCC",
+          bg: "#FAF8F5",       // アイボリー
+          card: "#FFFFFF",     // カード背景
+          text: "#4A4543",     // ウォームグレー
+          "text-light": "#7A7572", // ライトグレー
+          border: "#E8E4E0",   // ソフトボーダー
+        },
+        accent: {
+          cream: "#FBF7F0",    // クリーム
+          ivory: "#FFFEF7",    // アイボリーホワイト
+          blush: "#F5E6E8",    // ブラッシュピンク
+          sage: "#E8EDE8",     // セージライト
         },
       },
       fontFamily: {

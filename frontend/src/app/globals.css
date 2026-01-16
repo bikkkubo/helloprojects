@@ -2,21 +2,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #FF1493;
-  --color-primary-light: #FF69B4;
-  --color-primary-dark: #C71585;
-  --color-primary-pink: #FF1493;
+  /* ウォーム・パステル カラーパレット */
+  --color-primary: #D4899A;
+  --color-primary-light: #E8B4BC;
+  --color-primary-dark: #B86B7A;
+  --color-primary-pink: #D4899A;
 
-  --color-secondary-blue: #00BFFF;
-  --color-secondary-yellow: #FFD700;
-  --color-secondary-green: #32CD32;
-  --color-secondary-violet: #9370DB;
-  --color-secondary-purple: #9370DB;
-  --color-secondary-orange: #FF8C00;
+  --color-secondary-blue: #8AAEC4;
+  --color-secondary-yellow: #E8D4A8;
+  --color-secondary-green: #9BC4A8;
+  --color-secondary-violet: #A8A0C4;
+  --color-secondary-purple: #A8A0C4;
+  --color-secondary-orange: #D4A87A;
 
-  --color-neutral-bg: #F5F5F5;
-  --color-neutral-text: #333333;
-  --color-neutral-border: #CCCCCC;
+  --color-neutral-bg: #FAF8F5;
+  --color-neutral-card: #FFFFFF;
+  --color-neutral-text: #4A4543;
+  --color-neutral-text-light: #7A7572;
+  --color-neutral-border: #E8E4E0;
+
+  --color-accent-cream: #FBF7F0;
+  --color-accent-ivory: #FFFEF7;
+  --color-accent-blush: #F5E6E8;
+  --color-accent-sage: #E8EDE8;
 
   --font-family-sans: 'Noto Sans JP', sans-serif;
 
@@ -49,7 +57,7 @@
   }
 
   body {
-    @apply bg-white text-neutral-text;
+    @apply bg-neutral-bg text-neutral-text;
   }
 }
 

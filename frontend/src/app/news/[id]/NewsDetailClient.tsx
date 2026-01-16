@@ -264,7 +264,7 @@ export default function NewsDetailClient({
               prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
               prose-ul:my-4 prose-ul:pl-6
               prose-li:text-gray-700 prose-li:mb-2
-              prose-blockquote:border-l-4 prose-blockquote:border-primary-light prose-blockquote:bg-pink-50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-600
+              prose-blockquote:border-l-4 prose-blockquote:border-primary-light prose-blockquote:bg-primary-light/10 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-600
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
             dangerouslySetInnerHTML={{ __html: newsDetail.content }}
           />
@@ -302,7 +302,7 @@ export default function NewsDetailClient({
                 <Link
                   key={member.id}
                   href={`/members/${member.id}`}
-                  className="flex items-center gap-3 bg-gray-50 hover:bg-pink-50 rounded-full pr-4 transition-colors group"
+                  className="flex items-center gap-3 bg-gray-50 hover:bg-primary/10 rounded-full pr-4 transition-colors group"
                 >
                   <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                     {member.imageUrl ? (
@@ -342,7 +342,7 @@ export default function NewsDetailClient({
                 <Link
                   key={group.id}
                   href={`/groups/${group.id}`}
-                  className="flex items-center gap-2 bg-gray-50 hover:bg-pink-50 rounded-full px-4 py-2 transition-colors group"
+                  className="flex items-center gap-2 bg-gray-50 hover:bg-primary/10 rounded-full px-4 py-2 transition-colors group"
                 >
                   <svg
                     className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors"
@@ -449,7 +449,7 @@ export default function NewsDetailClient({
       />
 
       {/* 関連ニュースセクション */}
-      <section className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 py-12">
+      <section className="bg-gradient-to-br from-primary/10 via-primary/5 to-blue-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center mb-8"

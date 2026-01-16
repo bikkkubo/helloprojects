@@ -44,9 +44,9 @@ export default function StickyCTA() {
           className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
         >
           {/* グラデーション背景 */}
-          <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-rose-500 px-4 py-3 shadow-lg shadow-purple-500/20">
+          <div className="bg-gradient-to-r from-primary via-primary-light to-secondary-violet px-4 py-3 shadow-lg shadow-primary/20">
             {/* 上部のフェード効果 */}
-            <div className="absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-purple-600/50 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-primary/50 to-transparent pointer-events-none" />
 
             <div className="flex gap-3 max-w-md mx-auto">
               {/* ファンクラブ入会ボタン */}

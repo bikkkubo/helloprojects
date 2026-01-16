@@ -87,7 +87,7 @@ function MegaMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
                 {/* 現役グループ */}
                 <div className="md:col-span-2">
                   <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
-                    <span className="w-1.5 h-5 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full" />
+                    <span className="w-1.5 h-5 bg-gradient-to-b from-primary-light to-primary rounded-full" />
                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
                       現役グループ
                     </h3>
@@ -107,7 +107,7 @@ function MegaMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
                   {/* 研修生 */}
                   <div>
                     <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
-                      <span className="w-1.5 h-5 bg-gradient-to-b from-purple-300 to-pink-300 rounded-full" />
+                      <span className="w-1.5 h-5 bg-gradient-to-b from-secondary-violet to-primary-light rounded-full" />
                       <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
                         研修生
                       </h3>
@@ -147,7 +147,7 @@ function MegaMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
                 <Link
                   href="/groups"
                   onClick={onClose}
-                  className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
                 >
                   すべてのグループを見る
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +281,7 @@ function MobileGroupAccordion({ isOpen, onToggle, onClose }: {
               <Link
                 href="/groups"
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
               >
                 すべてのグループを見る
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +353,7 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link
               href="/"
-              className="text-2xl md:text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors"
+              className="text-2xl md:text-3xl font-bold text-primary hover:text-primary-dark transition-colors"
             >
               HelloProject
             </Link>
@@ -372,8 +372,8 @@ export default function Header() {
                   href={link.href}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-1 ${
                     pathname === link.href || (link.hasMegaMenu && isMegaMenuOpen)
-                      ? "text-purple-600 bg-purple-50"
-                      : "text-gray-700 hover:text-purple-600 hover:bg-gray-50"
+                      ? "text-primary bg-primary/10"
+                      : "text-gray-700 hover:text-primary hover:bg-gray-50"
                   }`}
                 >
                   {link.label}
@@ -422,7 +422,7 @@ export default function Header() {
               href="/mypage"
               className={`p-2 rounded-full transition-colors ${
                 pathname === "/mypage"
-                  ? "bg-purple-100 text-purple-600"
+                  ? "bg-primary/20 text-primary"
                   : "hover:bg-gray-100 text-gray-700"
               }`}
               aria-label="マイページ"

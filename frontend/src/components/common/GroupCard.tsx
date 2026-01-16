@@ -58,7 +58,7 @@ export default function GroupCard({
     <Link href={`/groups/${id}`}>
       <div className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer">
         {/* グループ画像 */}
-        <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+        <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-blue-100">
           {imageUrl ? (
             <Image
               src={imageUrl}

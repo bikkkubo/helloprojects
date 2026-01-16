@@ -33,10 +33,10 @@ const OG_GROUPS = [
 const navLinks = [
   { href: "/", label: "ホーム", hasMegaMenu: false },
   { href: "/news", label: "ニュース", hasMegaMenu: false },
-  { href: "/members", label: "メンバー", hasMegaMenu: false },
   { href: "/groups", label: "グループ", hasMegaMenu: true },
-  { href: "/schedule", label: "スケジュール", hasMegaMenu: false },
-  { href: "/bookmarks", label: "ブックマーク", hasMegaMenu: false },
+  { href: "/live/schedule", label: "ライブ", hasMegaMenu: false },
+  { href: "/recommendations", label: "おすすめ", hasMegaMenu: false },
+  { href: "/beginners", label: "初めての方", hasMegaMenu: false },
 ];
 
 // グループアイテムコンポーネント

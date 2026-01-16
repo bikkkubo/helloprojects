@@ -15,10 +15,12 @@ interface MobileMenuProps {
 const menuItems = [
   { href: "/", label: "ホーム" },
   { href: "/news", label: "ニュース" },
-  { href: "/members", label: "メンバー" },
   { href: "/groups", label: "グループ", hasSubmenu: true },
-  { href: "/schedule", label: "スケジュール" },
-  { href: "/bookmarks", label: "ブックマーク" },
+  { href: "/live/schedule", label: "ライブスケジュール" },
+  { href: "/live/setlist", label: "セットリスト" },
+  { href: "/recommendations", label: "おすすめ楽曲" },
+  { href: "/beginners", label: "初めての方へ" },
+  { href: "/members", label: "メンバー" },
   { href: "/mypage", label: "マイページ" },
 ];
 

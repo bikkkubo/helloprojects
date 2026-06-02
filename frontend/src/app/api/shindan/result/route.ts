@@ -7,6 +7,7 @@ type D1RunResult = { success?: boolean; error?: string };
 type D1PreparedStatement = {
   bind: (...values: unknown[]) => D1PreparedStatement;
   run: () => Promise<D1RunResult>;
+  first: <T = unknown>() => Promise<T | null>;
 };
 
 type D1DatabaseLike = {
@@ -32,6 +33,20 @@ type ShindanResultPayload = {
   scores?: Record<string, number>;
 };
 
+type ShindanResultRow = {
+  id: string;
+  memberId: string;
+  memberName: string;
+  groupName: string;
+  memberColor: string;
+  primaryType: string;
+  primaryLabel: string;
+  secondaryType: string;
+  secondaryLabel: string;
+  resultTitle: string;
+  scoresJson: string;
+};
+
 function cleanText(value: unknown, maxLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
@@ -51,6 +66,78 @@ function cleanScores(value: unknown) {
 function getDb() {
   const { env } = getRequestContext();
   return (env as { SHINDAN_DB?: D1DatabaseLike }).SHINDAN_DB;
+}
+
+function parseScores(scoresJson: string) {
+  try {
+    const scores = JSON.parse(scoresJson);
+    return scores && typeof scores === "object" ? scores : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function GET(request: Request) {
+  const db = getDb();
+
+  if (!db) {
+    return Response.json({ ok: false, error: "D1 binding is not configured." }, { status: 500 });
+  }
+
+  const url = new URL(request.url);
+  const rid = cleanText(url.searchParams.get("rid"), 80);
+
+  if (!rid) {
+    return Response.json({ ok: false, error: "Missing result id." }, { status: 400 });
+  }
+
+  const row = await db
+    .prepare(
+      `SELECT
+        id,
+        member_id AS memberId,
+        member_name AS memberName,
+        group_name AS groupName,
+        member_color AS memberColor,
+        primary_type AS primaryType,
+        primary_label AS primaryLabel,
+        secondary_type AS secondaryType,
+        secondary_label AS secondaryLabel,
+        result_title AS resultTitle,
+        scores_json AS scoresJson
+      FROM shindan_results
+      WHERE id = ?
+      LIMIT 1`,
+    )
+    .bind(rid)
+    .first<ShindanResultRow>();
+
+  if (!row) {
+    return Response.json({ ok: false, error: "Result not found." }, { status: 404 });
+  }
+
+  return Response.json({
+    ok: true,
+    result: {
+      id: row.id,
+      member: {
+        id: row.memberId,
+        name: row.memberName,
+        groupName: row.groupName,
+        memberColor: row.memberColor,
+      },
+      primary: {
+        id: row.primaryType,
+        label: row.primaryLabel,
+      },
+      secondary: {
+        id: row.secondaryType,
+        label: row.secondaryLabel,
+      },
+      resultTitle: row.resultTitle,
+      scores: parseScores(row.scoresJson),
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -82,6 +169,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "Missing required fields." }, { status: 400 });
   }
 
+  const id = crypto.randomUUID();
   const result = await db
     .prepare(
       `INSERT INTO shindan_results (
@@ -100,7 +188,7 @@ export async function POST(request: Request) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
-      crypto.randomUUID(),
+      id,
       memberId,
       memberName,
       groupName,
@@ -119,5 +207,5 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: result.error ?? "Insert failed." }, { status: 500 });
   }
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, id });
 }

@@ -42,6 +42,7 @@ type ResultProfile = {
 type Step = "select" | "diagnosis" | "result";
 
 type SharedResult = {
+  id?: string;
   title: string;
   summary?: string;
   primaryAxisId: AxisId;
@@ -51,6 +52,30 @@ type SharedResult = {
   oshi?: string;
   group?: string;
   scores?: Record<AxisId, number>;
+};
+
+type SavedResultResponse = {
+  ok?: boolean;
+  id?: string;
+  result?: {
+    id?: string;
+    member?: {
+      id?: string;
+      name?: string;
+      groupName?: string;
+      memberColor?: string;
+    };
+    primary?: {
+      id?: string;
+      label?: string;
+    };
+    secondary?: {
+      id?: string;
+      label?: string;
+    };
+    resultTitle?: string;
+    scores?: Record<string, number>;
+  };
 };
 
 const axes: Axis[] = [
@@ -355,6 +380,21 @@ function parseScoresParam(value: string | null) {
   );
 }
 
+function normalizeScores(value: Record<string, number> | undefined) {
+  if (!value) return undefined;
+
+  return axes.reduce(
+    (scores, axis) => {
+      const score = value[axis.id];
+      scores[axis.id] = typeof score === "number" && Number.isFinite(score)
+        ? Math.min(5, Math.max(0, score))
+        : averageScores[axis.id];
+      return scores;
+    },
+    {} as Record<AxisId, number>,
+  );
+}
+
 function getRadarPoints(scores: Record<AxisId, number>, size: number) {
   const center = size / 2;
   const radius = size * 0.34;
@@ -446,10 +486,43 @@ export default function OshiTypeDiagnosis() {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [copiedShareUrl, setCopiedShareUrl] = useState(false);
   const [sharedResult, setSharedResult] = useState<SharedResult | null>(null);
+  const [resultId, setResultId] = useState("");
   const hasLoggedResult = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const rid = params.get("rid");
+
+    if (rid) {
+      setResultId(rid);
+      void fetch(`/api/shindan/result?${new URLSearchParams({ rid }).toString()}`)
+        .then(async (response) => {
+          const data = (await response.json()) as SavedResultResponse;
+          const savedResult = data.result;
+          const primaryAxis = getAxisFromParam(savedResult?.primary?.id ?? savedResult?.primary?.label ?? null);
+          const secondaryAxis = getAxisFromParam(savedResult?.secondary?.id ?? savedResult?.secondary?.label ?? null);
+
+          if (!response.ok || !savedResult || !primaryAxis || !savedResult.resultTitle) return;
+
+          const profile = getProfileFromParam(savedResult.resultTitle);
+
+          setSharedResult({
+            id: savedResult.id ?? rid,
+            title: savedResult.resultTitle,
+            summary: profile?.summary,
+            primaryAxisId: primaryAxis.id,
+            secondaryAxisId: secondaryAxis?.id,
+            color: savedResult.member?.memberColor ?? primaryAxis.color,
+            memberId: savedResult.member?.id,
+            oshi: savedResult.member?.name,
+            group: savedResult.member?.groupName,
+            scores: normalizeScores(savedResult.scores),
+          });
+        })
+        .catch(() => undefined);
+      return;
+    }
+
     const axis = getAxisFromParam(params.get("t") ?? params.get("axis") ?? params.get("result"));
     const secondaryAxis = getAxisFromParam(params.get("s"));
     const profile = getProfileFromParam(params.get("r"));
@@ -545,26 +618,27 @@ export default function OshiTypeDiagnosis() {
       }
     : calculatedProfile;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
-  const shareParams = new URLSearchParams({
+  const fallbackShareParams = new URLSearchParams({
     t: primary?.id ?? "",
   });
 
   if (secondary?.id) {
-    shareParams.set("s", secondary.id);
+    fallbackShareParams.set("s", secondary.id);
   }
 
   if (calculatedProfile.key !== "base") {
-    shareParams.set("r", calculatedProfile.key);
+    fallbackShareParams.set("r", calculatedProfile.key);
   }
 
   if (displayMember?.id && displayMember.id !== "shared") {
-    shareParams.set("m", displayMember.id);
+    fallbackShareParams.set("m", displayMember.id);
   } else if (displayMember) {
-    shareParams.set("oshi", displayMember.name);
-    shareParams.set("group", displayMember.groupName);
-    shareParams.set("color", displayMember.memberColor);
+    fallbackShareParams.set("oshi", displayMember.name);
+    fallbackShareParams.set("group", displayMember.groupName);
+    fallbackShareParams.set("color", displayMember.memberColor);
   }
 
+  const shareParams = resultId ? new URLSearchParams({ rid: resultId }) : fallbackShareParams;
   const shareUrl = `${origin}/shindan?${shareParams.toString()}`;
   const ogParams = new URLSearchParams({
     type: "oshi",
@@ -589,6 +663,7 @@ export default function OshiTypeDiagnosis() {
     xUrl: `https://twitter.com/intent/tweet?${new URLSearchParams({ text: shareText, url: shareUrl }).toString()}`,
     lineUrl: `https://social-plugins.line.me/lineit/share?${new URLSearchParams({ url: shareUrl }).toString()}`,
   };
+  const isShareReady = Boolean(sharedResult || resultId);
 
   useEffect(() => {
     if (
@@ -626,9 +701,20 @@ export default function OshiTypeDiagnosis() {
         resultTitle: matchedProfile.title,
         scores,
       }),
-    }).catch(() => {
-      hasLoggedResult.current = false;
-    });
+    })
+      .then(async (response) => {
+        const data = (await response.json()) as SavedResultResponse;
+
+        if (!response.ok || !data.id) {
+          hasLoggedResult.current = false;
+          return;
+        }
+
+        setResultId(data.id);
+      })
+      .catch(() => {
+        hasLoggedResult.current = false;
+      });
   }, [answeredCount, displayMember, matchedProfile.title, primary, scores, secondary, sharedResult, step]);
 
   const selectGroup = (groupName: string) => {
@@ -645,13 +731,14 @@ export default function OshiTypeDiagnosis() {
     setStep("select");
     setSharedResult(null);
     setCopiedShareUrl(false);
+    setResultId("");
     hasLoggedResult.current = false;
     window.history.replaceState(null, "", window.location.pathname);
     window.scrollTo({ top: 0 });
   };
 
   const copyShareUrl = async () => {
-    if (!navigator.clipboard) return;
+    if (!navigator.clipboard || !isShareReady) return;
     await navigator.clipboard.writeText(shareData.shareUrl);
     setCopiedShareUrl(true);
   };
@@ -814,9 +901,10 @@ export default function OshiTypeDiagnosis() {
               </div>
               <button
                 onClick={copyShareUrl}
-                className="rounded-lg border border-neutral-border bg-white px-4 py-3 text-sm font-bold text-neutral-text transition-colors hover:border-primary hover:text-primary"
+                disabled={!isShareReady}
+                className="rounded-lg border border-neutral-border bg-white px-4 py-3 text-sm font-bold text-neutral-text transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:bg-[#f0e8e2] disabled:text-neutral-text-light"
               >
-                {copiedShareUrl ? "URLをコピーしました" : "結果URLをコピー"}
+                {!isShareReady ? "結果URLを準備中" : copiedShareUrl ? "URLをコピーしました" : "結果URLをコピー"}
               </button>
             </div>
 
@@ -825,18 +913,32 @@ export default function OshiTypeDiagnosis() {
                 href={shareData.xUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-[#111111] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+                aria-disabled={!isShareReady}
+                onClick={(event) => {
+                  if (!isShareReady) event.preventDefault();
+                }}
+                className={[
+                  "flex min-h-20 items-center justify-center rounded-lg bg-[#111111] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90",
+                  !isShareReady ? "pointer-events-none opacity-45" : "",
+                ].join(" ")}
               >
-                Xでシェア
+                {isShareReady ? "Xでシェア" : "Xでシェア準備中"}
               </a>
               <div className="grid gap-3 md:grid-cols-2">
                 <a
                   href={shareData.lineUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+                  aria-disabled={!isShareReady}
+                  onClick={(event) => {
+                    if (!isShareReady) event.preventDefault();
+                  }}
+                  className={[
+                    "flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90",
+                    !isShareReady ? "pointer-events-none opacity-45" : "",
+                  ].join(" ")}
                 >
-                  LINEで送る
+                  {isShareReady ? "LINEで送る" : "LINE準備中"}
                 </a>
                 <a
                   href={shareData.ogImageUrl}
@@ -934,6 +1036,7 @@ export default function OshiTypeDiagnosis() {
               disabled={!selectedMember}
               onClick={() => {
                 hasLoggedResult.current = false;
+                setResultId("");
                 setStep("diagnosis");
                 window.scrollTo({ top: 0 });
               }}
@@ -1048,6 +1151,7 @@ export default function OshiTypeDiagnosis() {
             disabled={answeredCount !== questions.length}
             onClick={() => {
               hasLoggedResult.current = false;
+              setResultId("");
               setStep("result");
               window.scrollTo({ top: 0 });
             }}

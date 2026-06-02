@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 import OshiTypeDiagnosis from "../oshi-type/OshiTypeDiagnosis";
 import { getAllMembers } from "@/lib/data/members";
 
@@ -43,6 +44,24 @@ const SHINDAN_ONLY_MEMBERS = [
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
+type D1PreparedStatement = {
+  bind: (...values: unknown[]) => D1PreparedStatement;
+  first: <T = unknown>() => Promise<T | null>;
+};
+
+type D1DatabaseLike = {
+  prepare: (query: string) => D1PreparedStatement;
+};
+
+type SavedResultRow = {
+  memberName: string;
+  groupName: string;
+  memberColor: string;
+  primaryType: string;
+  primaryLabel: string;
+  resultTitle: string;
+};
+
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -64,7 +83,51 @@ function findProfileTitle(value: string | undefined) {
   return PROFILE_META[value as keyof typeof PROFILE_META];
 }
 
-function buildOshiOgImageUrl(params: SearchParams) {
+function getDb() {
+  try {
+    const { env } = getRequestContext();
+    return (env as { SHINDAN_DB?: D1DatabaseLike }).SHINDAN_DB;
+  } catch {
+    return undefined;
+  }
+}
+
+async function getSavedResult(rid: string | undefined) {
+  const db = getDb();
+  if (!rid || !db) return undefined;
+
+  const row = await db
+    .prepare(
+      `SELECT
+        member_name AS memberName,
+        group_name AS groupName,
+        member_color AS memberColor,
+        primary_type AS primaryType,
+        primary_label AS primaryLabel,
+        result_title AS resultTitle
+      FROM shindan_results
+      WHERE id = ?
+      LIMIT 1`,
+    )
+    .bind(rid)
+    .first<SavedResultRow>()
+    .catch(() => undefined);
+
+  return row ?? undefined;
+}
+
+function buildOshiOgImageUrl(params: SearchParams, savedResult?: SavedResultRow) {
+  if (savedResult) {
+    return `${SITE_URL}/api/og?${new URLSearchParams({
+      type: "oshi",
+      title: savedResult.primaryLabel,
+      subtitle: savedResult.resultTitle,
+      color: savedResult.memberColor,
+      oshi: savedResult.memberName,
+      group: savedResult.groupName,
+    }).toString()}`;
+  }
+
   const axis = findAxis(firstParam(params.t) ?? firstParam(params.axis) ?? firstParam(params.result));
   const member = findMember(firstParam(params.m));
   const axisLabel = axis?.label ?? firstParam(params.axis) ?? "推し活タイプ診断";
@@ -91,19 +154,20 @@ export async function generateMetadata({
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const params = await searchParams;
+  const savedResult = await getSavedResult(firstParam(params.rid));
   const axis = findAxis(firstParam(params.t) ?? firstParam(params.axis) ?? firstParam(params.result));
   const member = findMember(firstParam(params.m));
-  const axisLabel = axis?.label ?? firstParam(params.axis);
-  const result = firstParam(params.result) ?? findProfileTitle(firstParam(params.r)) ?? (axisLabel ? `${axisLabel}ベースタイプ` : undefined);
-  const oshi = firstParam(params.oshi) ?? member?.name;
-  const group = firstParam(params.group) ?? member?.groupName;
+  const axisLabel = savedResult?.primaryLabel ?? axis?.label ?? firstParam(params.axis);
+  const result = savedResult?.resultTitle ?? firstParam(params.result) ?? findProfileTitle(firstParam(params.r)) ?? (axisLabel ? `${axisLabel}ベースタイプ` : undefined);
+  const oshi = savedResult?.memberName ?? firstParam(params.oshi) ?? member?.name;
+  const group = savedResult?.groupName ?? firstParam(params.group) ?? member?.groupName;
   const title = result
     ? `${result} | 推し活タイプ診断`
     : "推し活タイプ診断";
   const description = oshi && group
     ? `${group} ${oshi}さんを推すあなたの推し活タイプ診断結果です。`
     : "12軸で推し活の傾向を可視化し、利用者平均と比較できる診断です。";
-  const ogImageUrl = buildOshiOgImageUrl(params);
+  const ogImageUrl = buildOshiOgImageUrl(params, savedResult);
 
   return {
     title,

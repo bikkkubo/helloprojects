@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import AppChrome from "@/components/layout/AppChrome";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 
@@ -118,9 +116,7 @@ export default function RootLayout({
         <WebsiteJsonLd />
       </head>
       <body className="font-sans min-h-screen flex flex-col">
-        <Header />
         <AppChrome>{children}</AppChrome>
-        <Footer />
       </body>
     </html>
   );

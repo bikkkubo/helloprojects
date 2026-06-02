@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getAllMembers } from "@/lib/data/members";
 
 type AxisId =
@@ -39,6 +39,15 @@ type ResultProfile = {
 };
 
 type Step = "select" | "diagnosis" | "result";
+
+type SharedResult = {
+  title: string;
+  primaryAxisId: AxisId;
+  color: string;
+  oshi?: string;
+  group?: string;
+  scores?: Record<AxisId, number>;
+};
 
 const axes: Axis[] = [
   {
@@ -260,6 +269,9 @@ const preferredGroupOrder = [
 ];
 
 const sourceMembers = getAllMembers().filter((member) => member.id !== "default");
+type SourceMember = (typeof sourceMembers)[number];
+type DisplayMember = Pick<SourceMember, "id" | "name" | "nameKana" | "groupName" | "memberColor">;
+
 const memberGroups = preferredGroupOrder
   .filter((groupName) => sourceMembers.some((member) => member.groupName === groupName))
   .map((groupName) => ({
@@ -275,6 +287,35 @@ function calculateScores(answers: Record<string, number>) {
       const axisQuestions = questions.filter((question) => question.axis === axis.id);
       const total = axisQuestions.reduce((sum, question) => sum + (answers[question.id] ?? 0), 0);
       scores[axis.id] = axisQuestions.length ? total / axisQuestions.length : 0;
+      return scores;
+    },
+    {} as Record<AxisId, number>,
+  );
+}
+
+function getAxisFromLabel(label: string | null) {
+  if (!label) return undefined;
+  return axes.find((axis) => axis.label === label || axis.shortLabel === label || label.includes(axis.label));
+}
+
+function getSharedFallbackScores(primaryAxisId: AxisId) {
+  return axes.reduce(
+    (scores, axis) => {
+      scores[axis.id] = axis.id === primaryAxisId ? 5 : averageScores[axis.id];
+      return scores;
+    },
+    {} as Record<AxisId, number>,
+  );
+}
+
+function parseScoresParam(value: string | null) {
+  if (!value) return undefined;
+  const values = value.split(",").map((score) => Number(score));
+  if (values.length !== axes.length || values.some((score) => Number.isNaN(score))) return undefined;
+
+  return axes.reduce(
+    (scores, axis, index) => {
+      scores[axis.id] = Math.min(5, Math.max(0, values[index]));
       return scores;
     },
     {} as Record<AxisId, number>,
@@ -371,12 +412,53 @@ export default function OshiTypeDiagnosis() {
   const [selectedGroupName, setSelectedGroupName] = useState(memberGroups[0]?.name ?? "");
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [copiedShareUrl, setCopiedShareUrl] = useState(false);
+  const [sharedResult, setSharedResult] = useState<SharedResult | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get("result");
+    const axis = getAxisFromLabel(params.get("axis") ?? title);
+
+    if (!title || !axis) return;
+
+    setSharedResult({
+      title,
+      primaryAxisId: axis.id,
+      color: params.get("color") ?? axis.color,
+      oshi: params.get("oshi") ?? undefined,
+      group: params.get("group") ?? undefined,
+      scores: parseScoresParam(params.get("scores")),
+    });
+  }, []);
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / questions.length) * 100);
   const selectedGroupMembers = memberGroups.find((group) => group.name === selectedGroupName)?.members ?? [];
   const selectedMember = sourceMembers.find((member) => member.id === selectedMemberId);
-  const scores = useMemo(() => calculateScores(answers), [answers]);
+  const sharedMember = useMemo<DisplayMember | undefined>(() => {
+    if (!sharedResult?.oshi) return undefined;
+
+    const matchedMember = sourceMembers.find(
+      (member) =>
+        member.name === sharedResult.oshi &&
+        (!sharedResult.group || member.groupName === sharedResult.group),
+    );
+
+    if (matchedMember) return matchedMember;
+
+    return {
+      id: "shared",
+      name: sharedResult.oshi,
+      nameKana: "",
+      groupName: sharedResult.group ?? "",
+      memberColor: sharedResult.color,
+    };
+  }, [sharedResult]);
+  const displayMember = selectedMember ?? sharedMember;
+  const scores = useMemo(
+    () => (sharedResult ? sharedResult.scores ?? getSharedFallbackScores(sharedResult.primaryAxisId) : calculateScores(answers)),
+    [answers, sharedResult],
+  );
   const rankedAxes = useMemo(
     () => [...axes].sort((a, b) => scores[b.id] - scores[a.id]),
     [scores],
@@ -394,24 +476,32 @@ export default function OshiTypeDiagnosis() {
         .slice(0, 3),
     [scores],
   );
-  const primary = rankedAxes[0];
-  const secondary = rankedAxes[1];
-  const matchedProfile =
+  const sharedPrimary = sharedResult ? axes.find((axis) => axis.id === sharedResult.primaryAxisId) : undefined;
+  const primary = sharedPrimary ?? rankedAxes[0];
+  const secondary = rankedAxes.find((axis) => axis.id !== primary?.id) ?? rankedAxes[1];
+  const calculatedProfile =
     profileRules.find((profile) => profile.match.every((axisId) => [primary?.id, secondary?.id].includes(axisId))) ??
     {
       title: `${primary?.label ?? "推し活"}ベースタイプ`,
       summary: primary?.description ?? "回答からあなたの推し活傾向を表示します。",
     };
+  const matchedProfile = sharedResult
+    ? {
+        title: sharedResult.title,
+        summary: primary?.description ?? calculatedProfile.summary,
+      }
+    : calculatedProfile;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
   const shareParams = new URLSearchParams({
     result: matchedProfile.title,
     axis: primary?.label ?? "",
-    color: primary?.color ?? "#D4899A",
+    color: displayMember?.memberColor ?? primary?.color ?? "#D4899A",
+    scores: axes.map((axis) => scores[axis.id].toFixed(2)).join(","),
   });
 
-  if (selectedMember) {
-    shareParams.set("oshi", selectedMember.name);
-    shareParams.set("group", selectedMember.groupName);
+  if (displayMember) {
+    shareParams.set("oshi", displayMember.name);
+    shareParams.set("group", displayMember.groupName);
   }
 
   const shareUrl = `${origin}/shindan?${shareParams.toString()}`;
@@ -419,17 +509,17 @@ export default function OshiTypeDiagnosis() {
     type: "oshi",
     title: primary?.label ?? "推し活",
     subtitle: matchedProfile.title,
-    color: selectedMember?.memberColor ?? primary?.color ?? "#D4899A",
+    color: displayMember?.memberColor ?? primary?.color ?? "#D4899A",
   });
 
-  if (selectedMember) {
-    ogParams.set("oshi", selectedMember.name);
-    ogParams.set("group", selectedMember.groupName);
+  if (displayMember) {
+    ogParams.set("oshi", displayMember.name);
+    ogParams.set("group", displayMember.groupName);
   }
 
   const ogImageUrl = `${origin}/api/og?${ogParams.toString()}`;
-  const shareText = selectedMember
-    ? `${selectedMember.name}を推す私の推し活タイプは「${matchedProfile.title}」でした。`
+  const shareText = displayMember
+    ? `${displayMember.name}を推す私の推し活タイプは「${matchedProfile.title}」でした。`
     : `私の推し活タイプは「${matchedProfile.title}」でした。`;
 
   const shareData = {
@@ -451,7 +541,9 @@ export default function OshiTypeDiagnosis() {
   const reset = () => {
     setAnswers({});
     setStep("select");
+    setSharedResult(null);
     setCopiedShareUrl(false);
+    window.history.replaceState(null, "", window.location.pathname);
     window.scrollTo({ top: 0 });
   };
 
@@ -461,7 +553,7 @@ export default function OshiTypeDiagnosis() {
     setCopiedShareUrl(true);
   };
 
-  if (step === "result") {
+  if (step === "result" || sharedResult) {
     return (
       <main className="bg-neutral-bg">
         <section className="border-b border-neutral-border bg-white">
@@ -477,29 +569,31 @@ export default function OshiTypeDiagnosis() {
           </div>
         </section>
 
-        {selectedMember && (
+        {displayMember && (
           <section
             className="border-b border-[#eadfd8] px-4 py-10 sm:px-6 lg:px-8"
             style={{
-              background: `linear-gradient(135deg, ${selectedMember.memberColor}24 0%, #fffdf8 46%, #ffffff 100%)`,
+              background: `linear-gradient(135deg, ${displayMember.memberColor}24 0%, #fffdf8 46%, #ffffff 100%)`,
             }}
           >
             <div className="mx-auto max-w-6xl">
               <p className="text-xs font-bold text-neutral-text-light">選択した推し</p>
               <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-base font-bold text-neutral-text-light">{selectedMember.groupName}</p>
+                  <p className="text-base font-bold text-neutral-text-light">{displayMember.groupName}</p>
                   <h2 className="mt-2 text-4xl font-bold leading-tight text-neutral-text md:text-6xl">
-                    {selectedMember.name}
+                    {displayMember.name}
                   </h2>
-                  <p className="mt-3 text-base font-bold text-neutral-text-light">
-                    {selectedMember.nameKana}
-                  </p>
+                  {displayMember.nameKana && (
+                    <p className="mt-3 text-base font-bold text-neutral-text-light">
+                      {displayMember.nameKana}
+                    </p>
+                  )}
                 </div>
                 <div
                   className="h-16 w-16 rounded-full border-4 border-white md:h-24 md:w-24"
-                  style={{ backgroundColor: selectedMember.memberColor }}
-                  aria-label={`${selectedMember.name}のメンバーカラー`}
+                  style={{ backgroundColor: displayMember.memberColor }}
+                  aria-label={`${displayMember.name}のメンバーカラー`}
                 />
               </div>
             </div>
@@ -663,24 +757,14 @@ export default function OshiTypeDiagnosis() {
       <main className="bg-neutral-bg">
         <section className="border-b border-neutral-border bg-white">
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
-              <div>
-                <nav className="text-xs font-medium text-neutral-text-light">ホーム / 推し活タイプ診断</nav>
-                <p className="mt-6 text-xs font-bold text-primary-dark">推し活タイプ診断</p>
-                <h1 className="mt-2 text-2xl font-bold leading-tight text-neutral-text md:text-4xl">
-                  まず推しを選ぶ
-                </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-text-light md:text-base">
-                  グループとアイドルを選んでから診断を開始します。結果画面では、選んだ推しとあなたの推し活タイプを大きく表示します。
-                </p>
-              </div>
-              <div className="rounded-lg border border-neutral-border bg-white p-5">
-                <p className="text-sm font-bold text-primary-dark">データ取得元</p>
-                <p className="mt-2 text-sm leading-6 text-neutral-text-light">
-                  本番では helloproject.jp/member のメンバー一覧を定期取得し、この選択肢に反映する想定です。
-                </p>
-              </div>
-            </div>
+            <nav className="text-xs font-medium text-neutral-text-light">ホーム / 推し活タイプ診断</nav>
+            <p className="mt-6 text-xs font-bold text-primary-dark">推し活タイプ診断</p>
+            <h1 className="mt-2 text-2xl font-bold leading-tight text-neutral-text md:text-4xl">
+              まず推しを選ぶ
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-text-light md:text-base">
+              グループとアイドルを選んでから診断を開始します。結果画面では、選んだ推しとあなたの推し活タイプを大きく表示します。
+            </p>
           </div>
         </section>
 

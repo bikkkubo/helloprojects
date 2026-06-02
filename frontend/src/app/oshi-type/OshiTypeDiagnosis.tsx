@@ -38,6 +38,8 @@ type ResultProfile = {
   summary: string;
 };
 
+type Step = "select" | "diagnosis" | "result";
+
 const axes: Axis[] = [
   {
     id: "romance",
@@ -365,7 +367,7 @@ function RadarChart({ scores }: { scores: Record<AxisId, number> }) {
 
 export default function OshiTypeDiagnosis() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [showResult, setShowResult] = useState(false);
+  const [step, setStep] = useState<Step>("select");
   const [selectedGroupName, setSelectedGroupName] = useState(memberGroups[0]?.name ?? "");
   const [selectedMemberId, setSelectedMemberId] = useState("");
 
@@ -410,16 +412,16 @@ export default function OshiTypeDiagnosis() {
 
   const reset = () => {
     setAnswers({});
-    setShowResult(false);
+    setStep("select");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (showResult) {
+  if (step === "result") {
     return (
       <main className="min-h-screen bg-[#FAF8F5]">
         <section className="relative overflow-hidden border-b border-[#eadfd8] bg-[#fffdf8]">
           <div className="absolute inset-x-0 top-0 h-3 bg-[linear-gradient(90deg,#E65A8A,#46A7A0,#D7B23E,#6C7BD9)]" />
-          <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
             <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary-dark">Oshi Type Result</p>
             <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-text md:text-5xl">
               {matchedProfile.title}
@@ -427,13 +429,37 @@ export default function OshiTypeDiagnosis() {
             <p className="mt-5 max-w-3xl text-base leading-8 text-neutral-text-light md:text-lg">
               {matchedProfile.summary}
             </p>
-            {selectedMember && (
-              <p className="mt-4 inline-flex rounded-lg border border-[#eadfd8] bg-white px-4 py-2 text-sm font-bold text-neutral-text">
-                推し: {selectedMember.groupName} / {selectedMember.name}
-              </p>
-            )}
           </div>
         </section>
+
+        {selectedMember && (
+          <section
+            className="border-b border-[#eadfd8] px-4 py-10 sm:px-6 lg:px-8"
+            style={{
+              background: `linear-gradient(135deg, ${selectedMember.memberColor}24 0%, #fffdf8 46%, #ffffff 100%)`,
+            }}
+          >
+            <div className="mx-auto max-w-6xl">
+              <p className="text-sm font-bold uppercase tracking-[0.28em] text-neutral-text-light">Your Oshi</p>
+              <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-lg font-bold text-neutral-text-light">{selectedMember.groupName}</p>
+                  <h2 className="mt-2 text-5xl font-black leading-none text-neutral-text md:text-7xl">
+                    {selectedMember.name}
+                  </h2>
+                  <p className="mt-4 text-lg font-bold text-neutral-text-light">
+                    {selectedMember.nickname} / {selectedMember.nameKana}
+                  </p>
+                </div>
+                <div
+                  className="h-16 w-16 rounded-full border-4 border-white shadow-lg md:h-24 md:w-24"
+                  style={{ backgroundColor: selectedMember.memberColor }}
+                  aria-label={`${selectedMember.name}のメンバーカラー`}
+                />
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-7">
@@ -497,6 +523,105 @@ export default function OshiTypeDiagnosis() {
     );
   }
 
+  if (step === "select") {
+    return (
+      <main className="min-h-screen bg-[#FAF8F5]">
+        <section className="border-b border-[#eadfd8] bg-[#fffdf8]">
+          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary-dark">Oshi Type Finder</p>
+                <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-text md:text-5xl">
+                  まず推しを選ぶ
+                </h1>
+                <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-text-light md:text-lg">
+                  グループとアイドルを選んでから診断を開始します。結果画面では、選んだ推しとあなたの推し活タイプを大きく表示します。
+                </p>
+              </div>
+              <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+                <p className="text-sm font-bold text-primary-dark">データ取得元</p>
+                <p className="mt-2 text-sm leading-6 text-neutral-text-light">
+                  本番では helloproject.jp/member のメンバー一覧を定期取得し、この選択肢に反映する想定です。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-7">
+            <div className="grid gap-5 md:grid-cols-2">
+              <label htmlFor="oshi-group" className="block">
+                <span className="text-sm font-bold text-neutral-text">グループ</span>
+                <select
+                  id="oshi-group"
+                  aria-label="グループ"
+                  value={selectedGroupName}
+                  onChange={(event) => selectGroup(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+                >
+                  {memberGroups.map((group) => (
+                    <option key={group.name} value={group.name}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label htmlFor="oshi-member" className="block">
+                <span className="text-sm font-bold text-neutral-text">アイドル</span>
+                <select
+                  id="oshi-member"
+                  aria-label="アイドル"
+                  value={selectedMemberId}
+                  onChange={(event) => setSelectedMemberId(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+                >
+                  <option value="">選択してください</option>
+                  {selectedGroupMembers.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                      {member.nickname ? `（${member.nickname}）` : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {selectedMember && (
+              <div
+                className="mt-7 rounded-lg border border-[#eadfd8] p-5"
+                style={{ backgroundColor: `${selectedMember.memberColor}14` }}
+              >
+                <p className="text-sm font-bold text-neutral-text-light">選択中の推し</p>
+                <div className="mt-3 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-neutral-text-light">{selectedMember.groupName}</p>
+                    <p className="mt-1 text-3xl font-black text-neutral-text">{selectedMember.name}</p>
+                  </div>
+                  <span
+                    className="h-12 w-12 rounded-full border-4 border-white shadow"
+                    style={{ backgroundColor: selectedMember.memberColor }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              disabled={!selectedMember}
+              onClick={() => {
+                setStep("diagnosis");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="mt-7 w-full rounded-lg bg-primary px-5 py-4 text-base font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
+            >
+              診断を始める
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#FAF8F5]">
       <section className="border-b border-[#eadfd8] bg-[#fffdf8]">
@@ -522,7 +647,7 @@ export default function OshiTypeDiagnosis() {
               <button
                 disabled={answeredCount !== questions.length}
                 onClick={() => {
-                  setShowResult(true);
+                  setStep("result");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className="mt-5 w-full rounded-lg bg-primary px-5 py-3 text-sm font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
@@ -536,61 +661,6 @@ export default function OshiTypeDiagnosis() {
                 サンプル回答を入れる
               </button>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-bold text-primary-dark">推しを選択</p>
-              <h2 className="mt-2 text-xl font-black text-neutral-text">グループとアイドル</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-text-light">
-                本番では helloproject.jp/member のメンバー一覧を定期取得し、この選択肢に反映する想定です。
-              </p>
-            </div>
-            {selectedMember && (
-              <div className="rounded-lg bg-[#fff7fa] px-4 py-3 text-sm font-bold text-primary-dark">
-                選択中: {selectedMember.name}
-              </div>
-            )}
-          </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label htmlFor="oshi-group" className="block">
-              <span className="text-sm font-bold text-neutral-text">グループ</span>
-              <select
-                id="oshi-group"
-                aria-label="グループ"
-                value={selectedGroupName}
-                onChange={(event) => selectGroup(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
-              >
-                {memberGroups.map((group) => (
-                  <option key={group.name} value={group.name}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label htmlFor="oshi-member" className="block">
-              <span className="text-sm font-bold text-neutral-text">アイドル</span>
-              <select
-                id="oshi-member"
-                aria-label="アイドル"
-                value={selectedMemberId}
-                onChange={(event) => setSelectedMemberId(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
-              >
-                <option value="">選択してください</option>
-                {selectedGroupMembers.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
-                    {member.nickname ? `（${member.nickname}）` : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
         </div>
       </section>

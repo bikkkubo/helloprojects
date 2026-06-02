@@ -3,8 +3,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import PersonalizationBar from "@/components/common/PersonalizationBar";
-import StickyCTA from "@/components/common/StickyCTA";
+import AppChrome from "@/components/layout/AppChrome";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 
 const notoSansJP = Noto_Sans_JP({
@@ -120,9 +119,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans min-h-screen flex flex-col">
         <Header />
-        <PersonalizationBar />
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
-        <StickyCTA />
+        <AppChrome>{children}</AppChrome>
         <Footer />
       </body>
     </html>

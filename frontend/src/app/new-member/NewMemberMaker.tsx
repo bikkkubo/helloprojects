@@ -251,14 +251,42 @@ export default function NewMemberMaker() {
     setState((current) => ({ ...current, ...presets[nextPreset] }));
   }
 
-  function downloadPng() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
+  function downloadCanvas(canvas: HTMLCanvasElement) {
     const link = document.createElement("a");
     link.download = "morning-new-member-style.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+  }
+
+  async function saveImage() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, "image/png");
+    });
+    if (!blob) {
+      downloadCanvas(canvas);
+      return;
+    }
+
+    const file = new File([blob], "morning-new-member-style.png", { type: "image/png" });
+    const shareData = {
+      files: [file],
+      title: "新メンバー風メーカー",
+      text: "新メンバー風メーカーで作成した画像です。",
+    };
+
+    if (navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    downloadCanvas(canvas);
   }
 
   return (
@@ -331,8 +359,8 @@ export default function NewMemberMaker() {
             >
               リセット
             </button>
-            <button type="button" onClick={downloadPng} className="min-h-11 rounded border border-white/40 bg-[#0788c7] px-3 text-sm font-bold text-white">
-              PNGを書き出し
+            <button type="button" onClick={saveImage} className="min-h-11 rounded border border-white/40 bg-[#0788c7] px-3 text-sm font-bold text-white">
+              画像を保存
             </button>
           </div>
         </aside>

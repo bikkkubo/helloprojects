@@ -85,31 +85,23 @@ function drawContainImage(
   ctx.drawImage(image, centerX - targetWidth / 2, centerY - targetHeight / 2, targetWidth, targetHeight);
 }
 
-function drawStatusBar(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = "#050505";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, 58);
-  ctx.fillStyle = "#f4f4f4";
-  ctx.font = "700 25px Arial";
-  ctx.fillText("20:19", 67, 40);
-  ctx.font = "700 18px Arial";
-  ctx.fillText("5G", 445, 38);
-  ctx.strokeStyle = "#f4f4f4";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(500, 21, 38, 22);
-  ctx.fillStyle = "#f4f4f4";
-  ctx.font = "700 16px Arial";
-  ctx.fillText("49", 508, 38);
-}
-
-function drawHeader(ctx: CanvasRenderingContext2D) {
+function drawHeader(ctx: CanvasRenderingContext2D, logo: HTMLImageElement | null) {
   ctx.fillStyle = "#0788c7";
-  ctx.fillRect(0, 58, CANVAS_WIDTH, 150);
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 208);
+
+  if (logo) {
+    const logoWidth = 440;
+    const logoHeight = logoWidth * (logo.height / logo.width);
+    ctx.drawImage(logo, (CANVAS_WIDTH - logoWidth) / 2, 78, logoWidth, logoHeight);
+    return;
+  }
+
   ctx.fillStyle = "#f3f1e9";
   ctx.textAlign = "center";
   ctx.font = "32px Georgia";
-  ctx.fillText("HELLO! PROJECT", CANVAS_WIDTH / 2, 138);
+  ctx.fillText("HELLO! PROJECT", CANVAS_WIDTH / 2, 106);
   ctx.font = "20px Arial";
-  ctx.fillText("SINCE1998", CANVAS_WIDTH / 2, 180);
+  ctx.fillText("SINCE1998", CANVAS_WIDTH / 2, 148);
   ctx.textAlign = "start";
 }
 
@@ -167,6 +159,7 @@ function drawGuide(ctx: CanvasRenderingContext2D) {
 export default function NewMemberMaker() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const templateRef = useRef<HTMLImageElement | null>(null);
+  const logoRef = useRef<HTMLImageElement | null>(null);
   const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
   const [state, setState] = useState<MakerState>(initialState);
   const [preset, setPreset] = useState<PresetKey>("left");
@@ -177,6 +170,13 @@ export default function NewMemberMaker() {
     template.src = "/images/new-member/template.jpg";
     template.onload = () => {
       templateRef.current = template;
+      renderCanvas();
+    };
+
+    const logo = new Image();
+    logo.src = "/images/new-member/hello-project-logo-white.svg";
+    logo.onload = () => {
+      logoRef.current = logo;
       renderCanvas();
     };
   }, []);
@@ -224,9 +224,8 @@ export default function NewMemberMaker() {
       ctx.textAlign = "start";
     }
 
-    drawHeader(ctx);
+    drawHeader(ctx, logoRef.current);
     drawPosterText(ctx);
-    drawStatusBar(ctx);
 
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 1108, CANVAS_WIDTH, 172);

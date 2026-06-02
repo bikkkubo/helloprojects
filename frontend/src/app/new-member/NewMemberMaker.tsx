@@ -44,6 +44,9 @@ const sliders: Array<{
   { key: "blur", label: "背景ぼけ", min: 0, max: 26, step: 1 },
 ];
 
+const posterFontFamily =
+  '"Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Source Han Serif JP", serif';
+
 function drawCoverImage(
   ctx: CanvasRenderingContext2D,
   image: HTMLImageElement,
@@ -110,26 +113,43 @@ function drawHeader(ctx: CanvasRenderingContext2D) {
   ctx.textAlign = "start";
 }
 
-function drawPosterText(ctx: CanvasRenderingContext2D) {
-  ctx.textAlign = "left";
-  ctx.lineJoin = "round";
-  ctx.lineWidth = 9;
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.92)";
+function drawOutlinedPosterLine(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  strokeWidth: number,
+) {
+  ctx.font = `900 ${fontSize}px ${posterFontFamily}`;
+  ctx.lineWidth = strokeWidth;
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.96)";
   ctx.fillStyle = "#fffdf7";
-  ctx.shadowColor = "rgba(0, 0, 0, 0.76)";
-  ctx.shadowBlur = 5;
-  ctx.shadowOffsetX = 4;
+
+  ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+  ctx.shadowBlur = 2;
+  ctx.shadowOffsetX = 3;
   ctx.shadowOffsetY = 4;
+  ctx.strokeText(text, x, y);
 
-  ctx.font = "700 34px serif";
-  ctx.strokeText("モーニング娘。'26の", 74, 568);
-  ctx.fillText("モーニング娘。'26の", 74, 568);
+  ctx.shadowColor = "rgba(255, 255, 255, 0.36)";
+  ctx.shadowBlur = 1;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = -1;
+  ctx.fillText(text, x, y);
+}
 
-  ctx.font = "700 48px serif";
-  ctx.strokeText("新メンバーはー。", 66, 637);
-  ctx.fillText("新メンバーはー。", 66, 637);
+function drawPosterText(ctx: CanvasRenderingContext2D) {
+  ctx.save();
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
 
-  ctx.shadowColor = "transparent";
+  drawOutlinedPosterLine(ctx, "モーニング娘。’26の", 72, 567, 35, 8);
+  drawOutlinedPosterLine(ctx, "新メンバーはー。", 65, 637, 49, 9);
+
+  ctx.restore();
 }
 
 function drawGuide(ctx: CanvasRenderingContext2D) {

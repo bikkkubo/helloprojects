@@ -401,7 +401,7 @@ export default function OshiTypeDiagnosis() {
     shareParams.set("group", selectedMember.groupName);
   }
 
-  const shareUrl = `${origin}/oshi-type?${shareParams.toString()}`;
+  const shareUrl = `${origin}/shindan?${shareParams.toString()}`;
   const ogParams = new URLSearchParams({
     type: "oshi",
     title: matchedProfile.title,

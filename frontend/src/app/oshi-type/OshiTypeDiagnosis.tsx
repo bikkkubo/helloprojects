@@ -506,53 +506,6 @@ export default function OshiTypeDiagnosis() {
           </section>
         )}
 
-        <section className="border-b border-neutral-border bg-white px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-6xl">
-            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-bold text-primary-dark">診断結果をシェア</p>
-                <h2 className="mt-2 text-2xl font-bold text-neutral-text">結果画像つきで共有する</h2>
-              </div>
-              <button
-                onClick={copyShareUrl}
-                className="rounded-lg border border-neutral-border bg-white px-4 py-3 text-sm font-bold text-neutral-text transition-colors hover:border-primary hover:text-primary"
-              >
-                {copiedShareUrl ? "URLをコピーしました" : "結果URLをコピー"}
-              </button>
-            </div>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
-              <a
-                href={shareData.xUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-[#111111] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
-              >
-                Xでシェア
-              </a>
-              <a
-                href={shareData.lineUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
-              >
-                LINEで送る
-              </a>
-              <a
-                href={shareData.ogImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-5 py-4 text-center text-lg font-bold text-white transition-opacity hover:opacity-90"
-              >
-                Instagram用画像
-              </a>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-neutral-text-light">
-              InstagramはWebからストーリーへ直接投稿できないため、画像を開いて保存してからストーリーに投稿してください。
-            </p>
-          </div>
-        </section>
-
         <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
             <div className="flex flex-wrap items-end justify-between gap-4">
@@ -652,6 +605,53 @@ export default function OshiTypeDiagnosis() {
                 })}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="border-t border-neutral-border bg-white px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-bold text-primary-dark">診断結果をシェア</p>
+                <h2 className="mt-2 text-2xl font-bold text-neutral-text">結果画像つきで共有する</h2>
+              </div>
+              <button
+                onClick={copyShareUrl}
+                className="rounded-lg border border-neutral-border bg-white px-4 py-3 text-sm font-bold text-neutral-text transition-colors hover:border-primary hover:text-primary"
+              >
+                {copiedShareUrl ? "URLをコピーしました" : "結果URLをコピー"}
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <a
+                href={shareData.xUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-[#111111] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Xでシェア
+              </a>
+              <a
+                href={shareData.lineUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                LINEで送る
+              </a>
+              <a
+                href={shareData.ogImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-5 py-4 text-center text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Instagram用画像
+              </a>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-neutral-text-light">
+              InstagramはWebからストーリーへ直接投稿できないため、画像を開いて保存してからストーリーに投稿してください。
+            </p>
           </div>
         </section>
       </main>
@@ -796,16 +796,6 @@ export default function OshiTypeDiagnosis() {
               <div className="mt-3 h-3 rounded-full bg-[#f0e8e2]">
                 <div className="h-3 rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
               </div>
-              <button
-                disabled={answeredCount !== questions.length}
-                onClick={() => {
-                  setStep("result");
-                  window.scrollTo({ top: 0 });
-                }}
-                className="mt-5 w-full rounded-lg bg-primary px-5 py-3 text-sm font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
-              >
-                結果を見る
-              </button>
             </div>
           </div>
         </div>
@@ -852,6 +842,28 @@ export default function OshiTypeDiagnosis() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
+          <div className="flex items-center justify-between text-sm font-bold text-neutral-text">
+            <span>回答進捗</span>
+            <span>{answeredCount} / {questions.length}</span>
+          </div>
+          <div className="mt-3 h-3 rounded-full bg-[#f0e8e2]">
+            <div className="h-3 rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
+          </div>
+          <button
+            disabled={answeredCount !== questions.length}
+            onClick={() => {
+              setStep("result");
+              window.scrollTo({ top: 0 });
+            }}
+            className="mt-5 w-full rounded-lg bg-primary px-5 py-4 text-base font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
+          >
+            結果を見る
+          </button>
         </div>
       </section>
     </main>

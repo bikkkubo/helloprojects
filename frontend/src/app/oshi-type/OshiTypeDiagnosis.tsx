@@ -33,6 +33,7 @@ type Question = {
 };
 
 type ResultProfile = {
+  key: string;
   match: AxisId[];
   title: string;
   summary: string;
@@ -42,7 +43,9 @@ type Step = "select" | "diagnosis" | "result";
 
 type SharedResult = {
   title: string;
+  summary?: string;
   primaryAxisId: AxisId;
+  secondaryAxisId?: AxisId;
   color: string;
   memberId?: string;
   oshi?: string;
@@ -217,41 +220,49 @@ const averageScores: Record<AxisId, number> = {
 
 const profileRules: ResultProfile[] = [
   {
+    key: "pilgrim",
     match: ["worship", "projection"],
     title: "救済を見つける巡礼者タイプ",
     summary: "推しは楽しみの対象である以上に、日々を支える灯台のような存在です。",
   },
   {
+    key: "devotee",
     match: ["devotion", "worship"],
     title: "推しに溶けたい献身者タイプ",
     summary: "強い敬意と献身が重なり、推しの世界に自分を差し出したい感覚が出やすいです。",
   },
   {
+    key: "gachikoi",
     match: ["romance", "possessive"],
     title: "距離感ゼロのガチ恋タイプ",
     summary: "推しとの親密さを強く求め、特別な関係性として受け止めやすいタイプです。",
   },
   {
+    key: "producer",
     match: ["protect", "support"],
     title: "育成型プロデューサータイプ",
     summary: "推しが幸せに伸びていくために、具体的な行動で支えたい気持ちが強いです。",
   },
   {
+    key: "evangelist",
     match: ["community", "support"],
     title: "現場を温める布教者タイプ",
     summary: "推しの魅力を誰かと共有し、界隈全体を盛り上げることに喜びがあります。",
   },
   {
+    key: "archivist",
     match: ["analysis", "ritual"],
     title: "記録する研究者タイプ",
     summary: "推しの変化を観察し、集め、残すことで愛情を精密に育てるタイプです。",
   },
   {
+    key: "guardian",
     match: ["cuteAggression", "protect"],
     title: "かわいさ処理落ち保護者タイプ",
     summary: "かわいすぎる感情と守りたい気持ちが同時に立ち上がりやすいです。",
   },
   {
+    key: "intimate",
     match: ["recognition", "romance"],
     title: "見つけられたい親密型タイプ",
     summary: "推しからの個別の反応が、応援の熱量を大きく動かします。",
@@ -309,10 +320,21 @@ function getAxisFromParam(value: string | null) {
   return axes.find((axis) => axis.id === value || axis.label === value || axis.shortLabel === value || value.includes(axis.label));
 }
 
-function getSharedFallbackScores(primaryAxisId: AxisId) {
+function getProfileFromParam(value: string | null) {
+  if (!value) return undefined;
+  return profileRules.find((profile) => profile.key === value || profile.title === value);
+}
+
+function getSharedFallbackScores(primaryAxisId: AxisId, secondaryAxisId?: AxisId) {
   return axes.reduce(
     (scores, axis) => {
-      scores[axis.id] = axis.id === primaryAxisId ? 5 : averageScores[axis.id];
+      if (axis.id === primaryAxisId) {
+        scores[axis.id] = 5;
+      } else if (axis.id === secondaryAxisId) {
+        scores[axis.id] = 4.5;
+      } else {
+        scores[axis.id] = averageScores[axis.id];
+      }
       return scores;
     },
     {} as Record<AxisId, number>,
@@ -429,14 +451,18 @@ export default function OshiTypeDiagnosis() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const axis = getAxisFromParam(params.get("t") ?? params.get("axis") ?? params.get("result"));
+    const secondaryAxis = getAxisFromParam(params.get("s"));
+    const profile = getProfileFromParam(params.get("r"));
     const member = selectableMembers.find((item) => item.id === params.get("m"));
-    const title = params.get("result") ?? (axis ? `${axis.label}ベースタイプ` : null);
+    const title = params.get("result") ?? profile?.title ?? (axis ? `${axis.label}ベースタイプ` : null);
 
     if (!title || !axis) return;
 
     setSharedResult({
       title,
+      summary: profile?.summary,
       primaryAxisId: axis.id,
+      secondaryAxisId: secondaryAxis?.id,
       color: params.get("color") ?? member?.memberColor ?? axis.color,
       memberId: member?.id,
       oshi: params.get("oshi") ?? member?.name ?? undefined,
@@ -476,7 +502,10 @@ export default function OshiTypeDiagnosis() {
   }, [sharedResult]);
   const displayMember = selectedMember ?? sharedMember;
   const scores = useMemo(
-    () => (sharedResult ? sharedResult.scores ?? getSharedFallbackScores(sharedResult.primaryAxisId) : calculateScores(answers)),
+    () =>
+      sharedResult
+        ? sharedResult.scores ?? getSharedFallbackScores(sharedResult.primaryAxisId, sharedResult.secondaryAxisId)
+        : calculateScores(answers),
     [answers, sharedResult],
   );
   const rankedAxes = useMemo(
@@ -497,24 +526,36 @@ export default function OshiTypeDiagnosis() {
     [scores],
   );
   const sharedPrimary = sharedResult ? axes.find((axis) => axis.id === sharedResult.primaryAxisId) : undefined;
+  const sharedSecondary = sharedResult?.secondaryAxisId
+    ? axes.find((axis) => axis.id === sharedResult.secondaryAxisId)
+    : undefined;
   const primary = sharedPrimary ?? rankedAxes[0];
-  const secondary = rankedAxes.find((axis) => axis.id !== primary?.id) ?? rankedAxes[1];
+  const secondary = sharedSecondary ?? rankedAxes.find((axis) => axis.id !== primary?.id) ?? rankedAxes[1];
   const calculatedProfile =
     profileRules.find((profile) => profile.match.every((axisId) => [primary?.id, secondary?.id].includes(axisId))) ??
     {
+      key: "base",
       title: `${primary?.label ?? "推し活"}ベースタイプ`,
       summary: primary?.description ?? "回答からあなたの推し活傾向を表示します。",
     };
   const matchedProfile = sharedResult
     ? {
         title: sharedResult.title,
-        summary: primary?.description ?? calculatedProfile.summary,
+        summary: sharedResult.summary ?? primary?.description ?? calculatedProfile.summary,
       }
     : calculatedProfile;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
   const shareParams = new URLSearchParams({
     t: primary?.id ?? "",
   });
+
+  if (secondary?.id) {
+    shareParams.set("s", secondary.id);
+  }
+
+  if (calculatedProfile.key !== "base") {
+    shareParams.set("r", calculatedProfile.key);
+  }
 
   if (displayMember?.id && displayMember.id !== "shared") {
     shareParams.set("m", displayMember.id);

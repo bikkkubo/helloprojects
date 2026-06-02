@@ -21,6 +21,17 @@ const AXIS_META = {
   ritual: { label: "儀式・収集型", color: "#A58A62" },
 } as const;
 
+const PROFILE_META = {
+  pilgrim: "救済を見つける巡礼者タイプ",
+  devotee: "推しに溶けたい献身者タイプ",
+  gachikoi: "距離感ゼロのガチ恋タイプ",
+  producer: "育成型プロデューサータイプ",
+  evangelist: "現場を温める布教者タイプ",
+  archivist: "記録する研究者タイプ",
+  guardian: "かわいさ処理落ち保護者タイプ",
+  intimate: "見つけられたい親密型タイプ",
+} as const;
+
 const SHINDAN_ONLY_MEMBERS = [
   {
     id: "by-10",
@@ -48,11 +59,16 @@ function findMember(id: string | undefined) {
   return getAllMembers().find((member) => member.id === id) ?? SHINDAN_ONLY_MEMBERS.find((member) => member.id === id);
 }
 
+function findProfileTitle(value: string | undefined) {
+  if (!value) return undefined;
+  return PROFILE_META[value as keyof typeof PROFILE_META];
+}
+
 function buildOshiOgImageUrl(params: SearchParams) {
   const axis = findAxis(firstParam(params.t) ?? firstParam(params.axis) ?? firstParam(params.result));
   const member = findMember(firstParam(params.m));
   const axisLabel = axis?.label ?? firstParam(params.axis) ?? "推し活タイプ診断";
-  const result = firstParam(params.result) ?? `${axisLabel}ベースタイプ`;
+  const result = firstParam(params.result) ?? findProfileTitle(firstParam(params.r)) ?? `${axisLabel}ベースタイプ`;
   const color = firstParam(params.color) ?? member?.memberColor ?? axis?.color ?? "#D4899A";
   const oshi = firstParam(params.oshi) ?? member?.name;
   const group = firstParam(params.group) ?? member?.groupName;
@@ -78,7 +94,7 @@ export async function generateMetadata({
   const axis = findAxis(firstParam(params.t) ?? firstParam(params.axis) ?? firstParam(params.result));
   const member = findMember(firstParam(params.m));
   const axisLabel = axis?.label ?? firstParam(params.axis);
-  const result = firstParam(params.result) ?? (axisLabel ? `${axisLabel}ベースタイプ` : undefined);
+  const result = firstParam(params.result) ?? findProfileTitle(firstParam(params.r)) ?? (axisLabel ? `${axisLabel}ベースタイプ` : undefined);
   const oshi = firstParam(params.oshi) ?? member?.name;
   const group = firstParam(params.group) ?? member?.groupName;
   const title = result

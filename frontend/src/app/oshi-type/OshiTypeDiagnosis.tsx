@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { getAllMembers } from "@/lib/data/members";
 
 type AxisId =
   | "romance"
@@ -22,6 +23,7 @@ type Axis = {
   shortLabel: string;
   color: string;
   description: string;
+  resultDescription: string;
 };
 
 type Question = {
@@ -43,6 +45,8 @@ const axes: Axis[] = [
     shortLabel: "恋愛",
     color: "#E65A8A",
     description: "推しとの距離を恋愛的な親密さとして感じやすいタイプ。",
+    resultDescription:
+      "あなたにとって推しは、ただ眺めて楽しむ存在というより、心の距離がかなり近い相手です。言葉、視線、表情、SNSの一文まで、自分との関係性に引き寄せて受け取りやすく、応援の熱量が恋愛感情に近い形で立ち上がります。嬉しさも大きい一方で、嫉妬や不安も生まれやすいので、感情が強く動くこと自体を否定せず、推しの現実の生活と自分の想像の境界を丁寧に扱うと、長く楽しく推せるタイプです。",
   },
   {
     id: "protect",
@@ -50,6 +54,8 @@ const axes: Axis[] = [
     shortLabel: "保護",
     color: "#74A88B",
     description: "成長を見守り、健康や幸福を願う気持ちが強いタイプ。",
+    resultDescription:
+      "あなたの推し活の中心には、推しが無事でいてほしい、健やかに成長してほしいという保護的なまなざしがあります。パフォーマンスの結果だけでなく、疲れていないか、傷ついていないか、ちゃんと報われているかにも目が向きやすいタイプです。推しの成長を見守る時間そのものに価値を感じるため、短期的な順位や話題性よりも、長く活動を続けられる環境や本人の幸福を大切にします。",
   },
   {
     id: "worship",
@@ -57,6 +63,8 @@ const axes: Axis[] = [
     shortLabel: "崇拝",
     color: "#B986D9",
     description: "推しを尊敬や救済に近い特別な存在として受け止めるタイプ。",
+    resultDescription:
+      "あなたにとって推しは、好きな芸能人という枠を超えて、日々の生活や考え方に影響を与える特別な存在です。推しの言葉、努力、佇まいに救われたり、背筋が伸びたり、自分ももう少し頑張ろうと思えることが多いでしょう。崇拝型の強みは、推しの存在を自分の人生の支えとして深く受け取れるところです。一方で、理想化が強くなりすぎると小さな変化に傷つきやすいので、神聖さと人間らしさの両方を抱えられると安定します。",
   },
   {
     id: "possessive",
@@ -64,6 +72,8 @@ const axes: Axis[] = [
     shortLabel: "独占",
     color: "#D18955",
     description: "自分だけがわかっている、という専有感が愛情に混ざりやすいタイプ。",
+    resultDescription:
+      "あなたは推しに対して、自分だけが見つけた、自分だけが深く理解しているという感覚を持ちやすいタイプです。人気が広がることは嬉しいのに、同時に少し遠くへ行ってしまったような寂しさも出やすいでしょう。このタイプの愛情は、推しとの歴史や解釈を大切にするところに強みがあります。独占したい気持ちを責める必要はありませんが、他のファンの愛し方と並べて置けるようになると、推し活の居心地がかなり良くなります。",
   },
   {
     id: "cuteAggression",
@@ -71,6 +81,8 @@ const axes: Axis[] = [
     shortLabel: "かわいさ",
     color: "#EF7A6E",
     description: "かわいさが強すぎて、食べたい・抱き潰したい感情に変換されるタイプ。",
+    resultDescription:
+      "あなたは推しのかわいさを見たとき、感情がまっすぐ処理されず、食べたい、噛みたい、抱き潰したいといった強めの言葉に変換されやすいタイプです。これは必ずしも攻撃性ではなく、かわいさが過剰に入力されたときの感情の逃げ道に近い反応です。写真、仕草、声、照れた表情など、小さなかわいさの単位に強く反応できるのが特徴です。言葉は物騒でも、内側では保護や愛着が強く働いています。",
   },
   {
     id: "devotion",
@@ -78,6 +90,8 @@ const axes: Axis[] = [
     shortLabel: "献身",
     color: "#6C7BD9",
     description: "推しに飲み込まれたい、差し出したい感覚を持ちやすいタイプ。",
+    resultDescription:
+      "あなたの推し活には、推しを得たいというより、推しに差し出したい、推しの世界に溶けたいという献身的な欲望が混ざりやすいです。推しのために時間やお金や感情を使うことが、消費ではなく自分の存在を意味づける行為に近くなることがあります。このタイプは非常に深い没入感を持てる一方で、自分の輪郭を薄くしすぎると疲弊しやすいです。推しに捧げる時間と、自分を回復させる時間の両方を持つと、強い愛情を長く保てます。",
   },
   {
     id: "projection",
@@ -85,6 +99,8 @@ const axes: Axis[] = [
     shortLabel: "投影",
     color: "#4E9BC8",
     description: "推しの苦労や成功を、自分の人生と重ねて受け止めるタイプ。",
+    resultDescription:
+      "あなたは推しの物語を、自分の人生と重ねながら見ています。推しが悩み、努力し、報われる過程は、あなた自身の挫折や再出発にも重なって見えるでしょう。そのため、推しの成功は単なるニュースではなく、自分も肯定されたような体験になりやすいです。自己投影型の推し活は、人生の節目に強い意味を持ちます。推しを通じて自分を励ませる一方で、推しの結果に自分の価値を預けすぎないバランスが大切です。",
   },
   {
     id: "community",
@@ -92,6 +108,8 @@ const axes: Axis[] = [
     shortLabel: "共同体",
     color: "#D7B23E",
     description: "現場、SNS、同担、界隈の空気も含めて推し活を楽しむタイプ。",
+    resultDescription:
+      "あなたにとって推し活は、推し本人だけで完結するものではなく、同じ熱量を持つ人たちと空気を共有する体験でもあります。現場での一体感、SNSでの実況、同担との会話、界隈の内輪ノリまで含めて、推し活の楽しさを形作っています。このタイプは熱を広げる力があり、周囲の人の楽しみ方にも良い影響を与えやすいです。一方で界隈の空気に疲れることもあるので、近づく距離を自分で調整できると快適です。",
   },
   {
     id: "support",
@@ -99,6 +117,8 @@ const axes: Axis[] = [
     shortLabel: "支援",
     color: "#46A7A0",
     description: "布教、課金、投票、制作など具体的な行動で推しに関わるタイプ。",
+    resultDescription:
+      "あなたは好きという感情を、具体的な行動に変換するのが得意なタイプです。布教、感想投稿、投票、課金、切り抜き、レポ作成など、推しの魅力が届く範囲を少しでも広げたい気持ちが強くあります。支援型の推し活は、推しの活動を実際に後押ししている実感を得やすいのが魅力です。ただし成果が見えにくいと焦りや義務感も出やすいので、貢献量だけで愛情を測らないことが長続きのポイントです。",
   },
   {
     id: "recognition",
@@ -106,6 +126,8 @@ const axes: Axis[] = [
     shortLabel: "認知",
     color: "#CC6B9B",
     description: "推しに覚えられたい、届いていると感じたい気持ちが強いタイプ。",
+    resultDescription:
+      "あなたは推しに見つけられること、覚えられること、反応が返ってくることに強く心が動くタイプです。レス、返信、チェキでの会話、名前を呼ばれる瞬間など、個別の接点が推し活の熱量を大きく上げます。これは単なる承認欲求というより、自分の応援が一方向で終わっていないと感じたい気持ちです。反応があると大きな幸福感を得られる一方、反応がない時に落ち込みすぎないよう、届く/届かない以外の楽しみも持てると安定します。",
   },
   {
     id: "analysis",
@@ -113,6 +135,8 @@ const axes: Axis[] = [
     shortLabel: "研究",
     color: "#607D91",
     description: "歌割り、発言、運営、界隈まで構造的に眺めるタイプ。",
+    resultDescription:
+      "あなたは推しを感情だけでなく、観察と分析の対象としても楽しめるタイプです。歌割りの変化、表情の使い方、発言の文脈、運営の方針、ファン層の変化など、細部から全体像を組み立てることに喜びがあります。研究型の強みは、推しの魅力を言語化し、人に伝えられることです。考えすぎて素直な感動を見失う時もありますが、分析はあなたなりの愛情表現として十分に価値があります。",
   },
   {
     id: "ritual",
@@ -120,6 +144,8 @@ const axes: Axis[] = [
     shortLabel: "儀式",
     color: "#A58A62",
     description: "グッズ、記念日、現場ルーティンなどで愛情を形にするタイプ。",
+    resultDescription:
+      "あなたは推しへの気持ちを、物や行動や記念日の形で残すことに喜びを感じるタイプです。グッズを集める、写真を飾る、誕生日を祝う、現場前のルーティンを作るなど、愛情を目に見える形にすることで推し活の実感が強まります。儀式・収集型の推し活は、時間が経つほど自分だけの履歴が積み上がっていくのが魅力です。集めることが目的化しすぎないよう、ひとつひとつに意味を置けると満足度が高くなります。",
   },
 ];
 
@@ -221,6 +247,25 @@ const profileRules: ResultProfile[] = [
 ];
 
 const scaleLabels = ["全くない", "少し", "どちらでも", "かなり", "とても"];
+const preferredGroupOrder = [
+  "モーニング娘。'25",
+  "アンジュルム",
+  "Juice=Juice",
+  "つばきファクトリー",
+  "BEYOOOOONDS",
+  "OCHA NORMA",
+  "ロージークロニクル",
+];
+
+const sourceMembers = getAllMembers().filter((member) => member.id !== "default");
+const memberGroups = preferredGroupOrder
+  .filter((groupName) => sourceMembers.some((member) => member.groupName === groupName))
+  .map((groupName) => ({
+    name: groupName,
+    members: sourceMembers
+      .filter((member) => member.groupName === groupName)
+      .sort((a, b) => a.name.localeCompare(b.name, "ja")),
+  }));
 
 function calculateScores(answers: Record<string, number>) {
   return axes.reduce(
@@ -321,9 +366,13 @@ function RadarChart({ scores }: { scores: Record<AxisId, number> }) {
 export default function OshiTypeDiagnosis() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showResult, setShowResult] = useState(false);
+  const [selectedGroupName, setSelectedGroupName] = useState(memberGroups[0]?.name ?? "");
+  const [selectedMemberId, setSelectedMemberId] = useState("");
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / questions.length) * 100);
+  const selectedGroupMembers = memberGroups.find((group) => group.name === selectedGroupName)?.members ?? [];
+  const selectedMember = sourceMembers.find((member) => member.id === selectedMemberId);
   const scores = useMemo(() => calculateScores(answers), [answers]);
   const rankedAxes = useMemo(
     () => [...axes].sort((a, b) => scores[b.id] - scores[a.id]),
@@ -337,6 +386,11 @@ export default function OshiTypeDiagnosis() {
       title: `${primary?.label ?? "推し活"}ベースタイプ`,
       summary: primary?.description ?? "回答からあなたの推し活傾向を表示します。",
     };
+
+  const selectGroup = (groupName: string) => {
+    setSelectedGroupName(groupName);
+    setSelectedMemberId("");
+  };
 
   const answerQuestion = (questionId: string, value: number) => {
     setAnswers((current) => ({ ...current, [questionId]: value }));
@@ -373,6 +427,11 @@ export default function OshiTypeDiagnosis() {
             <p className="mt-5 max-w-3xl text-base leading-8 text-neutral-text-light md:text-lg">
               {matchedProfile.summary}
             </p>
+            {selectedMember && (
+              <p className="mt-4 inline-flex rounded-lg border border-[#eadfd8] bg-white px-4 py-2 text-sm font-bold text-neutral-text">
+                推し: {selectedMember.groupName} / {selectedMember.name}
+              </p>
+            )}
           </div>
         </section>
 
@@ -399,12 +458,12 @@ export default function OshiTypeDiagnosis() {
             <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
               <p className="text-sm font-bold text-primary-dark">主タイプ</p>
               <h2 className="mt-2 text-2xl font-black text-neutral-text">{primary.label}</h2>
-              <p className="mt-3 leading-7 text-neutral-text-light">{primary.description}</p>
+              <p className="mt-3 whitespace-pre-line leading-8 text-neutral-text-light">{primary.resultDescription}</p>
             </div>
             <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
               <p className="text-sm font-bold text-primary-dark">副タイプ</p>
               <h2 className="mt-2 text-2xl font-black text-neutral-text">{secondary.label}</h2>
-              <p className="mt-3 leading-7 text-neutral-text-light">{secondary.description}</p>
+              <p className="mt-3 leading-7 text-neutral-text-light">{secondary.resultDescription}</p>
             </div>
             <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
               <h2 className="text-lg font-black text-neutral-text">上位スコア</h2>
@@ -477,6 +536,61 @@ export default function OshiTypeDiagnosis() {
                 サンプル回答を入れる
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-primary-dark">推しを選択</p>
+              <h2 className="mt-2 text-xl font-black text-neutral-text">グループとアイドル</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-text-light">
+                本番では helloproject.jp/member のメンバー一覧を定期取得し、この選択肢に反映する想定です。
+              </p>
+            </div>
+            {selectedMember && (
+              <div className="rounded-lg bg-[#fff7fa] px-4 py-3 text-sm font-bold text-primary-dark">
+                選択中: {selectedMember.name}
+              </div>
+            )}
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <label htmlFor="oshi-group" className="block">
+              <span className="text-sm font-bold text-neutral-text">グループ</span>
+              <select
+                id="oshi-group"
+                aria-label="グループ"
+                value={selectedGroupName}
+                onChange={(event) => selectGroup(event.target.value)}
+                className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+              >
+                {memberGroups.map((group) => (
+                  <option key={group.name} value={group.name}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label htmlFor="oshi-member" className="block">
+              <span className="text-sm font-bold text-neutral-text">アイドル</span>
+              <select
+                id="oshi-member"
+                aria-label="アイドル"
+                value={selectedMemberId}
+                onChange={(event) => setSelectedMemberId(event.target.value)}
+                className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+              >
+                <option value="">選択してください</option>
+                {selectedGroupMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                    {member.nickname ? `（${member.nickname}）` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </div>
       </section>

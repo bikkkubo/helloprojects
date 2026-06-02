@@ -68,7 +68,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="inline-block">
               <h2 className="text-2xl font-bold hover:text-[#FF1493] transition-colors">
-                HelloProjects
+                ハロ！プロ リサーチ
               </h2>
             </Link>
             <p className="mt-4 text-gray-400 max-w-md">
@@ -117,7 +117,7 @@ export default function Footer() {
         {/* 下部: コピーライト */}
         <div className="py-6 border-t border-gray-700">
           <p className="text-center text-gray-400 text-sm">
-            &copy; {currentYear} HelloProjects. All rights reserved.
+            &copy; {currentYear} ハロ！プロ リサーチ. All rights reserved.
           </p>
         </div>
       </div>

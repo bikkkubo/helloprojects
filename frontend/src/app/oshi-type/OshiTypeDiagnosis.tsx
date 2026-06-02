@@ -370,6 +370,7 @@ export default function OshiTypeDiagnosis() {
   const [step, setStep] = useState<Step>("select");
   const [selectedGroupName, setSelectedGroupName] = useState(memberGroups[0]?.name ?? "");
   const [selectedMemberId, setSelectedMemberId] = useState("");
+  const [copiedShareUrl, setCopiedShareUrl] = useState(false);
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / questions.length) * 100);
@@ -388,6 +389,42 @@ export default function OshiTypeDiagnosis() {
       title: `${primary?.label ?? "推し活"}ベースタイプ`,
       summary: primary?.description ?? "回答からあなたの推し活傾向を表示します。",
     };
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
+  const shareParams = new URLSearchParams({
+    result: matchedProfile.title,
+    axis: primary?.label ?? "",
+    color: primary?.color ?? "#D4899A",
+  });
+
+  if (selectedMember) {
+    shareParams.set("oshi", selectedMember.name);
+    shareParams.set("group", selectedMember.groupName);
+  }
+
+  const shareUrl = `${origin}/oshi-type?${shareParams.toString()}`;
+  const ogParams = new URLSearchParams({
+    type: "oshi",
+    title: matchedProfile.title,
+    subtitle: primary?.label ? `主タイプ: ${primary.label}` : "推し活タイプ診断",
+    color: primary?.color ?? "#D4899A",
+  });
+
+  if (selectedMember) {
+    ogParams.set("oshi", selectedMember.name);
+    ogParams.set("group", selectedMember.groupName);
+  }
+
+  const ogImageUrl = `${origin}/api/og?${ogParams.toString()}`;
+  const shareText = selectedMember
+    ? `${selectedMember.name}を推す私の推し活タイプは「${matchedProfile.title}」でした。`
+    : `私の推し活タイプは「${matchedProfile.title}」でした。`;
+
+  const shareData = {
+    shareUrl,
+    ogImageUrl,
+    xUrl: `https://twitter.com/intent/tweet?${new URLSearchParams({ text: shareText, url: shareUrl }).toString()}`,
+    lineUrl: `https://social-plugins.line.me/lineit/share?${new URLSearchParams({ url: shareUrl }).toString()}`,
+  };
 
   const selectGroup = (groupName: string) => {
     setSelectedGroupName(groupName);
@@ -413,7 +450,14 @@ export default function OshiTypeDiagnosis() {
   const reset = () => {
     setAnswers({});
     setStep("select");
+    setCopiedShareUrl(false);
     window.scrollTo({ top: 0 });
+  };
+
+  const copyShareUrl = async () => {
+    if (!navigator.clipboard) return;
+    await navigator.clipboard.writeText(shareData.shareUrl);
+    setCopiedShareUrl(true);
   };
 
   if (step === "result") {
@@ -448,7 +492,7 @@ export default function OshiTypeDiagnosis() {
                     {selectedMember.name}
                   </h2>
                   <p className="mt-3 text-base font-bold text-neutral-text-light">
-                    {selectedMember.nickname} / {selectedMember.nameKana}
+                    {selectedMember.nameKana}
                   </p>
                 </div>
                 <div
@@ -460,6 +504,53 @@ export default function OshiTypeDiagnosis() {
             </div>
           </section>
         )}
+
+        <section className="border-b border-neutral-border bg-white px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-bold text-primary-dark">診断結果をシェア</p>
+                <h2 className="mt-2 text-2xl font-bold text-neutral-text">結果画像つきで共有する</h2>
+              </div>
+              <button
+                onClick={copyShareUrl}
+                className="rounded-lg border border-neutral-border bg-white px-4 py-3 text-sm font-bold text-neutral-text transition-colors hover:border-primary hover:text-primary"
+              >
+                {copiedShareUrl ? "URLをコピーしました" : "結果URLをコピー"}
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <a
+                href={shareData.xUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-[#111111] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Xでシェア
+              </a>
+              <a
+                href={shareData.lineUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                LINEで送る
+              </a>
+              <a
+                href={shareData.ogImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-20 items-center justify-center rounded-lg bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-5 py-4 text-center text-lg font-bold text-white transition-opacity hover:opacity-90"
+              >
+                Instagram用画像
+              </a>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-neutral-text-light">
+              InstagramはWebからストーリーへ直接投稿できないため、画像を開いて保存してからストーリーに投稿してください。
+            </p>
+          </div>
+        </section>
 
         <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
@@ -581,7 +672,6 @@ export default function OshiTypeDiagnosis() {
                   {selectedGroupMembers.map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.name}
-                      {member.nickname ? `（${member.nickname}）` : ""}
                     </option>
                   ))}
                 </select>

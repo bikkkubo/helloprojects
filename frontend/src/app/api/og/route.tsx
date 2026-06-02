@@ -24,6 +24,8 @@ export async function GET(request: NextRequest) {
     const subtitle = searchParams.get("subtitle") || "";
     const type = searchParams.get("type") || "default";
     const customColor = searchParams.get("color") || "";
+    const oshi = searchParams.get("oshi") || "";
+    const group = searchParams.get("group") || "";
 
     // タイプに応じた色設定
     const themeColor = customColor || BRAND_COLORS.primary;
@@ -97,6 +99,37 @@ export async function GET(request: NextRequest) {
               </div>
             )}
 
+            {type === "oshi" && oshi && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  marginBottom: 24,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "#666",
+                  }}
+                >
+                  {group}
+                </div>
+                <div
+                  style={{
+                    fontSize: 48,
+                    fontWeight: 800,
+                    color: themeColor,
+                    marginTop: 6,
+                  }}
+                >
+                  {oshi}
+                </div>
+              </div>
+            )}
+
             {/* タイトル */}
             <div
               style={{
@@ -160,7 +193,7 @@ export async function GET(request: NextRequest) {
                 textShadow: "0 2px 4px rgba(0,0,0,0.2)",
               }}
             >
-              ハロー!プロジェクト ポータル
+              ハロ！プロ リサーチ
             </div>
           </div>
 
@@ -212,6 +245,8 @@ function getTypeConfig(type: string): { icon: string; label: string } {
       return { icon: "🎤", label: "EVENT" };
     case "release":
       return { icon: "💿", label: "RELEASE" };
+    case "oshi":
+      return { icon: "💖", label: "推し活タイプ診断" };
     default:
       return { icon: "", label: "" };
   }

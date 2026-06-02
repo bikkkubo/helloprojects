@@ -353,9 +353,9 @@ export default function Header() {
           <div className="flex-shrink-0">
             <Link
               href="/"
-              className="text-2xl md:text-3xl font-bold text-primary hover:text-primary-dark transition-colors"
+              className="text-xl md:text-2xl font-bold tracking-tight text-primary hover:text-primary-dark transition-colors"
             >
-              HelloProject
+              ハロ！プロ リサーチ
             </Link>
           </div>
 

@@ -13,9 +13,9 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 const siteConfig = {
-  name: "ハロー!プロジェクト ポータル",
+  name: "ハロ！プロ リサーチ",
   description: "ハロー!プロジェクトの最新ニュース、メンバー情報、イベントスケジュールをお届けする総合ファンポータルサイト",
-  url: "https://helloprojects.fan",
+  url: "https://hello-project.jp",
 };
 
 export const metadata: Metadata = {
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     "アイドル",
     "J-POP",
   ],
-  authors: [{ name: "HelloProjects Fan Portal" }],
-  creator: "HelloProjects Fan Portal",
-  publisher: "HelloProjects Fan Portal",
+  authors: [{ name: "ハロ！プロ リサーチ" }],
+  creator: "ハロ！プロ リサーチ",
+  publisher: "ハロ！プロ リサーチ",
   formatDetection: {
     email: false,
     address: false,

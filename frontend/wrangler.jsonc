@@ -3,5 +3,13 @@
   "name": "hello-project-jp",
   "pages_build_output_dir": ".vercel/output/static",
   "compatibility_date": "2026-06-02",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "SHINDAN_DB",
+      "database_name": "hello-project-jp",
+      "database_id": "3f081699-eb4b-46bc-9640-a26de2aabecf",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

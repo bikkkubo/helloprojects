@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getAllMembers } from "@/lib/data/members";
 
 type AxisId =
@@ -424,6 +424,7 @@ export default function OshiTypeDiagnosis() {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [copiedShareUrl, setCopiedShareUrl] = useState(false);
   const [sharedResult, setSharedResult] = useState<SharedResult | null>(null);
+  const hasLoggedResult = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -548,6 +549,47 @@ export default function OshiTypeDiagnosis() {
     lineUrl: `https://social-plugins.line.me/lineit/share?${new URLSearchParams({ url: shareUrl }).toString()}`,
   };
 
+  useEffect(() => {
+    if (
+      step !== "result" ||
+      sharedResult ||
+      hasLoggedResult.current ||
+      answeredCount !== questions.length ||
+      !displayMember ||
+      !primary ||
+      !secondary
+    ) {
+      return;
+    }
+
+    hasLoggedResult.current = true;
+
+    void fetch("/api/shindan/result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        member: {
+          id: displayMember.id,
+          name: displayMember.name,
+          groupName: displayMember.groupName,
+          memberColor: displayMember.memberColor,
+        },
+        primary: {
+          id: primary.id,
+          label: primary.label,
+        },
+        secondary: {
+          id: secondary.id,
+          label: secondary.label,
+        },
+        resultTitle: matchedProfile.title,
+        scores,
+      }),
+    }).catch(() => {
+      hasLoggedResult.current = false;
+    });
+  }, [answeredCount, displayMember, matchedProfile.title, primary, scores, secondary, sharedResult, step]);
+
   const selectGroup = (groupName: string) => {
     setSelectedGroupName(groupName);
     setSelectedMemberId("");
@@ -562,6 +604,7 @@ export default function OshiTypeDiagnosis() {
     setStep("select");
     setSharedResult(null);
     setCopiedShareUrl(false);
+    hasLoggedResult.current = false;
     window.history.replaceState(null, "", window.location.pathname);
     window.scrollTo({ top: 0 });
   };
@@ -849,6 +892,7 @@ export default function OshiTypeDiagnosis() {
             <button
               disabled={!selectedMember}
               onClick={() => {
+                hasLoggedResult.current = false;
                 setStep("diagnosis");
                 window.scrollTo({ top: 0 });
               }}
@@ -962,6 +1006,7 @@ export default function OshiTypeDiagnosis() {
           <button
             disabled={answeredCount !== questions.length}
             onClick={() => {
+              hasLoggedResult.current = false;
               setStep("result");
               window.scrollTo({ top: 0 });
             }}

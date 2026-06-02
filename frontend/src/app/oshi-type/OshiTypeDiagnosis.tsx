@@ -413,20 +413,20 @@ export default function OshiTypeDiagnosis() {
   const reset = () => {
     setAnswers({});
     setStep("select");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   };
 
   if (step === "result") {
     return (
-      <main className="min-h-screen bg-[#FAF8F5]">
-        <section className="relative overflow-hidden border-b border-[#eadfd8] bg-[#fffdf8]">
-          <div className="absolute inset-x-0 top-0 h-3 bg-[linear-gradient(90deg,#E65A8A,#46A7A0,#D7B23E,#6C7BD9)]" />
-          <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-            <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary-dark">Oshi Type Result</p>
-            <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-text md:text-5xl">
+      <main className="bg-neutral-bg">
+        <section className="border-b border-neutral-border bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+            <nav className="text-xs font-medium text-neutral-text-light">ホーム / 推し活タイプ診断 / 結果</nav>
+            <p className="mt-6 text-xs font-bold text-primary-dark">推し活タイプ診断</p>
+            <h1 className="mt-2 text-2xl font-bold leading-tight text-neutral-text md:text-4xl">
               {matchedProfile.title}
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-neutral-text-light md:text-lg">
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-neutral-text-light md:text-base">
               {matchedProfile.summary}
             </p>
           </div>
@@ -440,19 +440,19 @@ export default function OshiTypeDiagnosis() {
             }}
           >
             <div className="mx-auto max-w-6xl">
-              <p className="text-sm font-bold uppercase tracking-[0.28em] text-neutral-text-light">Your Oshi</p>
+              <p className="text-xs font-bold text-neutral-text-light">選択した推し</p>
               <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-lg font-bold text-neutral-text-light">{selectedMember.groupName}</p>
-                  <h2 className="mt-2 text-5xl font-black leading-none text-neutral-text md:text-7xl">
+                  <p className="text-base font-bold text-neutral-text-light">{selectedMember.groupName}</p>
+                  <h2 className="mt-2 text-4xl font-bold leading-tight text-neutral-text md:text-6xl">
                     {selectedMember.name}
                   </h2>
-                  <p className="mt-4 text-lg font-bold text-neutral-text-light">
+                  <p className="mt-3 text-base font-bold text-neutral-text-light">
                     {selectedMember.nickname} / {selectedMember.nameKana}
                   </p>
                 </div>
                 <div
-                  className="h-16 w-16 rounded-full border-4 border-white shadow-lg md:h-24 md:w-24"
+                  className="h-16 w-16 rounded-full border-4 border-white md:h-24 md:w-24"
                   style={{ backgroundColor: selectedMember.memberColor }}
                   aria-label={`${selectedMember.name}のメンバーカラー`}
                 />
@@ -461,8 +461,8 @@ export default function OshiTypeDiagnosis() {
           </section>
         )}
 
-        <section className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-          <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-7">
+        <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+          <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-neutral-text">平均との差</h2>
@@ -481,17 +481,17 @@ export default function OshiTypeDiagnosis() {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-neutral-border bg-white p-5">
               <p className="text-sm font-bold text-primary-dark">主タイプ</p>
               <h2 className="mt-2 text-2xl font-black text-neutral-text">{primary.label}</h2>
               <p className="mt-3 whitespace-pre-line leading-8 text-neutral-text-light">{primary.resultDescription}</p>
             </div>
-            <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-neutral-border bg-white p-5">
               <p className="text-sm font-bold text-primary-dark">副タイプ</p>
               <h2 className="mt-2 text-2xl font-black text-neutral-text">{secondary.label}</h2>
               <p className="mt-3 leading-7 text-neutral-text-light">{secondary.resultDescription}</p>
             </div>
-            <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-neutral-border bg-white p-5">
               <h2 className="text-lg font-black text-neutral-text">上位スコア</h2>
               <div className="mt-4 space-y-3">
                 {rankedAxes.slice(0, 5).map((axis) => {
@@ -525,20 +525,21 @@ export default function OshiTypeDiagnosis() {
 
   if (step === "select") {
     return (
-      <main className="min-h-screen bg-[#FAF8F5]">
-        <section className="border-b border-[#eadfd8] bg-[#fffdf8]">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <main className="bg-neutral-bg">
+        <section className="border-b border-neutral-border bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
             <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-end">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary-dark">Oshi Type Finder</p>
-                <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-text md:text-5xl">
+                <nav className="text-xs font-medium text-neutral-text-light">ホーム / 推し活タイプ診断</nav>
+                <p className="mt-6 text-xs font-bold text-primary-dark">推し活タイプ診断</p>
+                <h1 className="mt-2 text-2xl font-bold leading-tight text-neutral-text md:text-4xl">
                   まず推しを選ぶ
                 </h1>
-                <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-text-light md:text-lg">
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-text-light md:text-base">
                   グループとアイドルを選んでから診断を開始します。結果画面では、選んだ推しとあなたの推し活タイプを大きく表示します。
                 </p>
               </div>
-              <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+              <div className="rounded-lg border border-neutral-border bg-white p-5">
                 <p className="text-sm font-bold text-primary-dark">データ取得元</p>
                 <p className="mt-2 text-sm leading-6 text-neutral-text-light">
                   本番では helloproject.jp/member のメンバー一覧を定期取得し、この選択肢に反映する想定です。
@@ -548,8 +549,8 @@ export default function OshiTypeDiagnosis() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm md:p-7">
+        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
             <div className="grid gap-5 md:grid-cols-2">
               <label htmlFor="oshi-group" className="block">
                 <span className="text-sm font-bold text-neutral-text">グループ</span>
@@ -558,7 +559,7 @@ export default function OshiTypeDiagnosis() {
                   aria-label="グループ"
                   value={selectedGroupName}
                   onChange={(event) => selectGroup(event.target.value)}
-                  className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+                  className="mt-2 w-full rounded-lg border border-neutral-border bg-white px-4 py-3 font-medium text-neutral-text outline-none transition-colors focus:border-primary"
                 >
                   {memberGroups.map((group) => (
                     <option key={group.name} value={group.name}>
@@ -574,7 +575,7 @@ export default function OshiTypeDiagnosis() {
                   aria-label="アイドル"
                   value={selectedMemberId}
                   onChange={(event) => setSelectedMemberId(event.target.value)}
-                  className="mt-2 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-4 py-3 font-bold text-neutral-text outline-none transition-colors focus:border-primary"
+                  className="mt-2 w-full rounded-lg border border-neutral-border bg-white px-4 py-3 font-medium text-neutral-text outline-none transition-colors focus:border-primary"
                 >
                   <option value="">選択してください</option>
                   {selectedGroupMembers.map((member) => (
@@ -589,7 +590,7 @@ export default function OshiTypeDiagnosis() {
 
             {selectedMember && (
               <div
-                className="mt-7 rounded-lg border border-[#eadfd8] p-5"
+                className="mt-7 rounded-lg border border-neutral-border p-5"
                 style={{ backgroundColor: `${selectedMember.memberColor}14` }}
               >
                 <p className="text-sm font-bold text-neutral-text-light">選択中の推し</p>
@@ -599,7 +600,7 @@ export default function OshiTypeDiagnosis() {
                     <p className="mt-1 text-3xl font-black text-neutral-text">{selectedMember.name}</p>
                   </div>
                   <span
-                    className="h-12 w-12 rounded-full border-4 border-white shadow"
+                    className="h-12 w-12 rounded-full border-4 border-white"
                     style={{ backgroundColor: selectedMember.memberColor }}
                   />
                 </div>
@@ -610,7 +611,7 @@ export default function OshiTypeDiagnosis() {
               disabled={!selectedMember}
               onClick={() => {
                 setStep("diagnosis");
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                window.scrollTo({ top: 0 });
               }}
               className="mt-7 w-full rounded-lg bg-primary px-5 py-4 text-base font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
             >
@@ -618,25 +619,42 @@ export default function OshiTypeDiagnosis() {
             </button>
           </div>
         </section>
+
+        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              ["1", "推しを選ぶ", "グループとアイドルを選択して、診断結果に反映します。"],
+              ["2", "36問に答える", "恋愛、崇拝、献身、認知欲求など12軸で傾向を見ます。"],
+              ["3", "平均との差を見る", "あなたのスコアと利用者平均をレーダーチャートで比較します。"],
+            ].map(([number, title, description]) => (
+              <div key={number} className="rounded-lg border border-neutral-border bg-white p-5">
+                <p className="text-sm font-bold text-primary-dark">STEP {number}</p>
+                <h2 className="mt-2 text-lg font-bold text-neutral-text">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-neutral-text-light">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#FAF8F5]">
-      <section className="border-b border-[#eadfd8] bg-[#fffdf8]">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <main className="bg-neutral-bg">
+      <section className="border-b border-neutral-border bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary-dark">Oshi Type Finder</p>
-              <h1 className="mt-4 text-3xl font-black leading-tight text-neutral-text md:text-5xl">
+              <nav className="text-xs font-medium text-neutral-text-light">ホーム / 推し活タイプ診断</nav>
+              <p className="mt-6 text-xs font-bold text-primary-dark">推し活タイプ診断</p>
+              <h1 className="mt-2 text-2xl font-bold leading-tight text-neutral-text md:text-4xl">
                 推し活タイプ診断
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-neutral-text-light md:text-lg">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-text-light md:text-base">
                 36問に答えると、恋愛、崇拝、献身、認知欲求など12軸であなたの推し活傾向を表示します。
               </p>
             </div>
-            <div className="rounded-lg border border-[#eadfd8] bg-white p-5 shadow-sm">
+            <div className="rounded-lg border border-neutral-border bg-white p-5">
               <div className="flex items-center justify-between text-sm font-bold text-neutral-text">
                 <span>回答進捗</span>
                 <span>{answeredCount} / {questions.length}</span>
@@ -648,7 +666,7 @@ export default function OshiTypeDiagnosis() {
                 disabled={answeredCount !== questions.length}
                 onClick={() => {
                   setStep("result");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  window.scrollTo({ top: 0 });
                 }}
                 className="mt-5 w-full rounded-lg bg-primary px-5 py-3 text-sm font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
               >
@@ -656,7 +674,7 @@ export default function OshiTypeDiagnosis() {
               </button>
               <button
                 onClick={fillSampleAnswers}
-                className="mt-3 w-full rounded-lg border border-[#eadfd8] bg-[#fffdf8] px-5 py-3 text-sm font-black text-neutral-text-light transition-colors hover:border-primary hover:text-primary"
+                className="mt-3 w-full rounded-lg border border-neutral-border bg-white px-5 py-3 text-sm font-bold text-neutral-text-light transition-colors hover:border-primary hover:text-primary"
               >
                 サンプル回答を入れる
               </button>
@@ -671,7 +689,7 @@ export default function OshiTypeDiagnosis() {
             const axis = axes.find((item) => item.id === question.axis)!;
             const selected = answers[question.id];
             return (
-              <article key={question.id} className="rounded-lg border border-[#eadfd8] bg-white p-4 shadow-sm">
+              <article key={question.id} className="rounded-lg border border-neutral-border bg-white p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className="mt-1 h-3 w-3 flex-shrink-0 rounded-full"

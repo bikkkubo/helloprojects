@@ -448,18 +448,6 @@ export default function OshiTypeDiagnosis() {
     setAnswers((current) => ({ ...current, [questionId]: value }));
   };
 
-  const fillSampleAnswers = () => {
-    setAnswers(
-      questions.reduce(
-        (sampleAnswers, question, index) => {
-          sampleAnswers[question.id] = [5, 4, 3, 5, 2, 4][index % 6];
-          return sampleAnswers;
-        },
-        {} as Record<string, number>,
-      ),
-    );
-  };
-
   const reset = () => {
     setAnswers({});
     setStep("select");
@@ -817,12 +805,6 @@ export default function OshiTypeDiagnosis() {
                 className="mt-5 w-full rounded-lg bg-primary px-5 py-3 text-sm font-black text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-[#d8ccc4]"
               >
                 結果を見る
-              </button>
-              <button
-                onClick={fillSampleAnswers}
-                className="mt-3 w-full rounded-lg border border-neutral-border bg-white px-5 py-3 text-sm font-bold text-neutral-text-light transition-colors hover:border-primary hover:text-primary"
-              >
-                サンプル回答を入れる
               </button>
             </div>
           </div>

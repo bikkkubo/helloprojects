@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import OshiTypeDiagnosis from "./OshiTypeDiagnosis";
 
 export const metadata: Metadata = {
-  title: "推し活タイプ診断 | ハロ！プロ リサーチ",
+  title: "推し活タイプ診断",
   description: "12軸で推し活の傾向を可視化し、利用者平均と比較できる診断です。",
   openGraph: {
     title: "推し活タイプ診断 | ハロ！プロ リサーチ",

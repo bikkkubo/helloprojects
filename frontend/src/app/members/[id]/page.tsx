@@ -1,10 +1,12 @@
 import { Metadata } from "next";
-import { getMemberById } from "@/lib/data/members";
+import { MEMBERS_DATA, getMemberById } from "@/lib/data/members";
 import { generateMemberMetadata, siteConfig } from "@/lib/metadata";
 import { PersonJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import MemberDetailClient from "./MemberDetailClient";
 
-export const runtime = "edge";
+export function generateStaticParams() {
+  return Object.keys(MEMBERS_DATA).map((id) => ({ id }));
+}
 
 // 動的メタデータ生成
 export async function generateMetadata({

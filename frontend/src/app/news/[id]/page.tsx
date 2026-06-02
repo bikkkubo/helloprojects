@@ -1,11 +1,13 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getNewsById, getRelatedNews } from "@/lib/data/news";
+import { NEWS_DETAIL_DATA, getNewsById, getRelatedNews } from "@/lib/data/news";
 import { generateNewsMetadata, siteConfig } from "@/lib/metadata";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import NewsDetailClient from "./NewsDetailClient";
 
-export const runtime = "edge";
+export function generateStaticParams() {
+  return NEWS_DETAIL_DATA.map((news) => ({ id: news.id }));
+}
 
 // 動的メタデータ生成
 export async function generateMetadata({

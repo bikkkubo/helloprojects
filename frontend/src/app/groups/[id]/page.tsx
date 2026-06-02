@@ -1,10 +1,12 @@
 import { Metadata } from "next";
-import { getGroupById } from "@/lib/data/groups";
+import { GROUPS_DATA, getGroupById } from "@/lib/data/groups";
 import { generateGroupMetadata, siteConfig } from "@/lib/metadata";
 import { MusicGroupJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import GroupDetailClient from "./GroupDetailClient";
 
-export const runtime = "edge";
+export function generateStaticParams() {
+  return Object.keys(GROUPS_DATA).map((id) => ({ id }));
+}
 
 // 動的メタデータ生成
 export async function generateMetadata({

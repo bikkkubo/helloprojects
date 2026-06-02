@@ -1,5 +1,5 @@
 // メンバーデータの型定義
-export type BloodType = "" | "A" | "B" | "AB" | "O";
+export type BloodType = "A" | "B" | "AB" | "O";
 
 export interface GroupHistory {
   groupName: string;
@@ -2038,36 +2038,6 @@ export const MEMBERS_DATA: Record<string, MemberDetail> = {
         username: "里吉うたの",
       },
     ],
-  },
-  "by-10": {
-    id: "by-10",
-    name: "小島はな",
-    nameKana: "こじま はな",
-    nickname: "",
-    groupName: "BEYOOOOONDS",
-    imageUrl: "/images/members/beyooooonds/kojima-hana.jpg",
-    memberColor: "#FFFFFF",
-    birthDate: "",
-    bloodType: "",
-    birthPlace: "",
-    height: 0,
-    hobbies: [],
-    specialSkills: [],
-    favoriteMusic: "",
-    favoriteSport: "",
-    motto: "",
-    helloProjectJoinDate: "",
-    introduction: "BEYOOOOONDSのメンバー。",
-    groupHistory: [
-      {
-        groupName: "BEYOOOOONDS",
-        role: "メンバー",
-        startDate: "",
-        isCurrent: true,
-      },
-    ],
-    discography: [],
-    snsLinks: [],
   },
   // ========================================
   // ロージークロニクル

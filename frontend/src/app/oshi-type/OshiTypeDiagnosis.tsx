@@ -272,12 +272,22 @@ const preferredGroupOrder = [
 const sourceMembers = getAllMembers().filter((member) => member.id !== "default");
 type SourceMember = (typeof sourceMembers)[number];
 type DisplayMember = Pick<SourceMember, "id" | "name" | "nameKana" | "groupName" | "memberColor">;
+const shindanOnlyMembers: DisplayMember[] = [
+  {
+    id: "by-10",
+    name: "小島はな",
+    nameKana: "こじま はな",
+    groupName: "BEYOOOOONDS",
+    memberColor: "#FFFFFF",
+  },
+];
+const selectableMembers: DisplayMember[] = [...sourceMembers, ...shindanOnlyMembers];
 
 const memberGroups = preferredGroupOrder
-  .filter((groupName) => sourceMembers.some((member) => member.groupName === groupName))
+  .filter((groupName) => selectableMembers.some((member) => member.groupName === groupName))
   .map((groupName) => ({
     name: groupName,
-    members: sourceMembers
+    members: selectableMembers
       .filter((member) => member.groupName === groupName)
       .sort((a, b) => a.name.localeCompare(b.name, "ja")),
   }));
@@ -418,7 +428,7 @@ export default function OshiTypeDiagnosis() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const axis = getAxisFromParam(params.get("t") ?? params.get("axis") ?? params.get("result"));
-    const member = sourceMembers.find((item) => item.id === params.get("m"));
+    const member = selectableMembers.find((item) => item.id === params.get("m"));
     const title = params.get("result") ?? (axis ? `${axis.label}ベースタイプ` : null);
 
     if (!title || !axis) return;
@@ -437,17 +447,17 @@ export default function OshiTypeDiagnosis() {
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / questions.length) * 100);
   const selectedGroupMembers = memberGroups.find((group) => group.name === selectedGroupName)?.members ?? [];
-  const selectedMember = sourceMembers.find((member) => member.id === selectedMemberId);
+  const selectedMember = selectableMembers.find((member) => member.id === selectedMemberId);
   const sharedMember = useMemo<DisplayMember | undefined>(() => {
     if (!sharedResult) return undefined;
 
     if (sharedResult.memberId) {
-      return sourceMembers.find((member) => member.id === sharedResult.memberId);
+      return selectableMembers.find((member) => member.id === sharedResult.memberId);
     }
 
     if (!sharedResult.oshi) return undefined;
 
-    const matchedMember = sourceMembers.find(
+    const matchedMember = selectableMembers.find(
       (member) =>
         member.name === sharedResult.oshi &&
         (!sharedResult.group || member.groupName === sharedResult.group),

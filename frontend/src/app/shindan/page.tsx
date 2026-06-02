@@ -21,6 +21,15 @@ const AXIS_META = {
   ritual: { label: "儀式・収集型", color: "#A58A62" },
 } as const;
 
+const SHINDAN_ONLY_MEMBERS = [
+  {
+    id: "by-10",
+    name: "小島はな",
+    groupName: "BEYOOOOONDS",
+    memberColor: "#FFFFFF",
+  },
+];
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 function firstParam(value: string | string[] | undefined) {
@@ -36,7 +45,7 @@ function findAxis(value: string | undefined) {
 
 function findMember(id: string | undefined) {
   if (!id) return undefined;
-  return getAllMembers().find((member) => member.id === id);
+  return getAllMembers().find((member) => member.id === id) ?? SHINDAN_ONLY_MEMBERS.find((member) => member.id === id);
 }
 
 function buildOshiOgImageUrl(params: SearchParams) {

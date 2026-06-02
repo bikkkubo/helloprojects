@@ -6,6 +6,7 @@ const footerLinks = [
   { href: "/members", label: "メンバー" },
   { href: "/groups", label: "グループ" },
   { href: "/schedule", label: "スケジュール" },
+  { href: "/oshi-type", label: "推し活診断" },
 ];
 
 const socialLinks = [

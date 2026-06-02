@@ -381,6 +381,19 @@ export default function OshiTypeDiagnosis() {
     () => [...axes].sort((a, b) => scores[b.id] - scores[a.id]),
     [scores],
   );
+  const differenceRanking = useMemo(
+    () =>
+      axes
+        .map((axis) => {
+          const score = scores[axis.id];
+          const average = averageScores[axis.id];
+          const diff = score - average;
+          return { axis, score, average, diff, absoluteDiff: Math.abs(diff) };
+        })
+        .sort((a, b) => b.absoluteDiff - a.absoluteDiff)
+        .slice(0, 3),
+    [scores],
+  );
   const primary = rankedAxes[0];
   const secondary = rankedAxes[1];
   const matchedProfile =
@@ -568,6 +581,49 @@ export default function OshiTypeDiagnosis() {
             </div>
             <div className="mt-8">
               <RadarChart scores={scores} />
+            </div>
+            <div className="mt-8 rounded-lg border border-[#eadfd8] bg-[#fffaf7] p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold text-primary-dark">平均との差が大きい項目ベスト3</p>
+                  <h3 className="mt-1 text-lg font-black text-neutral-text">あなたらしさが出ている軸</h3>
+                </div>
+                <p className="text-xs font-medium text-neutral-text-light">平均との差の絶対値で集計</p>
+              </div>
+              <div className="mt-4 space-y-3">
+                {differenceRanking.map(({ axis, score, average, diff }, index) => {
+                  const isAboveAverage = diff >= 0;
+
+                  return (
+                    <div key={axis.id} className="rounded-lg border border-neutral-border bg-white p-4">
+                      <div className="flex items-start gap-3">
+                        <span
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
+                          style={{ backgroundColor: axis.color }}
+                        >
+                          {index + 1}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                            <h4 className="font-black text-neutral-text">{axis.label}</h4>
+                            <p className="text-sm font-bold text-neutral-text-light">
+                              {score.toFixed(1)} / 平均 {average.toFixed(1)}
+                            </p>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-neutral-text-light">
+                            平均より
+                            <span className={`font-black ${isAboveAverage ? "text-primary" : "text-[#46A7A0]"}`}>
+                              {isAboveAverage ? "高い" : "低い"}
+                              {Math.abs(diff).toFixed(1)}
+                            </span>
+                            ポイント。{axis.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

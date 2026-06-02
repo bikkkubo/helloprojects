@@ -9,6 +9,8 @@ import StickyCTA from "@/components/common/StickyCTA";
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStandaloneExperience =
+    pathname === "/" ||
+    pathname?.startsWith("/calls") ||
     pathname?.startsWith("/oshi-type") ||
     pathname?.startsWith("/shindan") ||
     pathname?.startsWith("/new-member");

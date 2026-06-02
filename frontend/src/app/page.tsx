@@ -1,39 +1,51 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "HELLO! PROJECT CALLS",
+  },
+  description: "ハロー!プロジェクトのコール情報をグループ別に確認できます。",
+  openGraph: {
+    title: "HELLO! PROJECT CALLS",
+    description: "ハロー!プロジェクトのコール情報をグループ別に確認できます。",
+  },
+};
 
 const groups = [
   {
     name: "Juice=Juice",
-    href: "/groups/juice-juice",
+    href: "/calls/juice-juice",
     releases: 37,
     members: 19,
   },
   {
     name: "アンジュルム",
-    href: "/groups/angerme",
+    href: "/calls/angerme",
     releases: 0,
     members: 0,
   },
   {
     name: "モーニング娘。",
-    href: "/groups/morning-musume",
+    href: "/calls/morning-musume",
     releases: 0,
     members: 0,
   },
   {
     name: "OCHA NORMA",
-    href: "/groups/ocha-norma",
+    href: "/calls/ocha-norma",
     releases: 0,
     members: 0,
   },
   {
     name: "つばきファクトリー",
-    href: "/groups/tsubaki-factory",
+    href: "/calls/tsubaki-factory",
     releases: 0,
     members: 0,
   },
   {
     name: "ロージークロニクル",
-    href: "/groups/rosy-chronicle",
+    href: "/calls/rosy-chronicle",
     releases: 0,
     members: 0,
   },

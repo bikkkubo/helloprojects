@@ -4,6 +4,8 @@ import { generateMemberMetadata, siteConfig } from "@/lib/metadata";
 import { PersonJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import MemberDetailClient from "./MemberDetailClient";
 
+export const runtime = "edge";
+
 // 動的メタデータ生成
 export async function generateMetadata({
   params,

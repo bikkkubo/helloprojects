@@ -5,6 +5,8 @@ import { generateNewsMetadata, siteConfig } from "@/lib/metadata";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import NewsDetailClient from "./NewsDetailClient";
 
+export const runtime = "edge";
+
 // 動的メタデータ生成
 export async function generateMetadata({
   params,

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import OshiTypeDiagnosis from "./OshiTypeDiagnosis";
 
+export const runtime = "edge";
+
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

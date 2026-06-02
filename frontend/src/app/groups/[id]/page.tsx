@@ -4,6 +4,8 @@ import { generateGroupMetadata, siteConfig } from "@/lib/metadata";
 import { MusicGroupJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import GroupDetailClient from "./GroupDetailClient";
 
+export const runtime = "edge";
+
 // 動的メタデータ生成
 export async function generateMetadata({
   params,

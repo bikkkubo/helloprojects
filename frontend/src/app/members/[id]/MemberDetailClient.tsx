@@ -363,7 +363,8 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* 生年月日 */}
-              <motion.div
+              {member.birthDate && (
+                <motion.div
                 className="bg-gradient-to-br from-primary/10 to-white p-5 rounded-xl"
                 variants={staggerItem}
               >
@@ -391,10 +392,12 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
                 <p className="text-sm text-primary font-medium">
                   ({calculateAge(member.birthDate)}歳)
                 </p>
-              </motion.div>
+                </motion.div>
+              )}
 
               {/* 血液型 */}
-              <motion.div
+              {member.bloodType && (
+                <motion.div
                 className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl"
                 variants={staggerItem}
               >
@@ -419,10 +422,12 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
                 <p className="text-lg font-bold text-neutral-text">
                   {member.bloodType}型
                 </p>
-              </motion.div>
+                </motion.div>
+              )}
 
               {/* 出身地 */}
-              <motion.div
+              {member.birthPlace && (
+                <motion.div
                 className="bg-gradient-to-br from-green-50 to-white p-5 rounded-xl"
                 variants={staggerItem}
               >
@@ -453,7 +458,8 @@ export default function MemberDetailClient({ memberId }: MemberDetailClientProps
                 <p className="text-lg font-bold text-neutral-text">
                   {member.birthPlace}
                 </p>
-              </motion.div>
+                </motion.div>
+              )}
 
               {/* 身長 */}
               {member.height && (

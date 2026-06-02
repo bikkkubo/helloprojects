@@ -119,9 +119,9 @@ function drawOutlinedPosterLine(
   ctx.fillStyle = "#fffdf7";
 
   ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
-  ctx.shadowBlur = 2;
-  ctx.shadowOffsetX = 3;
-  ctx.shadowOffsetY = 4;
+  ctx.shadowBlur = 3;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 5;
   ctx.strokeText(text, x, y);
 
   ctx.shadowColor = "rgba(255, 255, 255, 0.36)";
@@ -138,8 +138,8 @@ function drawPosterText(ctx: CanvasRenderingContext2D) {
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
-  drawOutlinedPosterLine(ctx, "モーニング娘。’26の", 72, 567, 35, 8);
-  drawOutlinedPosterLine(ctx, "新メンバーはー。", 65, 637, 49, 9);
+  drawOutlinedPosterLine(ctx, "モーニング娘。’26の", 72, 567, 45, 10);
+  drawOutlinedPosterLine(ctx, "新メンバーはー。", 64, 638, 64, 12);
 
   ctx.restore();
 }

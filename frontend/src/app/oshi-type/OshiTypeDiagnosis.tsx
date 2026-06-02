@@ -44,6 +44,7 @@ type SharedResult = {
   title: string;
   primaryAxisId: AxisId;
   color: string;
+  memberId?: string;
   oshi?: string;
   group?: string;
   scores?: Record<AxisId, number>;
@@ -293,9 +294,9 @@ function calculateScores(answers: Record<string, number>) {
   );
 }
 
-function getAxisFromLabel(label: string | null) {
-  if (!label) return undefined;
-  return axes.find((axis) => axis.label === label || axis.shortLabel === label || label.includes(axis.label));
+function getAxisFromParam(value: string | null) {
+  if (!value) return undefined;
+  return axes.find((axis) => axis.id === value || axis.label === value || axis.shortLabel === value || value.includes(axis.label));
 }
 
 function getSharedFallbackScores(primaryAxisId: AxisId) {
@@ -416,17 +417,19 @@ export default function OshiTypeDiagnosis() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const title = params.get("result");
-    const axis = getAxisFromLabel(params.get("axis") ?? title);
+    const axis = getAxisFromParam(params.get("t") ?? params.get("axis") ?? params.get("result"));
+    const member = sourceMembers.find((item) => item.id === params.get("m"));
+    const title = params.get("result") ?? (axis ? `${axis.label}ベースタイプ` : null);
 
     if (!title || !axis) return;
 
     setSharedResult({
       title,
       primaryAxisId: axis.id,
-      color: params.get("color") ?? axis.color,
-      oshi: params.get("oshi") ?? undefined,
-      group: params.get("group") ?? undefined,
+      color: params.get("color") ?? member?.memberColor ?? axis.color,
+      memberId: member?.id,
+      oshi: params.get("oshi") ?? member?.name ?? undefined,
+      group: params.get("group") ?? member?.groupName ?? undefined,
       scores: parseScoresParam(params.get("scores")),
     });
   }, []);
@@ -436,7 +439,13 @@ export default function OshiTypeDiagnosis() {
   const selectedGroupMembers = memberGroups.find((group) => group.name === selectedGroupName)?.members ?? [];
   const selectedMember = sourceMembers.find((member) => member.id === selectedMemberId);
   const sharedMember = useMemo<DisplayMember | undefined>(() => {
-    if (!sharedResult?.oshi) return undefined;
+    if (!sharedResult) return undefined;
+
+    if (sharedResult.memberId) {
+      return sourceMembers.find((member) => member.id === sharedResult.memberId);
+    }
+
+    if (!sharedResult.oshi) return undefined;
 
     const matchedMember = sourceMembers.find(
       (member) =>
@@ -493,15 +502,15 @@ export default function OshiTypeDiagnosis() {
     : calculatedProfile;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
   const shareParams = new URLSearchParams({
-    result: matchedProfile.title,
-    axis: primary?.label ?? "",
-    color: displayMember?.memberColor ?? primary?.color ?? "#D4899A",
-    scores: axes.map((axis) => scores[axis.id].toFixed(2)).join(","),
+    t: primary?.id ?? "",
   });
 
-  if (displayMember) {
+  if (displayMember?.id && displayMember.id !== "shared") {
+    shareParams.set("m", displayMember.id);
+  } else if (displayMember) {
     shareParams.set("oshi", displayMember.name);
     shareParams.set("group", displayMember.groupName);
+    shareParams.set("color", displayMember.memberColor);
   }
 
   const shareUrl = `${origin}/shindan?${shareParams.toString()}`;
@@ -717,7 +726,7 @@ export default function OshiTypeDiagnosis() {
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="mt-5 grid gap-3">
               <a
                 href={shareData.xUrl}
                 target="_blank"
@@ -726,22 +735,24 @@ export default function OshiTypeDiagnosis() {
               >
                 Xでシェア
               </a>
-              <a
-                href={shareData.lineUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
-              >
-                LINEで送る
-              </a>
-              <a
-                href={shareData.ogImageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-20 items-center justify-center rounded-lg bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-5 py-4 text-center text-lg font-bold text-white transition-opacity hover:opacity-90"
-              >
-                Instagram用画像
-              </a>
+              <div className="grid gap-3 md:grid-cols-2">
+                <a
+                  href={shareData.lineUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-20 items-center justify-center rounded-lg bg-[#06C755] px-5 py-4 text-lg font-bold text-white transition-opacity hover:opacity-90"
+                >
+                  LINEで送る
+                </a>
+                <a
+                  href={shareData.ogImageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-20 items-center justify-center rounded-lg bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] px-5 py-4 text-center text-lg font-bold text-white transition-opacity hover:opacity-90"
+                >
+                  Instagram用画像
+                </a>
+              </div>
             </div>
             <p className="mt-3 text-xs leading-5 text-neutral-text-light">
               InstagramはWebからストーリーへ直接投稿できないため、画像を開いて保存してからストーリーに投稿してください。

@@ -33,6 +33,15 @@ export async function GET(request: NextRequest) {
       ? adjustColorBrightness(customColor, -20)
       : BRAND_COLORS.gradientEnd;
 
+    if (type === "oshi") {
+      return renderOshiTypeImage({
+        group,
+        oshi,
+        primaryType: title,
+        themeColor,
+      });
+    }
+
     // タイプに応じたアイコンとラベル
     const typeConfig = getTypeConfig(type);
 
@@ -232,6 +241,181 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function renderOshiTypeImage({
+  group,
+  oshi,
+  primaryType,
+  themeColor,
+}: {
+  group: string;
+  oshi: string;
+  primaryType: string;
+  themeColor: string;
+}) {
+  const safeGroup = group || "Hello! Project";
+  const safeOshi = oshi || "推し";
+  const safeType = primaryType || "推し活型";
+  const lightTheme = mixWithWhite(themeColor, 0.78);
+  const paleTheme = mixWithWhite(themeColor, 0.9);
+  const shadowTheme = mixWithBlack(themeColor, 0.18);
+  const typeText = safeType.endsWith("型") ? safeType : `${safeType}型`;
+
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: OG_WIDTH,
+          height: OG_HEIGHT,
+          display: "flex",
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: paleTheme,
+          fontFamily: '"Noto Sans JP", sans-serif',
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            background: `linear-gradient(135deg, ${paleTheme} 0%, ${lightTheme} 58%, #ffffff 100%)`,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 58,
+            backgroundColor: themeColor,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            right: -120,
+            bottom: -170,
+            width: 440,
+            height: 440,
+            borderRadius: "50%",
+            backgroundColor: lightTheme,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            right: 62,
+            top: 56,
+            width: 150,
+            height: 150,
+            borderRadius: "50%",
+            border: `18px solid ${themeColor}`,
+            opacity: 0.2,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 126,
+            top: 84,
+            right: 82,
+            bottom: 72,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              fontSize: 68,
+              lineHeight: 1.05,
+              fontWeight: 900,
+              letterSpacing: 0,
+              color: "#000000",
+            }}
+          >
+            私は{safeGroup}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginTop: 18,
+              fontSize: safeOshi.length >= 7 ? 98 : 112,
+              lineHeight: 1.02,
+              fontWeight: 900,
+              letterSpacing: 0,
+              color: "#000000",
+              textShadow: `8px 8px 0 ${lightTheme}`,
+            }}
+          >
+            {safeOshi}さんの
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              marginTop: 22,
+              color: "#000000",
+            }}
+          >
+            <span
+              style={{
+                fontSize: typeText.length >= 9 ? 86 : 108,
+                lineHeight: 1,
+                fontWeight: 900,
+                letterSpacing: 0,
+              }}
+            >
+              {typeText}
+            </span>
+            <span
+              style={{
+                marginLeft: 16,
+                fontSize: 96,
+                lineHeight: 1,
+                fontWeight: 900,
+                letterSpacing: 0,
+              }}
+            >
+              オタクです
+            </span>
+          </div>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: 126,
+            bottom: 42,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            color: shadowTheme,
+            fontSize: 26,
+            fontWeight: 800,
+          }}
+        >
+          <span
+            style={{
+              display: "flex",
+              width: 22,
+              height: 22,
+              borderRadius: "50%",
+              backgroundColor: themeColor,
+            }}
+          />
+          <span>推し活タイプ診断</span>
+        </div>
+      </div>
+    ),
+    {
+      width: OG_WIDTH,
+      height: OG_HEIGHT,
+    }
+  );
+}
+
 // タイプに応じた設定を取得
 function getTypeConfig(type: string): { icon: string; label: string } {
   switch (type) {
@@ -276,4 +460,33 @@ function adjustColorBrightness(hex: string, percent: number): string {
   const toHex = (value: number) => value.toString(16).padStart(2, "0");
 
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
+}
+
+function mixWithWhite(hex: string, amount: number): string {
+  return mixHex(hex, "#ffffff", amount);
+}
+
+function mixWithBlack(hex: string, amount: number): string {
+  return mixHex(hex, "#000000", amount);
+}
+
+function mixHex(hex: string, targetHex: string, amount: number): string {
+  const source = parseHexColor(hex);
+  const target = parseHexColor(targetHex);
+  const mix = (sourceValue: number, targetValue: number) =>
+    Math.round(sourceValue + (targetValue - sourceValue) * amount);
+  const toHex = (value: number) => value.toString(16).padStart(2, "0");
+
+  return `#${toHex(mix(source.r, target.r))}${toHex(mix(source.g, target.g))}${toHex(mix(source.b, target.b))}`;
+}
+
+function parseHexColor(hex: string) {
+  const fallback = BRAND_COLORS.primary;
+  const cleanHex = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex.replace("#", "") : fallback.replace("#", "");
+
+  return {
+    r: parseInt(cleanHex.substring(0, 2), 16),
+    g: parseInt(cleanHex.substring(2, 4), 16),
+    b: parseInt(cleanHex.substring(4, 6), 16),
+  };
 }

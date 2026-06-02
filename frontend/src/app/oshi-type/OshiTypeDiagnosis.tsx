@@ -417,9 +417,9 @@ export default function OshiTypeDiagnosis() {
   const shareUrl = `${origin}/shindan?${shareParams.toString()}`;
   const ogParams = new URLSearchParams({
     type: "oshi",
-    title: matchedProfile.title,
-    subtitle: primary?.label ? `主タイプ: ${primary.label}` : "推し活タイプ診断",
-    color: primary?.color ?? "#D4899A",
+    title: primary?.label ?? "推し活",
+    subtitle: matchedProfile.title,
+    color: selectedMember?.memberColor ?? primary?.color ?? "#D4899A",
   });
 
   if (selectedMember) {

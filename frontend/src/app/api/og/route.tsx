@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
         group,
         oshi,
         primaryType: title,
+        resultTitle: subtitle,
         themeColor,
       });
     }
@@ -245,11 +246,13 @@ function renderOshiTypeImage({
   group,
   oshi,
   primaryType,
+  resultTitle,
   themeColor,
 }: {
   group: string;
   oshi: string;
   primaryType: string;
+  resultTitle: string;
   themeColor: string;
 }) {
   const safeGroup = group || "Hello! Project";
@@ -257,8 +260,8 @@ function renderOshiTypeImage({
   const safeType = primaryType || "推し活型";
   const lightTheme = mixWithWhite(themeColor, 0.78);
   const paleTheme = mixWithWhite(themeColor, 0.9);
-  const shadowTheme = mixWithBlack(themeColor, 0.18);
   const typeText = safeType.endsWith("型") ? safeType : `${safeType}型`;
+  const labelText = `${resultTitle || typeText} | 推し活タイプ診断`;
 
   return new ImageResponse(
     (
@@ -390,22 +393,15 @@ function renderOshiTypeImage({
             bottom: 42,
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            color: shadowTheme,
-            fontSize: 26,
+            color: "#ffffff",
+            backgroundColor: "rgba(82, 82, 82, 0.82)",
+            borderRadius: 8,
+            padding: "6px 12px",
+            fontSize: 24,
             fontWeight: 800,
           }}
         >
-          <span
-            style={{
-              display: "flex",
-              width: 22,
-              height: 22,
-              borderRadius: "50%",
-              backgroundColor: themeColor,
-            }}
-          />
-          <span>推し活タイプ診断</span>
+          <span>{labelText}</span>
         </div>
       </div>
     ),

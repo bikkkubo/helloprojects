@@ -148,6 +148,26 @@ function buildOshiOgImageUrl(params: SearchParams, savedResult?: SavedResultRow)
   return `${SITE_URL}/api/og?${imageParams.toString()}`;
 }
 
+function buildCanonicalShindanUrl(params: SearchParams) {
+  const urlParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (item) urlParams.append(key, item);
+      });
+      return;
+    }
+
+    if (value) {
+      urlParams.set(key, value);
+    }
+  });
+
+  const query = urlParams.toString();
+  return query ? `${SITE_URL}/shindan?${query}` : `${SITE_URL}/shindan`;
+}
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -164,6 +184,7 @@ export async function generateMetadata({
   const title = result
     ? `${result} | 推し活タイプ診断`
     : "推し活タイプ診断";
+  const canonicalUrl = buildCanonicalShindanUrl(params);
   const description = oshi && group
     ? `${group} ${oshi}さんを推すあなたの推し活タイプ診断結果です。`
     : "12軸で推し活の傾向を可視化し、利用者平均と比較できる診断です。";
@@ -176,7 +197,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      url: `${SITE_URL}/shindan`,
+      url: canonicalUrl,
       images: [
         {
           url: ogImageUrl,

@@ -262,6 +262,10 @@ function renderOshiTypeImage({
   const paleTheme = mixWithWhite(themeColor, 0.9);
   const typeText = safeType.endsWith("型") ? safeType : `${safeType}型`;
   const labelText = `${resultTitle || typeText} | 推し活タイプ診断`;
+  const resultLine = `${typeText} オタクです`;
+  const groupFontSize = safeGroup.length >= 16 ? 52 : 62;
+  const oshiFontSize = safeOshi.length >= 8 ? 86 : safeOshi.length >= 7 ? 94 : 104;
+  const resultFontSize = resultLine.length >= 15 ? 64 : resultLine.length >= 12 ? 72 : 88;
 
   return new ImageResponse(
     (
@@ -332,7 +336,7 @@ function renderOshiTypeImage({
           <div
             style={{
               display: "flex",
-              fontSize: 68,
+              fontSize: groupFontSize,
               lineHeight: 1.05,
               fontWeight: 900,
               letterSpacing: 0,
@@ -345,7 +349,7 @@ function renderOshiTypeImage({
             style={{
               display: "flex",
               marginTop: 18,
-              fontSize: safeOshi.length >= 7 ? 98 : 112,
+              fontSize: oshiFontSize,
               lineHeight: 1.02,
               fontWeight: 900,
               letterSpacing: 0,
@@ -358,32 +362,15 @@ function renderOshiTypeImage({
           <div
             style={{
               display: "flex",
-              alignItems: "baseline",
               marginTop: 22,
+              fontSize: resultFontSize,
+              lineHeight: 1.08,
+              fontWeight: 900,
+              letterSpacing: 0,
               color: "#000000",
             }}
           >
-            <span
-              style={{
-                fontSize: typeText.length >= 9 ? 86 : 108,
-                lineHeight: 1,
-                fontWeight: 900,
-                letterSpacing: 0,
-              }}
-            >
-              {typeText}
-            </span>
-            <span
-              style={{
-                marginLeft: 16,
-                fontSize: 96,
-                lineHeight: 1,
-                fontWeight: 900,
-                letterSpacing: 0,
-              }}
-            >
-              オタクです
-            </span>
+            {resultLine}
           </div>
         </div>
         <div

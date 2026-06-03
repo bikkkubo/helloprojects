@@ -619,7 +619,10 @@ export default function OshiTypeDiagnosis() {
     : calculatedProfile;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://hello-project.jp";
   const fallbackShareParams = new URLSearchParams({
-    t: primary?.id ?? "",
+    result: matchedProfile.title,
+    axis: primary?.id ?? "",
+    color: displayMember?.memberColor ?? primary?.color ?? "#D4899A",
+    scores: axes.map((axis) => scores[axis.id].toFixed(2)).join(","),
   });
 
   if (secondary?.id) {
@@ -630,12 +633,12 @@ export default function OshiTypeDiagnosis() {
     fallbackShareParams.set("r", calculatedProfile.key);
   }
 
-  if (displayMember?.id && displayMember.id !== "shared") {
-    fallbackShareParams.set("m", displayMember.id);
-  } else if (displayMember) {
+  if (displayMember) {
+    if (displayMember.id !== "shared") {
+      fallbackShareParams.set("m", displayMember.id);
+    }
     fallbackShareParams.set("oshi", displayMember.name);
     fallbackShareParams.set("group", displayMember.groupName);
-    fallbackShareParams.set("color", displayMember.memberColor);
   }
 
   const shareParams = resultId ? new URLSearchParams({ rid: resultId }) : fallbackShareParams;

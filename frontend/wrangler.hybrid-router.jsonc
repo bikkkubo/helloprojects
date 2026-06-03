@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hello-project-hybrid-router",
+  "main": "workers/hybrid-router.js",
+  "compatibility_date": "2026-06-03",
+  "routes": [
+    {
+      "pattern": "hello-project.jp/*",
+      "zone_name": "hello-project.jp"
+    }
+  ]
+}

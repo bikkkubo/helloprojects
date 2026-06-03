@@ -92,56 +92,32 @@ async function getStats(): Promise<StatsData | null> {
     ),
     all<MemberTypeRow>(
       db,
-      `SELECT memberId, label, count
-      FROM (
-        SELECT
-          member_id AS memberId,
-          primary_label AS label,
-          COUNT(*) AS count,
-          ROW_NUMBER() OVER (
-            PARTITION BY member_id
-            ORDER BY COUNT(*) DESC, primary_label ASC
-          ) AS rank
-        FROM shindan_results
-        GROUP BY member_id, primary_label
-      )
-      WHERE rank <= 3
+      `SELECT
+        member_id AS memberId,
+        primary_label AS label,
+        COUNT(*) AS count
+      FROM shindan_results
+      GROUP BY member_id, primary_label
       ORDER BY memberId ASC, count DESC, label ASC`,
     ),
     all<MemberTypeRow>(
       db,
-      `SELECT memberId, label, count
-      FROM (
-        SELECT
-          member_id AS memberId,
-          secondary_label AS label,
-          COUNT(*) AS count,
-          ROW_NUMBER() OVER (
-            PARTITION BY member_id
-            ORDER BY COUNT(*) DESC, secondary_label ASC
-          ) AS rank
-        FROM shindan_results
-        GROUP BY member_id, secondary_label
-      )
-      WHERE rank <= 3
+      `SELECT
+        member_id AS memberId,
+        secondary_label AS label,
+        COUNT(*) AS count
+      FROM shindan_results
+      GROUP BY member_id, secondary_label
       ORDER BY memberId ASC, count DESC, label ASC`,
     ),
     all<MemberTypeRow>(
       db,
-      `SELECT memberId, label, count
-      FROM (
-        SELECT
-          member_id AS memberId,
-          result_title AS label,
-          COUNT(*) AS count,
-          ROW_NUMBER() OVER (
-            PARTITION BY member_id
-            ORDER BY COUNT(*) DESC, result_title ASC
-          ) AS rank
-        FROM shindan_results
-        GROUP BY member_id, result_title
-      )
-      WHERE rank <= 3
+      `SELECT
+        member_id AS memberId,
+        result_title AS label,
+        COUNT(*) AS count
+      FROM shindan_results
+      GROUP BY member_id, result_title
       ORDER BY memberId ASC, count DESC, label ASC`,
     ),
   ]);
@@ -248,9 +224,9 @@ function MemberCard({ member, rank, total }: { member: MemberStats; rank: number
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          <BreakdownList title="主タイプ" rows={member.primary} total={member.count} accent="#74A88B" />
-          <BreakdownList title="副タイプ" rows={member.secondary} total={member.count} accent="#B986D9" />
-          <BreakdownList title="結果タイトル" rows={member.resultTitles} total={member.count} accent="#CC6B9B" />
+          <BreakdownList title="全主タイプ" rows={member.primary} total={member.count} accent="#74A88B" />
+          <BreakdownList title="全副タイプ" rows={member.secondary} total={member.count} accent="#B986D9" />
+          <BreakdownList title="全結果タイトル" rows={member.resultTitles} total={member.count} accent="#CC6B9B" />
         </div>
       </div>
     </section>
@@ -281,7 +257,7 @@ export default async function ShindanMemberStatsPage() {
             メンバー別<br />推し活タイプ傾向
           </h1>
           <p className="mt-4 max-w-3xl text-sm font-bold leading-7 text-[#6f6661]">
-            各メンバーを推しに選んだ人が、どの主タイプ・副タイプ・結果タイトルになりやすいかを表示します。
+            各メンバーを推しに選んだ人が、どの主タイプ・副タイプ・結果タイトルになったかを全分類で表示します。
             集計期間: {stats.total.firstAt ?? "-"} 〜 {stats.total.lastAt ?? "-"}
           </p>
         </div>

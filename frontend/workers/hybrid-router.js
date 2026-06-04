@@ -1,4 +1,4 @@
-const CALLS_ORIGIN = "9604240e.hello-project-jp.pages.dev";
+const CALLS_ORIGIN = "90df01e5.hello-project-jp.pages.dev";
 const SHINDAN_ORIGIN = "a044a678.hello-project-jp.pages.dev";
 
 function isShindanRoute(pathname) {

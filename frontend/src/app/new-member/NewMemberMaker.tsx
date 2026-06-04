@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 
 type PresetKey = "left" | "center" | "right";
+type GroupKey = "morning-musume" | "beyooooonds";
 
 type MakerState = {
   scale: number;
@@ -27,6 +28,47 @@ const initialState: MakerState = {
   ...presets.left,
   brightness: 1.03,
   blur: 14,
+};
+
+const groupOptions: Record<
+  GroupKey,
+  {
+    label: string;
+    templateSrc: string;
+    headline: string;
+    textPosition: {
+      firstY: number;
+      secondY: number;
+      firstX: number;
+      secondX: number;
+    };
+    fileName: string;
+  }
+> = {
+  "morning-musume": {
+    label: "モーニング娘。",
+    templateSrc: "/images/new-member/template.jpg",
+    headline: "モーニング娘。’26の",
+    textPosition: {
+      firstX: 72,
+      firstY: 567,
+      secondX: 64,
+      secondY: 638,
+    },
+    fileName: "morning-new-member-style.png",
+  },
+  beyooooonds: {
+    label: "BEYOOOOONDS",
+    templateSrc: "/images/new-member/template-beyooooonds.jpg",
+    headline: "BEYOOOOONDSの",
+    textPosition: {
+      firstX: 64,
+      firstY: 648,
+      secondX: 64,
+      secondY: 718,
+    },
+    fileName: "beyooooonds-new-member-style.png",
+  },
 };
 
 const sliders: Array<{
@@ -131,15 +173,30 @@ function drawOutlinedPosterLine(
   ctx.fillText(text, x, y);
 }
 
-function drawPosterText(ctx: CanvasRenderingContext2D) {
+function drawPosterText(ctx: CanvasRenderingContext2D, group: GroupKey) {
+  const selectedGroup = groupOptions[group];
   ctx.save();
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
-  drawOutlinedPosterLine(ctx, "モーニング娘。’26の", 72, 567, 45, 10);
-  drawOutlinedPosterLine(ctx, "新メンバーはー。", 64, 638, 64, 12);
+  drawOutlinedPosterLine(
+    ctx,
+    selectedGroup.headline,
+    selectedGroup.textPosition.firstX,
+    selectedGroup.textPosition.firstY,
+    45,
+    10,
+  );
+  drawOutlinedPosterLine(
+    ctx,
+    "新メンバーはー。",
+    selectedGroup.textPosition.secondX,
+    selectedGroup.textPosition.secondY,
+    64,
+    12,
+  );
 
   ctx.restore();
 }
@@ -158,20 +215,23 @@ function drawGuide(ctx: CanvasRenderingContext2D) {
 
 export default function NewMemberMaker() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const templateRef = useRef<HTMLImageElement | null>(null);
+  const templatesRef = useRef<Partial<Record<GroupKey, HTMLImageElement>>>({});
   const logoRef = useRef<HTMLImageElement | null>(null);
   const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
   const [state, setState] = useState<MakerState>(initialState);
   const [preset, setPreset] = useState<PresetKey>("left");
+  const [group, setGroup] = useState<GroupKey>("morning-musume");
   const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
-    const template = new Image();
-    template.src = "/images/new-member/template.jpg";
-    template.onload = () => {
-      templateRef.current = template;
-      renderCanvas();
-    };
+    (Object.keys(groupOptions) as GroupKey[]).forEach((key) => {
+      const template = new Image();
+      template.src = groupOptions[key].templateSrc;
+      template.onload = () => {
+        templatesRef.current[key] = template;
+        renderCanvas();
+      };
+    });
 
     const logo = new Image();
     logo.src = "/images/new-member/hello-project-logo-white.svg";
@@ -183,11 +243,11 @@ export default function NewMemberMaker() {
 
   useEffect(() => {
     renderCanvas();
-  }, [state, userImage, showGuide]);
+  }, [state, userImage, group, showGuide]);
 
   function renderCanvas() {
     const canvas = canvasRef.current;
-    const template = templateRef.current;
+    const template = templatesRef.current[group];
     if (!canvas || !template) return;
 
     const ctx = canvas.getContext("2d");
@@ -225,7 +285,7 @@ export default function NewMemberMaker() {
     }
 
     drawHeader(ctx, logoRef.current);
-    drawPosterText(ctx);
+    drawPosterText(ctx, group);
 
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 1108, CANVAS_WIDTH, 172);
@@ -253,7 +313,7 @@ export default function NewMemberMaker() {
 
   function downloadCanvas(canvas: HTMLCanvasElement) {
     const link = document.createElement("a");
-    link.download = "morning-new-member-style.png";
+    link.download = groupOptions[group].fileName;
     link.href = canvas.toDataURL("image/png");
     link.click();
   }
@@ -270,7 +330,7 @@ export default function NewMemberMaker() {
       return;
     }
 
-    const file = new File([blob], "morning-new-member-style.png", { type: "image/png" });
+    const file = new File([blob], groupOptions[group].fileName, { type: "image/png" });
     const shareData = {
       files: [file],
       title: "新メンバー風メーカー",
@@ -310,6 +370,21 @@ export default function NewMemberMaker() {
             <span className="text-lg font-bold">自分の画像を選択</span>
             <span className="text-xs text-[#405146]">人物が中央に写った縦長写真がおすすめ</span>
           </label>
+
+          <div className="mt-5 grid grid-cols-2 gap-2" role="group" aria-label="グループ">
+            {(["morning-musume", "beyooooonds"] as GroupKey[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setGroup(key)}
+                className={`min-h-11 rounded border px-2 text-sm ${
+                  group === key ? "border-white/40 bg-[#0788c7] text-white" : "border-white/20 bg-white/10 text-[#f7f3e8]"
+                }`}
+              >
+                {groupOptions[key].label}
+              </button>
+            ))}
+          </div>
 
           <div className="mt-5 grid grid-cols-3 gap-2" role="group" aria-label="構図プリセット">
             {(["left", "center", "right"] as PresetKey[]).map((key) => (

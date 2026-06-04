@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 
 type PresetKey = "left" | "center" | "right";
@@ -16,7 +16,9 @@ type MakerState = {
 };
 
 const CANVAS_WIDTH = 590;
-const CANVAS_HEIGHT = 1280;
+const CANVAS_HEIGHT = 1108;
+const HEADER_HEIGHT = 208;
+const PHOTO_HEIGHT = CANVAS_HEIGHT - HEADER_HEIGHT;
 
 const presets: Record<PresetKey, Pick<MakerState, "scale" | "x" | "y" | "blend">> = {
   left: { scale: 1.1, x: -90, y: 60, blend: 0.34 },
@@ -122,14 +124,14 @@ function drawContainImage(
   centerY: number,
   scale: number,
 ) {
-  const targetHeight = CANVAS_HEIGHT * 0.72 * scale;
+  const targetHeight = PHOTO_HEIGHT * scale;
   const targetWidth = targetHeight * (image.width / image.height);
   ctx.drawImage(image, centerX - targetWidth / 2, centerY - targetHeight / 2, targetWidth, targetHeight);
 }
 
 function drawHeader(ctx: CanvasRenderingContext2D, logo: HTMLImageElement | null) {
   ctx.fillStyle = "#0788c7";
-  ctx.fillRect(0, 0, CANVAS_WIDTH, 208);
+  ctx.fillRect(0, 0, CANVAS_WIDTH, HEADER_HEIGHT);
 
   if (logo) {
     const logoWidth = 440;
@@ -222,30 +224,9 @@ export default function NewMemberMaker() {
   const [preset, setPreset] = useState<PresetKey>("left");
   const [group, setGroup] = useState<GroupKey>("morning-musume");
   const [showGuide, setShowGuide] = useState(false);
+  const [assetVersion, setAssetVersion] = useState(0);
 
-  useEffect(() => {
-    (Object.keys(groupOptions) as GroupKey[]).forEach((key) => {
-      const template = new Image();
-      template.src = groupOptions[key].templateSrc;
-      template.onload = () => {
-        templatesRef.current[key] = template;
-        renderCanvas();
-      };
-    });
-
-    const logo = new Image();
-    logo.src = "/images/new-member/hello-project-logo-white.svg";
-    logo.onload = () => {
-      logoRef.current = logo;
-      renderCanvas();
-    };
-  }, []);
-
-  useEffect(() => {
-    renderCanvas();
-  }, [state, userImage, group, showGuide]);
-
-  function renderCanvas() {
+  const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const template = templatesRef.current[group];
     if (!canvas || !template) return;
@@ -254,44 +235,57 @@ export default function NewMemberMaker() {
     if (!ctx) return;
 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#050705";
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    ctx.save();
-    ctx.filter = `blur(${state.blur}px) saturate(1.1) brightness(0.82)`;
-    drawCoverImage(ctx, template, -40, 166, CANVAS_WIDTH + 80, CANVAS_HEIGHT - 210);
-    ctx.restore();
-
-    ctx.fillStyle = "rgba(8, 28, 10, 0.28)";
-    ctx.fillRect(0, 208, CANVAS_WIDTH, 910);
 
     if (userImage) {
       ctx.save();
+      ctx.filter = `blur(${state.blur}px) saturate(1.1) brightness(0.82)`;
+      drawCoverImage(ctx, template, -40, 166, CANVAS_WIDTH + 80, PHOTO_HEIGHT + 42);
+      ctx.restore();
+
+      ctx.fillStyle = "rgba(8, 28, 10, 0.28)";
+      ctx.fillRect(0, HEADER_HEIGHT, CANVAS_WIDTH, PHOTO_HEIGHT);
+
+      ctx.save();
       ctx.beginPath();
-      ctx.rect(0, 208, CANVAS_WIDTH, 900);
+      ctx.rect(0, HEADER_HEIGHT, CANVAS_WIDTH, PHOTO_HEIGHT);
       ctx.clip();
       ctx.filter = `brightness(${state.brightness}) contrast(1.02) saturate(0.96)`;
       drawContainImage(ctx, userImage, CANVAS_WIDTH / 2 + state.x, 720 + state.y, state.scale);
       ctx.restore();
 
       ctx.fillStyle = `rgba(13, 42, 18, ${state.blend})`;
-      ctx.fillRect(0, 208, CANVAS_WIDTH, 900);
-    } else {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.font = "700 30px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("画像を選ぶとここに合成されます", CANVAS_WIDTH / 2, 800);
-      ctx.textAlign = "start";
+      ctx.fillRect(0, HEADER_HEIGHT, CANVAS_WIDTH, PHOTO_HEIGHT);
     }
 
     drawHeader(ctx, logoRef.current);
-    drawPosterText(ctx, group);
-
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 1108, CANVAS_WIDTH, 172);
+    if (userImage) drawPosterText(ctx, group);
 
     if (showGuide) drawGuide(ctx);
-  }
+  }, [group, showGuide, state.blend, state.blur, state.brightness, state.scale, state.x, state.y, userImage]);
+
+  useEffect(() => {
+    (Object.keys(groupOptions) as GroupKey[]).forEach((key) => {
+      const template = new Image();
+      template.src = groupOptions[key].templateSrc;
+      template.onload = () => {
+        templatesRef.current[key] = template;
+        setAssetVersion((version) => version + 1);
+      };
+    });
+
+    const logo = new Image();
+    logo.src = "/images/new-member/hello-project-logo-white.svg";
+    logo.onload = () => {
+      logoRef.current = logo;
+      setAssetVersion((version) => version + 1);
+    };
+  }, []);
+
+  useEffect(() => {
+    renderCanvas();
+  }, [assetVersion, renderCanvas]);
 
   function handleUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];

@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getAllMembers } from "@/lib/data/members";
+import {
+  getSelectableShindanMembers,
+  type ShindanMember,
+  type ShindanMemberStatus,
+} from "@/lib/data/shindanMembers";
 
 type AxisId =
   | "romance"
@@ -305,28 +309,52 @@ const preferredGroupOrder = [
   "ロージークロニクル",
 ];
 
-const sourceMembers = getAllMembers().filter((member) => member.id !== "default");
-type SourceMember = (typeof sourceMembers)[number];
-type DisplayMember = Pick<SourceMember, "id" | "name" | "nameKana" | "groupName" | "memberColor">;
-const shindanOnlyMembers: DisplayMember[] = [
-  {
-    id: "by-10",
-    name: "小島はな",
-    nameKana: "こじま はな",
-    groupName: "BEYOOOOONDS",
-    memberColor: "#FFFFFF",
-  },
+const preferredOgGroupOrder = [
+  "モーニング娘。OG",
+  "アンジュルムOG",
+  "Juice=Juice OG",
+  "つばきファクトリーOG",
+  "BEYOOOOONDS OG",
+  "OCHA NORMA OG",
+  "Berryz工房OG",
+  "℃-ute OG",
+  "カントリー・ガールズOG",
+  "こぶしファクトリーOG",
 ];
-const selectableMembers: DisplayMember[] = [...sourceMembers, ...shindanOnlyMembers];
+type DisplayMember = Pick<ShindanMember, "id" | "name" | "nameKana" | "groupName" | "memberColor" | "status" | "sourceGroupName" | "graduatedAt">;
+const selectableMembers: DisplayMember[] = getSelectableShindanMembers();
 
-const memberGroups = preferredGroupOrder
-  .filter((groupName) => selectableMembers.some((member) => member.groupName === groupName))
-  .map((groupName) => ({
-    name: groupName,
-    members: selectableMembers
-      .filter((member) => member.groupName === groupName)
-      .sort((a, b) => a.name.localeCompare(b.name, "ja")),
-  }));
+function buildMemberGroups(members: DisplayMember[], groupOrder: string[]) {
+  return groupOrder
+    .filter((groupName) => members.some((member) => member.groupName === groupName))
+    .map((groupName) => ({
+      name: groupName,
+      members: members
+        .filter((member) => member.groupName === groupName)
+        .sort((a, b) => a.name.localeCompare(b.name, "ja")),
+    }));
+}
+
+const activeMemberGroups = buildMemberGroups(
+  selectableMembers.filter((member) => member.status === "active"),
+  preferredGroupOrder,
+);
+const ogMemberGroups = buildMemberGroups(
+  selectableMembers.filter((member) => member.status === "og"),
+  preferredOgGroupOrder,
+);
+const memberGroupsByStatus: Record<ShindanMemberStatus, typeof activeMemberGroups> = {
+  active: activeMemberGroups,
+  og: ogMemberGroups,
+};
+const memberStatusLabels: Record<ShindanMemberStatus, string> = {
+  active: "現役メンバー",
+  og: "OGメンバー",
+};
+const memberStatusDescriptions: Record<ShindanMemberStatus, string> = {
+  active: "現在の主要グループから選びます。",
+  og: "直近10年の主要グループOGから選びます。",
+};
 
 function calculateScores(answers: Record<string, number>) {
   return axes.reduce(
@@ -482,8 +510,10 @@ function RadarChart({ scores }: { scores: Record<AxisId, number> }) {
 export default function OshiTypeDiagnosis() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [step, setStep] = useState<Step>("select");
-  const [selectedGroupName, setSelectedGroupName] = useState(memberGroups[0]?.name ?? "");
+  const [selectedMemberStatus, setSelectedMemberStatus] = useState<ShindanMemberStatus>("active");
+  const [selectedGroupName, setSelectedGroupName] = useState(activeMemberGroups[0]?.name ?? "");
   const [selectedMemberId, setSelectedMemberId] = useState("");
+  const [memberSearch, setMemberSearch] = useState("");
   const [copiedShareUrl, setCopiedShareUrl] = useState(false);
   const [sharedResult, setSharedResult] = useState<SharedResult | null>(null);
   const [resultId, setResultId] = useState("");
@@ -494,7 +524,7 @@ export default function OshiTypeDiagnosis() {
     const rid = params.get("rid");
 
     if (rid) {
-      setResultId(rid);
+      queueMicrotask(() => setResultId(rid));
       void fetch(`/api/shindan/result?${new URLSearchParams({ rid }).toString()}`)
         .then(async (response) => {
           const data = (await response.json()) as SavedResultResponse;
@@ -531,7 +561,7 @@ export default function OshiTypeDiagnosis() {
 
     if (!title || !axis) return;
 
-    setSharedResult({
+    queueMicrotask(() => setSharedResult({
       title,
       summary: profile?.summary,
       primaryAxisId: axis.id,
@@ -541,12 +571,21 @@ export default function OshiTypeDiagnosis() {
       oshi: params.get("oshi") ?? member?.name ?? undefined,
       group: params.get("group") ?? member?.groupName ?? undefined,
       scores: parseScoresParam(params.get("scores")),
-    });
+    }));
   }, []);
 
   const answeredCount = Object.keys(answers).length;
   const progress = Math.round((answeredCount / questions.length) * 100);
+  const memberGroups = memberGroupsByStatus[selectedMemberStatus];
   const selectedGroupMembers = memberGroups.find((group) => group.name === selectedGroupName)?.members ?? [];
+  const normalizedMemberSearch = memberSearch.trim().toLowerCase();
+  const filteredGroupMembers = normalizedMemberSearch
+    ? selectedGroupMembers.filter((member) =>
+        [member.name, member.nameKana, member.sourceGroupName, member.groupName]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(normalizedMemberSearch)),
+      )
+    : selectedGroupMembers;
   const selectedMember = selectableMembers.find((member) => member.id === selectedMemberId);
   const sharedMember = useMemo<DisplayMember | undefined>(() => {
     if (!sharedResult) return undefined;
@@ -571,6 +610,7 @@ export default function OshiTypeDiagnosis() {
       nameKana: "",
       groupName: sharedResult.group ?? "",
       memberColor: sharedResult.color,
+      status: "active",
     };
   }, [sharedResult]);
   const displayMember = selectedMember ?? sharedMember;
@@ -723,6 +763,14 @@ export default function OshiTypeDiagnosis() {
   const selectGroup = (groupName: string) => {
     setSelectedGroupName(groupName);
     setSelectedMemberId("");
+    setMemberSearch("");
+  };
+
+  const selectMemberStatus = (status: ShindanMemberStatus) => {
+    setSelectedMemberStatus(status);
+    setSelectedGroupName(memberGroupsByStatus[status][0]?.name ?? "");
+    setSelectedMemberId("");
+    setMemberSearch("");
   };
 
   const answerQuestion = (questionId: string, value: number) => {
@@ -735,6 +783,7 @@ export default function OshiTypeDiagnosis() {
     setSharedResult(null);
     setCopiedShareUrl(false);
     setResultId("");
+    setMemberSearch("");
     hasLoggedResult.current = false;
     window.history.replaceState(null, "", window.location.pathname);
     window.scrollTo({ top: 0 });
@@ -980,7 +1029,31 @@ export default function OshiTypeDiagnosis() {
 
         <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="rounded-lg border border-neutral-border bg-white p-5 md:p-7">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-2 rounded-lg bg-[#f7f2ee] p-1 sm:grid-cols-2">
+              {(["active", "og"] as ShindanMemberStatus[]).map((status) => {
+                const isSelected = selectedMemberStatus === status;
+
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => selectMemberStatus(status)}
+                    className={[
+                      "rounded-md px-4 py-3 text-left transition-colors",
+                      isSelected ? "bg-white shadow-sm" : "hover:bg-white/60",
+                    ].join(" ")}
+                    aria-pressed={isSelected}
+                  >
+                    <span className="block text-sm font-black text-neutral-text">{memberStatusLabels[status]}</span>
+                    <span className="mt-1 block text-xs font-medium text-neutral-text-light">
+                      {memberStatusDescriptions[status]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
               <label htmlFor="oshi-group" className="block">
                 <span className="text-sm font-bold text-neutral-text">グループ</span>
                 <select
@@ -997,6 +1070,17 @@ export default function OshiTypeDiagnosis() {
                   ))}
                 </select>
               </label>
+              <label htmlFor="oshi-search" className="block">
+                <span className="text-sm font-bold text-neutral-text">名前で検索</span>
+                <input
+                  id="oshi-search"
+                  type="search"
+                  value={memberSearch}
+                  onChange={(event) => setMemberSearch(event.target.value)}
+                  placeholder={selectedMemberStatus === "og" ? "例: 佐藤優樹、宮本佳林" : "例: 段原瑠々、弓桁朱琴"}
+                  className="mt-2 w-full rounded-lg border border-neutral-border bg-white px-4 py-3 font-medium text-neutral-text outline-none transition-colors placeholder:text-neutral-text-light focus:border-primary"
+                />
+              </label>
               <label htmlFor="oshi-member" className="block">
                 <span className="text-sm font-bold text-neutral-text">アイドル</span>
                 <select
@@ -1007,7 +1091,7 @@ export default function OshiTypeDiagnosis() {
                   className="mt-2 w-full rounded-lg border border-neutral-border bg-white px-4 py-3 font-medium text-neutral-text outline-none transition-colors focus:border-primary"
                 >
                   <option value="">選択してください</option>
-                  {selectedGroupMembers.map((member) => (
+                  {filteredGroupMembers.map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.name}
                     </option>
@@ -1015,6 +1099,12 @@ export default function OshiTypeDiagnosis() {
                 </select>
               </label>
             </div>
+            <p className="mt-3 text-xs font-medium text-neutral-text-light">
+              {selectedMemberStatus === "og"
+                ? `OGは指定元データを基準に直近10年の主要グループ卒業者 ${selectableMembers.filter((member) => member.status === "og").length}名を表示しています。`
+                : "現役メンバーは診断用の現在選択肢です。"}
+              {memberSearch && ` / ${filteredGroupMembers.length}名に絞り込み中`}
+            </p>
 
             {selectedMember && (
               <div
@@ -1026,6 +1116,11 @@ export default function OshiTypeDiagnosis() {
                   <div>
                     <p className="font-bold text-neutral-text-light">{selectedMember.groupName}</p>
                     <p className="mt-1 text-3xl font-black text-neutral-text">{selectedMember.name}</p>
+                    {selectedMember.status === "og" && selectedMember.graduatedAt && (
+                      <p className="mt-2 text-sm font-bold text-neutral-text-light">
+                        卒業日: {selectedMember.graduatedAt}
+                      </p>
+                    )}
                   </div>
                   <span
                     className="h-12 w-12 rounded-full border-4 border-white"

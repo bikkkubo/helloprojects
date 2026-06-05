@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 import OshiTypeDiagnosis from "../oshi-type/OshiTypeDiagnosis";
-import { getAllMembers } from "@/lib/data/members";
+import { getSelectableShindanMembers } from "@/lib/data/shindanMembers";
 
 const SITE_URL = "https://hello-project.jp";
 
@@ -32,15 +32,6 @@ const PROFILE_META = {
   guardian: "かわいさ処理落ち保護者タイプ",
   intimate: "見つけられたい親密型タイプ",
 } as const;
-
-const SHINDAN_ONLY_MEMBERS = [
-  {
-    id: "by-10",
-    name: "小島はな",
-    groupName: "BEYOOOOONDS",
-    memberColor: "#FFFFFF",
-  },
-];
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -75,7 +66,7 @@ function findAxis(value: string | undefined) {
 
 function findMember(id: string | undefined) {
   if (!id) return undefined;
-  return getAllMembers().find((member) => member.id === id) ?? SHINDAN_ONLY_MEMBERS.find((member) => member.id === id);
+  return getSelectableShindanMembers().find((member) => member.id === id);
 }
 
 function findProfileTitle(value: string | undefined) {

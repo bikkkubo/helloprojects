@@ -65,7 +65,7 @@
 | やりたいことが見つからない | 🆕 ロージークロニクル / 未来ハジマリ | タイトルのない今日と / ずっと地続きの未来 | [ハロ！ステ Live Edit.](https://youtu.be/aFVvPLkQcBI)（2026-04） |
 | やりたいことが見つからない | 🆕 BEYOOOOONDS / 夢さえ描けない夜空には | 夢さえ描けない / 夜空にはさせないよ | [BEYOOOOONDS CONCERT TOUR 2025 SPRING](https://youtu.be/fk7pKf2REdw)（2025） |
 | 選んだ道でいいのか不安 | ⭐ 🆕 Juice=Juice / CHOICE&CHANCE | 自分で決めたら　何があったって後悔はしない | [Juice=Juice LIVE TOUR 2026 UP TO 11（Zepp Namba）](https://youtu.be/a1MDCj0T0c4)（2026-05） |
-| 選んだ道でいいのか不安 | ⭐ BEYOOOOONDS / 求めよ…運命の旅人算 | この世界は　正解のほうが少ない / 誰しもが間違いながら　今 | **未発見** 2024年10月以降の公式映像なし ※2023年の公式 Promotion Edit（O3kaftbzX1s）を例外で使うか要確認 |
+| 選んだ道でいいのか不安 | ⭐ BEYOOOOONDS / 求めよ…運命の旅人算 | この世界は　正解のほうが少ない / 誰しもが間違いながら　今 | [BEYOOOOONDS 公式 Promotion Edit（例外として採用）](https://youtu.be/O3kaftbzX1s)（2023） |
 | 選んだ道でいいのか不安 | 🆕 Juice=Juice / Goal～明日はあっちだよ～ | ここは折り返しかな? それとも通過点かな? / きっと自分次第だね | [ハロ！ステ#557（Juice=Juice 日本武道館）](https://youtu.be/1blvz_OhPSI?t=2258)（2024-11、37:38〜） |
 | ひとりでちゃんと生活していけるか心配 | 🆕 Juice=Juice / 「ひとりで生きられそう」って それってねえ、褒めているの？ | 「ひとりで生きられちゃうの」 / それは素敵なはずでしょう？ | [Juice=Juice Concert Tour 2025 Crimson×Azure Special（日本武道館）](https://youtu.be/8vxfT-NNV1E)（2025-06） |
 | ひとりでちゃんと生活していけるか心配 | 🆕 BEYOOOOONDS / ビタミンME | 意味ないことなど ないのだよ / 誰しもひとりでは ないのだよ | [ハロ！ステ#607 ※フル映像か要確認](https://youtu.be/nWEBb_eQV4k)（2025） |

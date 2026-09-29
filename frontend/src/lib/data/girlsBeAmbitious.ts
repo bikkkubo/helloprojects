@@ -447,7 +447,7 @@ export const RESULTS: NayamiResult[] = [
     lyricLine: ["この世界は　正解のほうが少ない", "誰しもが間違いながら　今"],
     reason: "この曲は、間違えながら進んできた今の自分に「花丸だ」って言って、駆け出す勇気をくれる。そんな曲。",
     group: "BEYOOOOONDS", title: "求めよ…運命の旅人算",
-    liveTitle: "2024年10月以降の公式映像なし ※2023年の公式 Promotion Edit（O3kaftbzX1s）を例外で使うか要確認" }),
+    youtubeId: "O3kaftbzX1s", liveTitle: "BEYOOOOONDS 公式 Promotion Edit（2024年10月以降の映像がないため例外として採用）", liveDate: "2023" }),
   song({ id: "future-doubt-goal", category: "future", subcategory: "doubt", wants: ["push", "empathy", "cry"],
     lyricLine: ["ここは折り返しかな? それとも通過点かな?", "きっと自分次第だね"],
     reason: "この曲は、迷いながら進んでいる今こそが道の途中なんだって教えてくれる。そんな曲。",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { themeStyle } from "./themes";
 import {
   CATEGORIES,
   CLOSING_MESSAGE,
@@ -19,7 +20,13 @@ const HELP_URL = "https://www.mhlw.go.jp/mamorouyokokoro/";
 type Step = "top" | "category" | "subcategory" | "want" | "result";
 
 // sharedResultId: シェアされた URL（?r=結果ID）から来たときの結果 ID
-export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedResultId?: string }) {
+export default function GirlsBeAmbitiousDiagnosis({
+  sharedResultId,
+  theme,
+}: {
+  sharedResultId?: string;
+  theme?: string;
+}) {
   const shared = sharedResultId ? getResult(sharedResultId) : undefined;
   const [step, setStep] = useState<Step>(shared ? "result" : "top");
   const [category, setCategory] = useState<CategoryId | null>(null);
@@ -29,7 +36,9 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
   function showResult(next: NayamiResult) {
     setResult(next);
     setStep("result");
-    window.history.replaceState(null, "", `?r=${next.id}`);
+    const params = new URLSearchParams(window.location.search);
+    params.set("r", next.id);
+    window.history.replaceState(null, "", `?${params}`);
     window.scrollTo({ top: 0 });
   }
 
@@ -38,15 +47,17 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
     setSubcategory(null);
     setResult(null);
     setStep("top");
-    window.history.replaceState(null, "", window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("r");
+    window.history.replaceState(null, "", params.size ? `?${params}` : window.location.pathname);
     window.scrollTo({ top: 0 });
   }
 
   const currentCategory = category ? getCategory(category) : undefined;
 
   return (
-    <div className="flex min-h-screen flex-col bg-accent-blush/40">
-      <header className="bg-primary-dark text-white">
+    <div className="flex min-h-screen flex-col bg-[var(--g-bg)] text-[var(--g-text)]" style={themeStyle(theme)}>
+      <header className="[background:var(--g-header)] text-white">
         <div className="mx-auto max-w-xl px-4 py-4">
           <button type="button" onClick={restart} className="text-sm font-bold tracking-wide">
             ハロプロお悩み相談室
@@ -57,12 +68,12 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
       <main className="mx-auto w-full max-w-xl flex-1 px-4 pb-16 pt-10">
         {step === "top" && (
           <section className="flex flex-col items-center gap-6 text-center">
-            <h1 className="text-2xl font-bold leading-relaxed text-neutral-text">
+            <h1 className="text-2xl font-bold leading-relaxed text-[var(--g-text)]">
               その悩み、
               <br />
               ハロプロが歌で答えるよ。
             </h1>
-            <p className="leading-loose text-neutral-text-light">
+            <p className="leading-loose text-[var(--g-muted)]">
               3つの質問に答えると、今のあなたに届けたい
               <br />
               ハロー！プロジェクトの一曲とライブ映像が見つかります。
@@ -70,7 +81,7 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
             <button
               type="button"
               onClick={() => setStep("category")}
-              className="rounded-full bg-primary px-10 py-3 font-bold text-white shadow-sm hover:bg-primary-dark"
+              className="rounded-full bg-[var(--g-primary)] px-10 py-3 font-bold text-white shadow-sm hover:bg-[var(--g-strong)]"
             >
               相談する
             </button>
@@ -116,7 +127,7 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
         {step === "result" && result && <ResultView result={result} onRestart={restart} />}
       </main>
 
-      <footer className="border-t border-neutral-border bg-neutral-card px-4 py-6 text-center text-xs leading-relaxed text-neutral-text-light">
+      <footer className="border-t border-[var(--g-border)] bg-[var(--g-surface)] px-4 py-6 text-center text-xs leading-relaxed text-[var(--g-muted)]">
         本サイトは非公式のファンサイトです。楽曲・歌詞・映像の権利は各権利者に帰属します。
       </footer>
     </div>
@@ -139,8 +150,8 @@ function Question({
   return (
     <section className="flex flex-col gap-6">
       <div className="text-center">
-        <p className="text-sm font-bold text-primary-dark">Q{index} / 3</p>
-        <h2 className="mt-2 text-xl font-bold text-neutral-text">{title}</h2>
+        <p className="text-sm font-bold text-[var(--g-strong)]">Q{index} / 3</p>
+        <h2 className="mt-2 text-xl font-bold text-[var(--g-text)]">{title}</h2>
       </div>
       <div className="flex flex-col gap-3">
         {options.map((option) => (
@@ -148,13 +159,13 @@ function Question({
             key={option.id}
             type="button"
             onClick={() => onSelect(option.id)}
-            className="rounded-2xl border border-neutral-border bg-neutral-card px-5 py-4 text-left font-medium text-neutral-text shadow-sm transition hover:border-primary hover:bg-accent-blush"
+            className="rounded-2xl border border-[var(--g-border)] bg-[var(--g-surface)] px-5 py-4 text-left font-medium text-[var(--g-text)] shadow-sm transition hover:border-[var(--g-primary)] hover:bg-[var(--g-hover)]"
           >
             {option.label}
           </button>
         ))}
       </div>
-      <button type="button" onClick={onBack} className="self-center text-sm text-neutral-text-light underline">
+      <button type="button" onClick={onBack} className="self-center text-sm text-[var(--g-muted)] underline">
         ひとつ前に戻る
       </button>
     </section>
@@ -172,12 +183,12 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
   return (
     <article className="flex flex-col items-center gap-10">
       {!result.verified && (
-        <p className="rounded-full bg-secondary-yellow px-3 py-1 text-xs font-bold text-neutral-text">
+        <p className="rounded-full bg-[var(--g-accent)] px-3 py-1 text-xs font-bold text-[var(--g-text)]">
           仮データ（未確認）
         </p>
       )}
 
-      <h1 className="text-balance text-center [word-break:auto-phrase] text-2xl font-bold leading-[1.9] text-neutral-text sm:text-3xl">
+      <h1 className="text-balance text-center [word-break:auto-phrase] text-2xl font-bold leading-[1.9] text-[var(--g-strong)] sm:text-3xl">
         {result.lyricLine.map((line) => (
           <span key={line} className="block">
             {line}
@@ -187,11 +198,11 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
 
       <LiveVideo result={result} />
 
-      <p className="text-center text-lg font-bold text-neutral-text">
+      <p className="text-center text-lg font-bold text-[var(--g-text)]">
         {result.song.group} / {result.song.title}
       </p>
 
-      <div className="flex w-full flex-col gap-5 leading-loose text-neutral-text">
+      <div className="flex w-full flex-col gap-5 leading-loose text-[var(--g-text)]">
         {[...result.message, CLOSING_MESSAGE].map((paragraph) => (
           <p key={paragraph} className="whitespace-pre-line">
             {paragraph}
@@ -204,22 +215,22 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
           href={shareUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-full bg-neutral-text px-10 py-3 font-bold text-white hover:opacity-90"
+          className="rounded-full bg-[var(--g-share)] px-10 py-3 font-bold text-white hover:opacity-90"
         >
           Xでシェア
         </a>
-        <button type="button" onClick={onRestart} className="text-sm text-neutral-text-light underline">
+        <button type="button" onClick={onRestart} className="text-sm text-[var(--g-muted)] underline">
           もう一度相談する
         </button>
       </div>
 
       {related.length > 0 && category && (
         <section className="flex w-full flex-col gap-6">
-          <h2 className="text-lg font-bold text-neutral-text">他の{category.songLabel}を聞く</h2>
+          <h2 className="text-lg font-bold text-[var(--g-text)]">他の{category.songLabel}を聞く</h2>
           {related.map((r) => (
             <div key={r.id} className="flex flex-col gap-2">
               <LiveVideo result={r} />
-              <p className="text-sm font-medium text-neutral-text">
+              <p className="text-sm font-medium text-[var(--g-text)]">
                 {r.song.group} / {r.song.title}
               </p>
             </div>
@@ -227,12 +238,12 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
         </section>
       )}
 
-      <aside className="w-full rounded-2xl bg-neutral-card p-5 text-sm leading-relaxed text-neutral-text-light">
-        <p className="font-bold text-neutral-text">本当につらいときは</p>
+      <aside className="w-full rounded-2xl bg-[var(--g-surface)] p-5 text-sm leading-relaxed text-[var(--g-muted)]">
+        <p className="font-bold text-[var(--g-text)]">本当につらいときは</p>
         <p className="mt-1">
           ひとりで抱えこまないで。電話やSNSで相談できる窓口があります。
           <br />
-          <a href={HELP_URL} target="_blank" rel="noopener noreferrer" className="text-primary-dark underline">
+          <a href={HELP_URL} target="_blank" rel="noopener noreferrer" className="text-[var(--g-strong)] underline">
             まもろうよ こころ（厚生労働省）
           </a>
         </p>
@@ -246,7 +257,7 @@ function LiveVideo({ result }: { result: NayamiResult }) {
 
   if (!youtubeId) {
     return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-neutral-border text-sm text-neutral-text-light">
+      <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-[var(--g-placeholder)] text-sm text-[var(--g-muted)]">
         ライブ映像（動画未設定）
       </div>
     );
@@ -268,7 +279,7 @@ function LiveVideo({ result }: { result: NayamiResult }) {
         href={`https://www.youtube.com/watch?v=${youtubeId}&t=${startSec}s`}
         target="_blank"
         rel="noopener noreferrer"
-        className="self-end text-xs text-neutral-text-light underline"
+        className="self-end text-xs text-[var(--g-muted)] underline"
       >
         {liveTitle ? `${liveTitle}｜` : ""}YouTubeで見る
       </a>

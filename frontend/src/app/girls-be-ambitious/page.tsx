@@ -6,13 +6,13 @@ export const runtime = "edge";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-async function sharedResultId(searchParams: Props["searchParams"]) {
-  const r = (await searchParams).r;
-  return Array.isArray(r) ? r[0] : r;
+async function param(searchParams: Props["searchParams"], key: string) {
+  const value = (await searchParams)[key];
+  return Array.isArray(value) ? value[0] : value;
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const result = getResult((await sharedResultId(searchParams)) ?? "");
+  const result = getResult((await param(searchParams, "r")) ?? "");
   const description = result
     ? `「${result.lyricLine.join(" ")}」${result.song.group} / ${result.song.title}`
     : "悩みを選ぶと、ハロプロがライブの歌声で答えてくれる。あなたに寄り添う一曲を届けます。";
@@ -25,5 +25,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function GirlsBeAmbitiousPage({ searchParams }: Props) {
-  return <GirlsBeAmbitiousDiagnosis sharedResultId={await sharedResultId(searchParams)} />;
+  return (
+    <GirlsBeAmbitiousDiagnosis
+      sharedResultId={await param(searchParams, "r")}
+      theme={await param(searchParams, "theme")}
+    />
+  );
 }

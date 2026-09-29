@@ -626,5 +626,12 @@ export function pickResult(category: CategoryId, subcategory: string, want: Want
 }
 
 export function getRelatedResults(result: NayamiResult, limit = 2) {
-  return RESULTS.filter((r) => r.category === result.category && r.id !== result.id).slice(0, limit);
+  // 同じ曲が複数の悩みに入っている場合があるので、曲単位で重複を除く
+  const seen = new Set([`${result.song.group}/${result.song.title}`]);
+  return RESULTS.filter((r) => {
+    const key = `${r.song.group}/${r.song.title}`;
+    if (r.category !== result.category || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
 }

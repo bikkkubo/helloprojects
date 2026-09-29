@@ -15,7 +15,6 @@ import {
 } from "@/lib/data/girlsBeAmbitious";
 
 const PAGE_URL = "https://hello-project.jp/girls-be-ambitious";
-const HELP_URL = "https://www.mhlw.go.jp/mamorouyokokoro/";
 
 type Step = "top" | "category" | "subcategory" | "want" | "result";
 
@@ -182,7 +181,7 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
         </p>
       )}
 
-      <h1 className="text-balance text-center [word-break:auto-phrase] text-2xl font-bold leading-[1.9] text-[var(--g-strong)] sm:text-3xl">
+      <h1 className="text-balance text-center [word-break:auto-phrase] [overflow-wrap:anywhere] text-2xl font-bold leading-[1.9] text-[var(--g-strong)] sm:text-3xl">
         {result.lyricLine.map((line) => (
           <span key={line} className="block">
             {line}
@@ -190,7 +189,7 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
         ))}
       </h1>
 
-      <LiveVideo result={result} />
+      <LiveVideo key={result.id} result={result} />
 
       <p className="text-center text-lg font-bold text-[var(--g-text)]">
         {result.song.group} / {result.song.title}
@@ -231,23 +230,13 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
           ))}
         </section>
       )}
-
-      <aside className="w-full rounded-2xl bg-[var(--g-surface)] p-5 text-sm leading-relaxed text-[var(--g-muted)]">
-        <p className="font-bold text-[var(--g-text)]">本当につらいときは</p>
-        <p className="mt-1">
-          ひとりで抱えこまないで。電話やSNSで相談できる窓口があります。
-          <br />
-          <a href={HELP_URL} target="_blank" rel="noopener noreferrer" className="text-[var(--g-strong)] underline">
-            まもろうよ こころ（厚生労働省）
-          </a>
-        </p>
-      </aside>
     </article>
   );
 }
 
 function LiveVideo({ result }: { result: NayamiResult }) {
   const { youtubeId, startSec, liveTitle } = result.video;
+  const [playing, setPlaying] = useState(false);
 
   if (!youtubeId) {
     return (
@@ -257,17 +246,45 @@ function LiveVideo({ result }: { result: NayamiResult }) {
     );
   }
 
+  const title = `${result.song.group} / ${result.song.title}`;
+
   return (
     <div className="flex w-full flex-col gap-1">
-      <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
-        <iframe
-          className="h-full w-full"
-          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?start=${startSec}&rel=0`}
-          title={`${result.song.group} / ${result.song.title}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+        {playing ? (
+          <iframe
+            className="h-full w-full"
+            src={`https://www.youtube-nocookie.com/embed/${youtubeId}?start=${startSec}&rel=0&autoplay=1`}
+            title={title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          // サムネイルを先に見せ、押したら iframe に差し替える（ページが重くならないように）
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            className="group absolute inset-0 h-full w-full"
+            aria-label={`${title} のライブ映像を再生`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+            <span className="absolute inset-0 bg-black/15 transition group-hover:bg-black/5" />
+            <span className="absolute left-1/2 top-1/2 flex h-12 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-[var(--g-primary)] shadow-lg">
+              <span className="ml-1 border-y-[10px] border-l-[16px] border-y-transparent border-l-white" />
+            </span>
+            {startSec > 0 && (
+              <span className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white">
+                {Math.floor(startSec / 60)}:{String(startSec % 60).padStart(2, "0")}〜
+              </span>
+            )}
+          </button>
+        )}
       </div>
       <a
         href={`https://www.youtube.com/watch?v=${youtubeId}&t=${startSec}s`}

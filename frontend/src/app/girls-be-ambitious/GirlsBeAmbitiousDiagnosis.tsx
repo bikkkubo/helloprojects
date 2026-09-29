@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { THEME_STYLE } from "./themes";
 import {
   CATEGORIES,
@@ -18,6 +18,13 @@ const PAGE_URL = "https://hello-project.jp/girls-be-ambitious";
 
 type Step = "top" | "category" | "subcategory" | "want" | "result";
 
+type Snapshot = {
+  step: Step;
+  category: CategoryId | null;
+  subcategory: string | null;
+  resultId: string | null;
+};
+
 // sharedResultId: シェアされた URL（?r=結果ID）から来たときの結果 ID
 export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedResultId?: string }) {
   const shared = sharedResultId ? getResult(sharedResultId) : undefined;
@@ -26,24 +33,78 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
   const [subcategory, setSubcategory] = useState<string | null>(null);
   const [result, setResult] = useState<NayamiResult | null>(shared ?? null);
 
-  function showResult(next: NayamiResult) {
-    setResult(next);
-    setStep("result");
+  // 現在の状態を履歴エントリに持たせる（popstate で復元するため）
+  function snapshot(next: Snapshot) {
+    return { ...next, g: true };
+  }
+
+  // 状態を反映し、履歴を1つ積む。URL は結果のときだけ ?r=結果ID
+  function navigate(next: Snapshot) {
+    applySnapshot(next);
     const params = new URLSearchParams(window.location.search);
-    params.set("r", next.id);
-    window.history.replaceState(null, "", `?${params}`);
+    if (next.step === "result" && next.resultId) params.set("r", next.resultId);
+    else params.delete("r");
+    const query = params.size ? `?${params}` : window.location.pathname;
+    window.history.pushState(snapshot(next), "", query);
     window.scrollTo({ top: 0 });
   }
 
+  function applySnapshot(next: Snapshot) {
+    setStep(next.step);
+    setCategory(next.category);
+    setSubcategory(next.subcategory);
+    setResult(next.resultId ? (getResult(next.resultId) ?? null) : null);
+  }
+
+  // 初回表示の履歴エントリにも状態を持たせる（setState はしない）
+  useEffect(() => {
+    window.history.replaceState(
+      snapshot({
+        step,
+        category,
+        subcategory,
+        resultId: result?.id ?? null,
+      }),
+      "",
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    function onPopState(e: PopStateEvent) {
+      const state = e.state as (Snapshot & { g?: boolean }) | null;
+      if (state?.g) {
+        applySnapshot(state);
+      } else {
+        applySnapshot({ step: "top", category: null, subcategory: null, resultId: null });
+      }
+      window.scrollTo({ top: 0 });
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  function showResult(next: NayamiResult) {
+    navigate({ step: "result", category, subcategory, resultId: next.id });
+  }
+
   function restart() {
-    setCategory(null);
-    setSubcategory(null);
-    setResult(null);
-    setStep("top");
-    const params = new URLSearchParams(window.location.search);
-    params.delete("r");
-    window.history.replaceState(null, "", params.size ? `?${params}` : window.location.pathname);
-    window.scrollTo({ top: 0 });
+    navigate({ step: "top", category: null, subcategory: null, resultId: null });
+  }
+
+  // 結果から Q3 へ。前の回答がなければ結果のカテゴリ・深掘りを使う
+  function backToQuestion() {
+    if (!result) return;
+    navigate({
+      step: "want",
+      category: category ?? result.category,
+      subcategory: subcategory ?? result.subcategory,
+      resultId: null,
+    });
+  }
+
+  function go(step: Step, cat: CategoryId | null = category, sub: string | null = subcategory) {
+    navigate({ step, category: cat, subcategory: sub, resultId: null });
   }
 
   const currentCategory = category ? getCategory(category) : undefined;
@@ -73,7 +134,7 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
             </p>
             <button
               type="button"
-              onClick={() => setStep("category")}
+              onClick={() => go("category")}
               className="rounded-full bg-[var(--g-primary)] px-10 py-3 font-bold text-white shadow-sm hover:bg-[var(--g-strong)]"
             >
               相談する
@@ -87,10 +148,9 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
             title="何についての悩み？"
             options={CATEGORIES.map((c) => ({ id: c.id, label: c.label }))}
             onSelect={(id) => {
-              setCategory(id as CategoryId);
-              setStep("subcategory");
+              go("subcategory", id as CategoryId, null);
             }}
-            onBack={() => setStep("top")}
+            onBack={() => go("top", null, null)}
           />
         )}
 
@@ -100,10 +160,9 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
             title="いちばん近いのはどれ？"
             options={currentCategory.subcategories}
             onSelect={(id) => {
-              setSubcategory(id);
-              setStep("want");
+              go("want", category, id);
             }}
-            onBack={() => setStep("category")}
+            onBack={() => go("category", null, null)}
           />
         )}
 
@@ -113,11 +172,11 @@ export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedRe
             title="今ほしいのは？"
             options={WANTS}
             onSelect={(id) => showResult(pickResult(category, subcategory, id as (typeof WANTS)[number]["id"]))}
-            onBack={() => setStep("subcategory")}
+            onBack={() => go("subcategory", category, null)}
           />
         )}
 
-        {step === "result" && result && <ResultView result={result} onRestart={restart} />}
+        {step === "result" && result && <ResultView result={result} onRestart={restart} onBack={backToQuestion} />}
       </main>
 
       <footer className="border-t border-[var(--g-border)] bg-[var(--g-surface)] px-4 py-6 text-center text-xs leading-relaxed text-[var(--g-muted)]">
@@ -165,7 +224,15 @@ function Question({
   );
 }
 
-function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: () => void }) {
+function ResultView({
+  result,
+  onRestart,
+  onBack,
+}: {
+  result: NayamiResult;
+  onRestart: () => void;
+  onBack: () => void;
+}) {
   const category = getCategory(result.category);
   const related = getRelatedResults(result);
   const shareText = `「${result.lyricLine.join(" ")}」\n${result.song.group} / ${result.song.title}\n#ハロプロお悩み相談室`;
@@ -212,6 +279,9 @@ function ResultView({ result, onRestart }: { result: NayamiResult; onRestart: ()
         >
           Xでシェア
         </a>
+        <button type="button" onClick={onBack} className="text-sm text-[var(--g-muted)] underline">
+          質問に戻る
+        </button>
         <button type="button" onClick={onRestart} className="text-sm text-[var(--g-muted)] underline">
           もう一度相談する
         </button>

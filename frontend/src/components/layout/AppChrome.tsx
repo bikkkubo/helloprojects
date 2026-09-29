@@ -13,6 +13,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
     pathname?.startsWith("/calls") ||
     pathname?.startsWith("/oshi-type") ||
     pathname?.startsWith("/shindan") ||
+    pathname?.startsWith("/girls-be-ambitious") ||
     pathname?.startsWith("/new-member");
 
   return (

@@ -5,6 +5,8 @@ function isShindanRoute(pathname) {
   return (
     pathname === "/shindan" ||
     pathname.startsWith("/shindan/") ||
+    pathname === "/girls-be-ambitious" ||
+    pathname.startsWith("/girls-be-ambitious/") ||
     pathname === "/api/og" ||
     pathname.startsWith("/api/shindan/")
   );
@@ -19,7 +21,7 @@ function isSharedAssetRoute(pathname) {
 
 function prefersShindanAsset(request) {
   const referer = request.headers.get("referer") || "";
-  return referer.includes("/shindan");
+  return referer.includes("/shindan") || referer.includes("/girls-be-ambitious");
 }
 
 function makeUpstreamRequest(request, hostname) {

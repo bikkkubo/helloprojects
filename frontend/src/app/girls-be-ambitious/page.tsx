@@ -25,10 +25,5 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function GirlsBeAmbitiousPage({ searchParams }: Props) {
-  return (
-    <GirlsBeAmbitiousDiagnosis
-      sharedResultId={await param(searchParams, "r")}
-      theme={await param(searchParams, "theme")}
-    />
-  );
+  return <GirlsBeAmbitiousDiagnosis sharedResultId={await param(searchParams, "r")} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { themeStyle } from "./themes";
+import { THEME_STYLE } from "./themes";
 import {
   CATEGORIES,
   CLOSING_MESSAGE,
@@ -20,13 +20,7 @@ const HELP_URL = "https://www.mhlw.go.jp/mamorouyokokoro/";
 type Step = "top" | "category" | "subcategory" | "want" | "result";
 
 // sharedResultId: シェアされた URL（?r=結果ID）から来たときの結果 ID
-export default function GirlsBeAmbitiousDiagnosis({
-  sharedResultId,
-  theme,
-}: {
-  sharedResultId?: string;
-  theme?: string;
-}) {
+export default function GirlsBeAmbitiousDiagnosis({ sharedResultId }: { sharedResultId?: string }) {
   const shared = sharedResultId ? getResult(sharedResultId) : undefined;
   const [step, setStep] = useState<Step>(shared ? "result" : "top");
   const [category, setCategory] = useState<CategoryId | null>(null);
@@ -56,7 +50,7 @@ export default function GirlsBeAmbitiousDiagnosis({
   const currentCategory = category ? getCategory(category) : undefined;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--g-bg)] text-[var(--g-text)]" style={themeStyle(theme)}>
+    <div className="flex min-h-screen flex-col bg-[var(--g-bg)] text-[var(--g-text)]" style={THEME_STYLE}>
       <header className="[background:var(--g-header)] text-white">
         <div className="mx-auto max-w-xl px-4 py-4">
           <button type="button" onClick={restart} className="text-sm font-bold tracking-wide">

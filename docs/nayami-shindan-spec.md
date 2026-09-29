@@ -116,3 +116,21 @@ type NayamiResult = {
 - 各カテゴリの Q2 の選択肢
 - シェア時の OGP 画像（推し活タイプ診断の仕組みを流用するか）
 - 結果の集計（D1 に保存するか）
+
+## 9. 公開状況とデプロイ手順（2026-09-29 時点）
+
+- **今はプレビュー環境のみで公開**（オーナー判断）: https://girls-be-ambitious.hello-project-jp.pages.dev/girls-be-ambitious
+  - Cloudflare Pages プロジェクト `hello-project-jp` の Preview ブランチ `girls-be-ambitious`。本番エイリアスには影響しない
+- **本番（hello-project.jp）には未反映**。理由:
+  - hello-project.jp は現在、hello-calls の本番デプロイ（Pages の Production ブランチ `claude/juice-juice-timeline-1Qw0G`）が直接配信している
+  - `workers/hybrid-router.js` は実際には使われておらず、そのため hello-project.jp/shindan も 404 になっている
+  - ルーターをそのままデプロイすると `CALLS_ORIGIN` が古いデプロイを指しているため、サイト全体が古い版に戻る
+- **本番公開するとき（予定: ルーター復活）**: `CALLS_ORIGIN` を hello-calls の最新本番デプロイに、`SHINDAN_ORIGIN` を下の手順で作ったデプロイに更新してから、`npx wrangler deploy -c wrangler.hybrid-router.jsonc` で反映する。反映前に主要ページを確認する
+
+### プレビューへのデプロイ手順（frontend で実行）
+
+```bash
+npx @cloudflare/next-on-pages
+git checkout package-lock.json   # ビルドで lockfile が書き換わるため戻す
+npx wrangler pages deploy .vercel/output/static --project-name hello-project-jp --branch girls-be-ambitious
+```

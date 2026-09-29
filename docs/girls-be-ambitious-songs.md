@@ -35,9 +35,9 @@
 | 本音で話せる友達がいない | 🆕 ロージークロニクル / 記念日未満 | ふざけ合った時間だけが / ほんとの声みたい | [ハロ！ステ#616（Hello! Project 2026 Winter）](https://youtu.be/Eab-tIdV4oI)（2026-01） |
 | 本音で話せる友達がいない | アンジュルム / 君だけじゃないさ...friends | 恥ずかしい ことじゃないね / 辛い時に辛いって言うのは | [ハロ！ステ#536（横浜アリーナ）※ソロ歌唱の可能性](https://youtu.be/nK-HYcbw7I8)（2024-06） |
 | がんばってるのに結果が出ない | ⭐ 🆕 BEYOOOOONDS / ポジティブプログラム | 不幸を幸に　一発変換してみせるよ | [LIVE BEYOOOOONDS 3rd](https://youtu.be/43-FNwzj2zA)（2026-04） |
+| がんばってるのに結果が出ない | ⭐ 🆕 OCHA NORMA / 今日を胸に飾って | それなり咲かせて来た花 / 胸に飾ろう | [OCHA NORMA 2025 LIVE at BUDOKAN 〜#OCHAnnel〜 ※歌詞は映像の字幕から書き起こし](https://youtu.be/IbKd8pkTFmM)（2025-11） |
 | がんばってるのに結果が出ない | 🆕 モーニング娘。'26 / てか HAPPYのHAPPY! | てか　今は負けじゃない / でかっ　夢の途中だい | [ハロ！ステ#619（Hello! Project 2026 Winter）](https://youtu.be/vqgFUlNktNQ)（2026-02） |
 | がんばってるのに結果が出ない | 🆕 アンジュルム / 悔しいわ | まだまだ大丈夫だし頑張れるってことさ | [アンジュルム 2026春ツアー](https://youtu.be/MnGzhC65yOQ)（2026-04） |
-| がんばってるのに結果が出ない | ⭐ 🆕 OCHA NORMA / 今日を胸に飾って | （歌詞未確認） | [OCHA NORMA 2025 LIVE at BUDOKAN 〜#OCHAnnel〜 ※歌詞がどの歌詞サイトにも未掲載](https://youtu.be/IbKd8pkTFmM)（2025-11） |
 | 学校や職場の人間関係がしんどい | 🆕 アンジュルム / マナーモード | いったい誰の顔 うかがうのだろう | [アンジュルム 2026春ツアー](https://youtu.be/1FYBzGRQOq8)（2026-04） |
 | 毎日いっぱいいっぱいで疲れた | ⭐ 🆕 BEYOOOOONDS / That's LIFE! | 眠る前に悩んでいたアレコレも / 洗濯機に放り込んで | [BEYOOOOONDS 横浜アリーナ公演](https://youtu.be/9_gF4DfggF8)（2026-07） |
 | 毎日いっぱいいっぱいで疲れた | 🆕 アンジュルム / 午後3時スクランブル | 調子悪くてもいつも頑張ってるじゃん | [ハロ！ステ#622（Hello! Project 2026 Winter）](https://youtu.be/PxwIjVg7YHM?t=2570)（2026-03、42:50〜） |

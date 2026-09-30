@@ -29,12 +29,36 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
   }
 }
 
-// 1行あたりの最大文字数から、はみ出さない文字サイズを決める
-function lyricFontSize(lines: string[]) {
-  const maxLen = Math.max(...lines.map((l) => Array.from(l).length), 1);
-  const byWidth = Math.floor(940 / maxLen);
-  const byHeight = Math.floor(280 / (lines.length * 1.35));
-  return Math.max(28, Math.min(84, byWidth, byHeight));
+const INTRO = "今の私にあってるハロプロ曲は…";
+const MAX_W = 1040;
+
+const len = (t: string) => Array.from(t).length;
+
+// 曲名を最大2行に分ける。空白・「、」の位置のうち中央に近い所で、なければ文字数の真ん中で分割する。
+function splitTitle(title: string): string[] {
+  const chars = Array.from(title);
+  const mid = chars.length / 2;
+  let best = -1;
+  chars.forEach((c, i) => {
+    const cut = c === "、" ? i + 1 : c === " " || c === "\u3000" ? i : -1;
+    if (cut <= 0 || cut >= chars.length) return;
+    if (best < 0 || Math.abs(cut - mid) < Math.abs(best - mid)) best = cut;
+  });
+  if (best < 0) best = Math.ceil(mid);
+  return [chars.slice(0, best).join("").trim(), chars.slice(best).join("").trim()];
+}
+
+// 主役テキストのレイアウト。1行で大きく入るなら1行、長ければグループ名と曲名を分け、曲名は最大2行に折り返す。
+function songLayout(group: string, title: string) {
+  const one = `${group} / ${title}`;
+  const oneSize = Math.min(84, Math.floor(MAX_W / len(one)));
+  if (oneSize >= 56) return { split: false as const, size: oneSize };
+  const groupSize = Math.max(30, Math.min(44, Math.floor(MAX_W / len(group))));
+  const single = Math.min(80, Math.floor(MAX_W / len(title)));
+  if (single >= 56) return { split: true as const, groupSize, size: single, titleLines: [title] };
+  const titleLines = splitTitle(title);
+  const maxLen = Math.max(...titleLines.map(len), 1);
+  return { split: true as const, groupSize, size: Math.min(72, Math.floor(MAX_W / maxLen)), titleLines };
 }
 
 function Frame({ children }: { children: React.ReactNode }) {
@@ -60,10 +84,10 @@ export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get("r") ?? "";
   const result = id ? getResult(id) : undefined;
 
-  const lines = result?.lyricLine ?? [];
-  const footer = result ? `${result.song.group} / ${result.song.title}` : "";
-  const allText = result
-    ? `${lines.join("")}${footer}${SITE_NAME}「」`
+  const song = result?.song;
+  const layout = song ? songLayout(song.group, song.title) : null;
+  const allText = song
+    ? `${INTRO}${song.group}${song.title} / ${SITE_NAME}`
     : `${SITE_NAME}${CATCH}`;
   const fontData = await loadFont(allText);
 
@@ -86,33 +110,60 @@ export async function GET(request: Request) {
             justifyContent: "center",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            {lines.map((line, i) => (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              maxWidth: MAX_W + 40,
+            }}
+          >
+            <div style={{ display: "flex", fontSize: 36, color: TEXT }}>{INTRO}</div>
+            {layout && song && !layout.split ? (
               <div
-                key={i}
                 style={{
                   display: "flex",
-                  fontSize: lyricFontSize(lines),
-                  lineHeight: 1.35,
+                  fontSize: layout.size,
+                  lineHeight: 1.3,
+                  marginTop: 36,
+                  color: ACCENT,
                   whiteSpace: "nowrap",
                 }}
               >
-                {i === 0 ? "「" : ""}
-                {line}
-                {i === lines.length - 1 ? "」" : ""}
+                {`${song.group} / ${song.title}`}
               </div>
-            ))}
+            ) : null}
+            {layout && song && layout.split ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 32 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: layout.groupSize,
+                    lineHeight: 1.3,
+                    color: ACCENT,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {song.group}
+                </div>
+                {layout.titleLines.map((t, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      fontSize: layout.size,
+                      lineHeight: 1.25,
+                      marginTop: i === 0 ? 8 : 0,
+                      color: ACCENT,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            fontSize: 36,
-            color: ACCENT,
-          }}
-        >
-          {footer}
         </div>
       </div>
     </Frame>

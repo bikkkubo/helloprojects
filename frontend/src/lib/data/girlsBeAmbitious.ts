@@ -31,7 +31,7 @@ export type NayamiResult = {
 
 export const CLOSING_MESSAGE = "ハロプロはいつだって女の子の味方だよ。";
 
-// Q2 の選択肢は 10代後半〜20代女性の悩み調査をもとにした案（2026-09 リサーチ）。
+// Q2 の選択肢は 20〜30代女性の悩み調査をもとにした案（2026-09 リサーチ、ターゲット変更に合わせて見直し）。
 // 深刻な悩み（DV・いじめ・虐待・摂食障害など）を名指しする選択肢は入れない。
 const c = (id: string, label: string) => ({ id, label });
 
@@ -41,10 +41,10 @@ export const CATEGORIES: Category[] = [
     label: "恋愛",
     songLabel: "恋愛ソング",
     subcategories: [
-      c("crush", "好きな人に気持ちを伝えられない"),
-      c("partner", "恋人とうまくいかない・不安になる"),
-      c("heartbreak", "失恋した・前の恋が忘れられない"),
-      c("no-love", "恋したいのに恋できない"),
+      c("crush", "気になる人に、あと一歩ふみ出せない"),
+      c("partner", "恋人との温度差にモヤモヤしちゃう"),
+      c("heartbreak", "終わった恋をまだ引きずっちゃう"),
+      c("no-love", "出会いがない・アプリや婚活に疲れちゃった"),
     ],
   },
   {
@@ -52,9 +52,10 @@ export const CATEGORIES: Category[] = [
     label: "友達・人間関係",
     songLabel: "友情ソング",
     subcategories: [
-      c("adjust", "まわりに合わせすぎて疲れちゃう"),
-      c("fight", "友達とすれ違った・ケンカした"),
-      c("lonely", "本音で話せる友達がいない"),
+      c("lifestage", "結婚や子育てで、友達と話が合わなくなってきた"),
+      c("adjust", "気をつかいすぎて、会うとぐったりしちゃう"),
+      c("fight", "友達とすれ違って、気まずいまま"),
+      c("lonely", "大人になって、本音を話せる友達が減った"),
     ],
   },
   {
@@ -62,9 +63,10 @@ export const CATEGORIES: Category[] = [
     label: "仕事・学校",
     songLabel: "がんばるソング",
     subcategories: [
-      c("unrewarded", "がんばってるのに結果が出ない"),
-      c("relations", "職場や学校の人間関係がしんどい"),
-      c("tired", "毎日いっぱいいっぱいで疲れた"),
+      c("unrewarded", "がんばっても評価もお給料も上がらない"),
+      c("relations", "職場の人間関係や上司がしんどい"),
+      c("tired", "毎日いっぱいいっぱいで余裕がない"),
+      c("meh", "仕事がなんだか楽しくなくなっちゃった"),
     ],
   },
   {
@@ -72,10 +74,10 @@ export const CATEGORIES: Category[] = [
     label: "自分のこと（自信・見た目）",
     songLabel: "自分を好きになるソング",
     subcategories: [
-      c("compare", "人と比べて落ち込んじゃう"),
-      c("looks", "見た目に自信がない"),
+      c("compare", "SNSとかで人と比べて落ち込んじゃう"),
+      c("looks", "見た目や年齢が気になってきちゃう"),
       c("personality", "自分の性格が好きになれない"),
-      c("no-strength", "自分には取り柄がないと思っちゃう"),
+      c("no-strength", "「私なんて…」って思っちゃう"),
     ],
   },
   {
@@ -83,10 +85,10 @@ export const CATEGORIES: Category[] = [
     label: "家族",
     songLabel: "家族を想うソング",
     subcategories: [
-      c("clash", "親とぶつかってばかり"),
-      c("expect", "親の期待や口出しが重い"),
-      c("thanks", "ありがとうをうまく言えない"),
-      c("miss", "家族と離れてさみしい"),
+      c("clash", "親と話すと、ついイラッとしちゃう"),
+      c("expect", "結婚とか仕事とか、親に口出しされるのが重い"),
+      c("aging", "親が年をとってきて、なんか心配"),
+      c("miss", "実家を離れて、ふとさみしくなる"),
     ],
   },
   {
@@ -94,10 +96,10 @@ export const CATEGORIES: Category[] = [
     label: "将来",
     songLabel: "未来へのソング",
     subcategories: [
-      c("nothing", "やりたいことが見つからない"),
-      c("doubt", "選んだ道でいいのか不安"),
-      c("living", "ひとりでちゃんと生活していけるか心配"),
-      c("timing", "恋愛や結婚のタイミングに焦る"),
+      c("nothing", "やりたいことがわからないまま、時間だけ過ぎてく"),
+      c("doubt", "今の仕事や生き方、このままでいいのかな"),
+      c("living", "お金や老後のこと考えると、ちょっとこわい"),
+      c("timing", "結婚や出産、「いつまでに」って焦っちゃう"),
     ],
   },
 ];
@@ -111,28 +113,30 @@ export const WANTS: { id: WantId; label: string }[] = [
 
 // 悩みごとの「①共感」の段落。同じ悩みの曲で共通。
 const EMPATHY: Record<string, string> = {
-  crush: "伝えたいのに言えない。その一歩が怖いの、すごくわかるよ。",
-  partner: "大好きな人のことなのに、不安になったりすれ違ったり。しんどいよね。",
+  aging: "親が年をとってきたのに気づくと、急に心配になるよね。",
+  meh: "前はもっと楽しかったはずなのに、なんだか張り合いがない。そんな時期もあるよね。",
+  lifestage: "結婚や子育てで、仲良しだった友達と話が合わなくなる。さみしいけど、誰のせいでもないよ。",
+  crush: "あと一歩がふみ出せないの、大人になるほど怖くなるよね。",
+  partner: "好きなのに、気持ちの温度がそろわない。モヤモヤするよね。",
   heartbreak: "大好きだったぶん、今はすごく苦しいよね。\n無理に忘れようとしなくていいよ。",
-  "no-love": "恋したい気持ちはあるのに、なかなか始まらない。焦っちゃうよね。",
-  adjust: "まわりに合わせてばかりで、気づいたらへとへと。ずっとがんばってたんだね。",
+  "no-love": "出会いがなかったり、アプリのやりとりに疲れたり。恋したい気持ちはあるのにね。",
+  adjust: "気をつかいすぎて、会ったあとぐったり。ずっとがんばってたんだね。",
   fight: "大事な友達だからこそ、すれ違うとずっと気になっちゃうよね。",
-  lonely: "本音を話せる人がいないって、にぎやかな場所にいても寂しいよね。",
-  unrewarded: "がんばってるのに結果が出ないの、悔しいよね。\nそれでも続けてるあなたはえらいよ。",
-  relations: "毎日顔を合わせる人との関係って、逃げ場がなくてしんどいよね。",
-  tired: "毎日いっぱいいっぱいで、息をつく暇もないよね。本当にお疲れさま。",
-  compare: "まわりがキラキラして見えて、自分だけ置いていかれる気がするよね。\nでも、比べなくていいんだよ。",
-  looks: "鏡を見るたび落ち込んじゃう日、あるよね。\nでも、今のあなたにもちゃんと魅力があるよ。",
+  lonely: "大人になると、本音で話せる友達ってなかなか増えないよね。",
+  unrewarded: "がんばってるのに、評価もお給料もついてこない。悔しいよね。\nそれでも続けてるあなたはえらいよ。",
+  relations: "毎日顔を合わせる上司や同僚との関係って、逃げ場がなくてしんどいよね。",
+  tired: "仕事に家のことに、毎日いっぱいいっぱい。本当にお疲れさま。",
+  compare: "SNSを見ると、まわりがキラキラして見えて、自分だけ置いていかれる気がするよね。\nでも、比べなくていいんだよ。",
+  looks: "鏡を見るたび、年齢のことが気になっちゃう日もあるよね。\nでも、今のあなたにもちゃんと魅力があるよ。",
   personality: "自分の性格を好きになれないのって、毎日自分と一緒にいるからこそつらいよね。",
-  "no-strength": "自分には何もないって思っちゃう夜、あるよね。\nでも、それはまだ見つけてないだけかも。",
-  clash: "わかってほしい人にわかってもらえないのって、いちばんもどかしいよね。",
-  expect: "期待に応えたい気持ちと、自分の気持ち。その間で苦しくなるよね。\n少し距離をとってもいいんだよ。",
-  thanks: "近すぎて、ありがとうって照れくさくて言えないよね。",
-  miss: "離れてみて気づく家族のあったかさ。さみしくなって当然だよ。",
-  nothing: "まわりがどんどん決めていくと、焦っちゃうよね。\nやりたいことは、あとから見つかってもいいんだよ。",
-  doubt: "選んだあとに「これでよかったのかな」って不安になるの、すごく自然なことだよ。",
-  living: "ひとりでちゃんとやっていけるかなって、考えだすと不安になるよね。",
-  timing: "まわりの恋愛や結婚の話を聞くと、なんだか焦っちゃうよね。",
+  "no-strength": "「私なんて…」って思っちゃう夜、あるよね。\nでも、それはまだ見つけてないだけかも。",
+  clash: "親と話すと、なぜかイラッとしちゃう。大人になっても、親との距離感って難しいよね。",
+  expect: "結婚のこと、仕事のこと。親の口出しって、心配だとわかってても重いよね。\n少し距離をとってもいいんだよ。",
+  miss: "実家を離れてしばらくたつのに、ふとさみしくなる日ってあるよね。",
+  nothing: "やりたいことがわからないまま、時間だけ過ぎていく気がして焦っちゃうよね。\nやりたいことは、あとから見つかってもいいんだよ。",
+  doubt: "今の仕事や生き方、このままでいいのかなって迷うの、すごく自然なことだよ。",
+  living: "お金や老後のことを考えだすと、ちょっとこわくなるよね。",
+  timing: "結婚や出産、「いつまでに」って考えると焦っちゃうよね。",
 };
 
 type SongInput = {
@@ -271,12 +275,12 @@ export const RESULTS: NayamiResult[] = [
     reason: "この曲は、ささいなことですれ違った親友に、朝いちばんで謝りに行く勇気をくれる。そんな曲。",
     group: "つばきファクトリー", title: "大好きなのに、大好きだから",
     youtubeId: "L3pHsab_qt0", startSec: 2682, liveTitle: "ハロ！ステ#593（オリックス劇場）", liveDate: "2025-08" }),
-  song({ id: "friends-fight-tomodachi", category: "friends", subcategory: "fight", wants: ["cheer", "push"],
+  song({ id: "friends-fight-tomodachi", category: "friends", subcategory: "lifestage", wants: ["cheer", "push"],
     lyricLine: ["友達は友達なんだ", "どんな時も 元の位置 戻れる"],
     reason: "この曲は、少し離れても本物の友情はちゃんと元の場所に戻れるって教えてくれる。そんな曲。",
     group: "Berryz工房", title: "友達は友達なんだ！",
     youtubeId: "MqVggYyEDpc", liveTitle: "M-line Music#67 ※OGメンバーによる歌唱", liveDate: "2022" }),
-  song({ id: "friends-lonely-kinenbi", category: "friends", subcategory: "lonely", wants: ["empathy", "cry"],
+  song({ id: "friends-lonely-kinenbi", category: "friends", subcategory: "lifestage", wants: ["empathy", "cry"],
     lyricLine: ["ふざけ合った時間だけが", "ほんとの声みたい"],
     reason: "この曲は、「元気だよ」では伝わらない本音を分かち合える誰かを、一緒に思ってくれる。そんな曲。",
     group: "ロージークロニクル", title: "記念日未満",
@@ -292,7 +296,7 @@ export const RESULTS: NayamiResult[] = [
     reason: "この曲は、ついてない日を笑ってひっくり返してくれる。そんな曲。",
     group: "BEYOOOOONDS", title: "ポジティブプログラム",
     youtubeId: "43-FNwzj2zA", liveTitle: "LIVE BEYOOOOONDS 3rd", liveDate: "2026-04" }),
-  song({ id: "school-unrewarded-kyouwo", category: "school", subcategory: "unrewarded", wants: ["empathy", "push", "cry"],
+  song({ id: "school-unrewarded-kyouwo", category: "school", subcategory: "meh", wants: ["empathy", "push", "cry"],
     lyricLine: ["だけど向上心なんかを言い訳に", "今を愛することをサボれないから"],
     reason: "この曲は、上を目指すのに疲れたとき、今の自分を愛することもサボっちゃだめだって思い出させてくれる。そんな曲。",
     group: "OCHA NORMA", title: "今日を胸に飾って",
@@ -358,7 +362,7 @@ export const RESULTS: NayamiResult[] = [
     reason: "この曲は、自分のいいところは自分で見つけていいって教えてくれる。そんな曲。",
     group: "ロージークロニクル", title: "なんとかなるでしょ",
     youtubeId: "DAy_N6qXg0Y", liveTitle: "ハロ！ステ Live Edit（2026春ツアー）", liveDate: "2026" }),
-  song({ id: "self-personality-hai", category: "self", subcategory: "personality", wants: ["cheer", "empathy"],
+  song({ id: "self-personality-hai", category: "self", subcategory: "no-strength", wants: ["cheer", "empathy"],
     lyricLine: ["どんなボロボロな君だろうと　灰toダイヤモンド"],
     reason: "この曲は、荒削りでボロボロな自分のままで輝いていいって言ってくれる。そんな曲。",
     group: "BEYOOOOONDS", title: "灰toダイヤモンド",
@@ -409,12 +413,12 @@ export const RESULTS: NayamiResult[] = [
     reason: "この曲は、「いい子」でいるのに疲れた気持ちに、そっと気づいてくれる。そんな曲。",
     group: "つばきファクトリー", title: "笑って",
     youtubeId: "rsa4G3mj-Is", liveTitle: "ハロ！ステ#438（Hello! Project 2022 Summer CITY CIRCUIT）", liveDate: "2022-08" }),
-  song({ id: "family-thanks-familia", category: "family", subcategory: "thanks", wants: ["empathy", "push", "cheer"],
+  song({ id: "family-thanks-familia", category: "family", subcategory: "aging", wants: ["empathy", "push", "cheer"],
     lyricLine: ["どんな時も思ってるよ伝えたいよ", "「ありがとう」って"],
     reason: "この曲は、照れて言えない「ありがとう」も、ちゃんと心の中にあるって教えてくれる。そんな曲。",
     group: "Juice=Juice", title: "Familia",
     youtubeId: "5KviSHTl33U", liveTitle: "ハロ！ステ#444 ※フル映像か要確認", liveDate: "2022-08" }),
-  song({ id: "family-thanks-furisake", category: "family", subcategory: "thanks", wants: ["cry"],
+  song({ id: "family-thanks-furisake", category: "family", subcategory: "aging", wants: ["cry"],
     lyricLine: ["好きだとか そんなことじゃなく", "ありがとうって 言えなかった日"],
     reason: "この曲は、素直になれない自分ごと、まるっと受けとめてくれる。そんな曲。",
     group: "つばきファクトリー", title: "ふりさけみれば…" }),
